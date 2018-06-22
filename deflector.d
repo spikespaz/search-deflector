@@ -5,13 +5,30 @@ import std.range : array, enumerate;
 import std.conv : to, parse, ConvException;
 import std.string : toLower, strip;
 
-void main() {
-    writeln(getBrowserChoice(getAvailableBrowsers()));
+immutable string[string] engines;
+static this() {
+    engines = [
+        "Google": "google.com/search?q={{query}}",
+        "DuckDuckGo": "duckduckgo.com/?q={{query}}",
+        "Bing": "bing.com/search?q={{query}}",
+        "Yahoo": "search.yahoo.com/search?p={{query}}",
+        "Wikipedia": "wikipedia.org/wiki/Special:Search?search={{query}}",
+        "GitHub": "github.com/search?q={{query}}",
+        "Wolfram Alpha": "wolframalpha.com/input/?i={{query}}",
+        "Ask": "ask.com/web?q={{query}}"
+    ];
 }
 
-int getValidatedInput(string input, int maxValue) {
+void main() {
+    writeln(getEngineChoice(engines));
+    // writeln(getBrowserChoice(getAvailableBrowsers()));
+}
+
+int getValidatedInput(const string input, const int maxValue) {
+    string temp = input;
+
     try {
-        const int result = parse!(int)(input);
+        const int result = temp.parse!int();
         if (result > maxValue || result < 1)
             return -1;
         else
@@ -21,16 +38,16 @@ int getValidatedInput(string input, int maxValue) {
         return -1;
 }
 
-string getBrowserChoice(string[string] browsers) {
+string getBrowserChoice(const string[string] browsers) {
     string[] choices = sort(browsers.keys).array;
 
     writeln("Please make a selection of one of the browsers below.\n");
 
     foreach (index, choice; choices.enumerate(1))
-        writeln('[' ~ to!(string)(index) ~ "]: " ~ choice ~ " - (" ~ browsers[choice] ~ ')');
+        writeln('[' ~ index.to!string() ~ "]: " ~ choice ~ " - (" ~ browsers[choice] ~ ')');
 
-    writeln('[' ~ to!(string)(choices.length + 1) ~ "]: Microsoft Edge");
-    writeln('[' ~ to!(string)(choices.length + 2) ~ "]: System Default");
+    writeln('[' ~ (choices.length + 1).to!string() ~ "]: Microsoft Edge");
+    writeln('[' ~ (choices.length + 2).to!string() ~ "]: System Default");
 
     write("\nSelection: ");
     int selection = getValidatedInput(readln(), choices.length + 2);
