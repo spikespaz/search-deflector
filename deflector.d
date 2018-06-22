@@ -76,6 +76,41 @@ string getBrowserChoice(const string[string] browsers) {
         return choice;
 }
 
+string getEngineChoice(const string[string] engines) {
+    string[] choices = sort(engines.keys).array;
+
+    writeln("Please make a selection of one of the search engines below.\n");
+
+    foreach (index, choice; choices.enumerate(1))
+        writeln('[' ~ index.to!string() ~ "]: " ~ choice);
+
+    writeln('[' ~ (choices.length + 1).to!string() ~ "]: Custom URL");
+
+    write("\nSelection: ");
+    int selection = getValidatedInput(readln(), choices.length + 1);
+
+    while (selection == -1) {
+        write("Please make a valid selection: ");
+        selection = getValidatedInput(readln(), choices.length + 1);
+    }
+
+    string choice;
+
+    if (selection == choices.length + 1)
+        choice = "Custom URL";
+    else
+        choice = choices[selection - 1];
+
+    write("\nYou chose '" ~ choice ~ "', is this correct? (Y/n): ");
+
+    if (readln().strip().toLower() == "n") {
+        writeln();
+        return getEngineChoice(engines);
+    }
+    else
+        return choice;
+}
+
 string[string] getAvailableBrowsers() {
     string[string] availableBrowsers;
     auto startMenuInternetKey = Registry.localMachine.getKey("SOFTWARE\\CLIENTS\\StartMenuInternet");
