@@ -1,3 +1,6 @@
+// This file is parsed by each client using Search Deflector.
+// It serves as a way to always provide an updated list of search engines,
+// so the user doesn't have to update the executable to get the latest engine changes.
 Google:        google.com/search?q={{query}}
 DuckDuckGo:    duckduckgo.com/?q={{query}}
 Bing:          bing.com/search?q={{query}}
