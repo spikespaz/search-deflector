@@ -4,8 +4,9 @@ import std.stdio : write, writeln, readln;
 import std.algorithm.sorting : sort;
 import std.range : array, enumerate;
 import std.conv : parse, ConvException;
-import std.string : toLower, strip;
+import std.string : toLower, strip, splitLines, indexOf, stripLeft;
 import std.array : split;
+import std.net.curl : get;
 
 
 // Validate that a string is a proper numeral between 1 and maxValue inclusive for the getChoice function.
@@ -46,4 +47,26 @@ string getChoice(const string[] choices) {
     }
     else
         return choice;
+}
+
+
+// Get a config in the pattern of "^(?<key>[^:]+)\s*:\s*(?<value>.+)$".
+string[string] getOnlineConfig(const string url) {
+    const string response = get(url).idup; // Get the string of the resource content.
+
+    string[string] config;
+
+    foreach (line; response.splitLines()) {
+        if (line.stripLeft()[0 .. 1] == "//") // Ignore comments.
+            continue;
+
+        const int sepIndex = line.indexOf(":");
+
+        const string key = line[0 .. sepIndex].strip();
+        const string value = line[sepIndex + 1 .. $].strip();
+
+        config[key] = value;
+    }
+
+    return config;
 }
