@@ -5,6 +5,8 @@ import std.range : array, enumerate;
 import std.array : split;
 import helpers : getChoice;
 
+// The predefined search engines for the user to select. Custom URL is not here because it requires special input.
+// The auto formatting is disabled because dfmt doesn't like associative array literals.
 // dfmt off
 immutable string[string] engines;
 static this() {
@@ -22,17 +24,19 @@ static this() {
 // dfmt on
 
 void main() {
-    writeln(getEngineChoice(engines));
     writeln(getBrowserChoice(getAvailableBrowsers()));
+    writeln(getEngineChoice(engines));
 }
 
+// Ask the user which browser they want to use from the available options found in registry.
+// Optional extras for Edge and the system default browser, requires custom handling.
 string getBrowserChoice(const string[string] browsers) {
     string[] choices = browsers.keys.sort().array;
 
     foreach (index, choice; choices.enumerate())
         choices[index] = choice ~ " ~ " ~ browsers[choice];
 
-    choices ~= ["Microsoft Edge", "System Default"];
+    choices ~= ["Microsoft Edge", "System Default"]; // Each of these strings, if returned, need special handling.
 
     writeln("Please make a selection of one of the browsers below.\n");
 
@@ -40,9 +44,12 @@ string getBrowserChoice(const string[string] browsers) {
     return choice;
 }
 
+// Similar to getBrowserChoice(), this function asks the user which search engine they prefer.
+// If the user chooses the "Custom URL" option, the return value must be handled specially,
+// asking for further input (their own search URL).
 string getEngineChoice(const string[string] engines) {
     string[] choices = engines.keys.sort().array;
-    choices ~= "Custom URL";
+    choices ~= "Custom URL"; // This string needs custom handling if returned.
 
     writeln("Please make a selection of one of the search engines below.\n");
 
@@ -50,6 +57,8 @@ string getEngineChoice(const string[string] engines) {
     return choice;
 }
 
+// Fetch a list of available browsers from the Windows registry along with their paths.
+// Use the names as the keys in an associative array containing the browser executable paths.
 string[string] getAvailableBrowsers() {
     string[string] availableBrowsers;
     auto startMenuInternetKey = Registry.localMachine.getKey("SOFTWARE\\CLIENTS\\StartMenuInternet");
