@@ -3,29 +3,30 @@ import std.windows.registry;
 import std.algorithm.sorting : sort;
 import std.range : array, enumerate;
 import std.array : split;
-import helpers : getChoice;
+import helpers : getChoice, getOnlineConfig;
 
-// The predefined search engines for the user to select. Custom URL is not here because it requires special input.
-// The auto formatting is disabled because dfmt doesn't like associative array literals.
-// dfmt off
-immutable string[string] engines;
-static this() {
-    engines = [
-        "Google": "google.com/search?q={{query}}",
-        "DuckDuckGo": "duckduckgo.com/?q={{query}}",
-        "Bing": "bing.com/search?q={{query}}",
-        "Yahoo": "search.yahoo.com/search?p={{query}}",
-        "Wikipedia": "wikipedia.org/wiki/Special:Search?search={{query}}",
-        "GitHub": "github.com/search?q={{query}}",
-        "Wolfram Alpha": "wolframalpha.com/input/?i={{query}}",
-        "Ask": "ask.com/web?q={{query}}"
-    ];
+// Online resource to the repository of the project containing a list of search engine choices.
+immutable string enginesURL = "https://raw.githubusercontent.com/spikespaz/search-deflector/master/engines.txt";
+
+void main(string[] args) {
+    if (args.length > 1)
+        deflect(args[1]);
+    else
+        setup();
 }
-// dfmt on
 
-void main() {
-    writeln(getBrowserChoice(getAvailableBrowsers()));
-    writeln(getEngineChoice(engines));
+// Function to run when setting up the deflector.
+void setup() {
+    const string[string] browsers = getAvailableBrowsers();
+    const string[string] engines = getOnlineConfig(enginesURL);
+
+    const string browser = getBrowserChoice(browsers);
+    const string engine = getEngineChoice(engines);
+}
+
+// Function to run after setup, actually deflected.
+void deflect(string url) {
+    writeln(url); // Debug for now, just print the URL argument.
 }
 
 // Ask the user which browser they want to use from the available options found in registry.
