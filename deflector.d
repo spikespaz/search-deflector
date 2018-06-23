@@ -4,7 +4,9 @@ import std.algorithm.sorting : sort;
 import std.range : array, enumerate;
 import std.conv : to, parse, ConvException;
 import std.string : toLower, strip;
+import std.array : split;
 
+// dfmt off
 immutable string[string] engines;
 static this() {
     engines = [
@@ -18,10 +20,11 @@ static this() {
         "Ask": "ask.com/web?q={{query}}"
     ];
 }
+// dfmt on
 
 void main() {
     writeln(getEngineChoice(engines));
-    // writeln(getBrowserChoice(getAvailableBrowsers()));
+    writeln(getBrowserChoice(getAvailableBrowsers()));
 }
 
 int getValidatedInput(const string input, const int maxValue) {
@@ -38,77 +41,52 @@ int getValidatedInput(const string input, const int maxValue) {
         return -1;
 }
 
-string getBrowserChoice(const string[string] browsers) {
-    string[] choices = sort(browsers.keys).array;
-
-    writeln("Please make a selection of one of the browsers below.\n");
-
+string getChoice(string[] choices) {
     foreach (index, choice; choices.enumerate(1))
-        writeln('[' ~ index.to!string() ~ "]: " ~ choice ~ " - (" ~ browsers[choice] ~ ')');
-
-    writeln('[' ~ (choices.length + 1).to!string() ~ "]: Microsoft Edge");
-    writeln('[' ~ (choices.length + 2).to!string() ~ "]: System Default");
+        writeln("[", index, "]: ", choice);
 
     write("\nSelection: ");
-    int selection = getValidatedInput(readln(), choices.length + 2);
+    int selection = getValidatedInput(readln(), choices.length);
 
     while (selection == -1) {
         write("Please make a valid selection: ");
-        selection = getValidatedInput(readln(), choices.length + 2);
+        selection = getValidatedInput(readln(), choices.length);
     }
 
-    string choice;
+    string choice = choices[selection - 1];
 
-    if (selection == choices.length + 1)
-        choice = "Microsoft Edge";
-    else if (selection == choices.length + 2)
-        choice = "System Default";
-    else
-        choice = choices[selection - 1];
-
-    write("\nYou chose '" ~ choice ~ "', is this correct? (Y/n): ");
+    write("\nYou chose '" ~ choice ~ "'.\nIs this correct? (Y/n): ");
 
     if (readln().strip().toLower() == "n") {
         writeln();
-        return getBrowserChoice(browsers);
+        return getChoice(choices);
     }
     else
         return choice;
 }
 
+string getBrowserChoice(const string[string] browsers) {
+    string[] choices = browsers.keys.sort().array;
+
+    foreach (index, choice; choices.enumerate())
+        choices[index] = choice ~ " ~ " ~ browsers[choice];
+
+    choices ~= ["Microsoft Edge", "System Default"];
+
+    writeln("Please make a selection of one of the browsers below.\n");
+
+    string choice = getChoice(choices).split(" ~ ")[0];
+    return choice;
+}
+
 string getEngineChoice(const string[string] engines) {
-    string[] choices = sort(engines.keys).array;
+    string[] choices = engines.keys.sort().array;
+    choices ~= "Custom URL";
 
     writeln("Please make a selection of one of the search engines below.\n");
 
-    foreach (index, choice; choices.enumerate(1))
-        writeln('[' ~ index.to!string() ~ "]: " ~ choice);
-
-    writeln('[' ~ (choices.length + 1).to!string() ~ "]: Custom URL");
-
-    write("\nSelection: ");
-    int selection = getValidatedInput(readln(), choices.length + 1);
-
-    while (selection == -1) {
-        write("Please make a valid selection: ");
-        selection = getValidatedInput(readln(), choices.length + 1);
-    }
-
-    string choice;
-
-    if (selection == choices.length + 1)
-        choice = "Custom URL";
-    else
-        choice = choices[selection - 1];
-
-    write("\nYou chose '" ~ choice ~ "', is this correct? (Y/n): ");
-
-    if (readln().strip().toLower() == "n") {
-        writeln();
-        return getEngineChoice(engines);
-    }
-    else
-        return choice;
+    string choice = getChoice(choices);
+    return choice;
 }
 
 string[string] getAvailableBrowsers() {
