@@ -14,12 +14,18 @@ void main(string[] args) {
     if (args.length > 1)
         deflect(args[1]);
     else
-        setup();
+        setup(args[0]);
 }
 
 // Function to run when setting up the deflector.
-void setup() {
-    getCustomEngine();
+void setup(const string filePath) {
+    // For some reason, the formatter puts this all on one line (even though it's only for this one).
+    // dfmt off
+    writeln("Welcome to Search Deflector setup.\n",
+            "Just answer the prompts in this terminal to set your preferences, and you should be good to go.\n",
+            "If you have any questions, please email me at 'support@spikespaz.com',\n",
+            "or create an Issue on the GitHub repository (https://github.com/spikespaz/search-deflector/issues).\n");
+    // dfmt on
 
     const string enginesText = get(enginesURL).idup; // Get the string of the resource content.
 
@@ -28,10 +34,20 @@ void setup() {
 
     const string browser = getBrowserChoice(browsers);
     const string engine = getEngineChoice(engines);
+    const string engineURL = engine == "Custom URL" ? getCustomEngine() : engines[engine];
+
+    writeln("Search Deflector will be set up using the following variables.\n",
+            "If these are incorrect, run this executable again without any arguments passed to restart the setup.\n",
+            "\nSearch Engine: ", engine,
+            "\nSearch Engine URL: ", engineURL,
+            "\nBrowser: ", browser);
+
+    if (browser != "System Default" && browser != "Microsoft Edge")
+        writeln("Browser Path: ", browsers[browser]);
 }
 
 // Function to run after setup, actually deflected.
-void deflect(string url) {
+void deflect(const string url) {
     writeln(url); // Debug for now, just print the URL argument.
 }
 
@@ -80,6 +96,7 @@ bool validateEngineURL(const string url) {
     }
 }
 
+// Ask the user for a custom engine URL and validate the input.
 string getCustomEngine() {
     writeln("Please enter a custom search engine URL.\n"
             ~ "Include the string '{{query}}' which will be replaced with the search component.\n"
@@ -99,8 +116,10 @@ string getCustomEngine() {
         writeln();
         return getCustomEngine();
     }
-    else
+    else {
+        writeln();
         return url;
+    }
 }
 
 // Fetch a list of available browsers from the Windows registry along with their paths.

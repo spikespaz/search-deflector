@@ -43,8 +43,10 @@ string getChoice(const string[] choices) {
         writeln();
         return getChoice(choices);
     }
-    else
+    else {
+        writeln();
         return choice;
+    }
 }
 
 // Get a config in the pattern of "^(?<key>[^:]+)\s*:\s*(?<value>.+)$" from a string.
