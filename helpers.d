@@ -6,8 +6,6 @@ import std.range : array, enumerate;
 import std.conv : parse, ConvException;
 import std.string : toLower, strip, splitLines, indexOf, stripLeft;
 import std.array : split;
-import std.net.curl : get;
-
 
 // Validate that a string is a proper numeral between 1 and maxValue inclusive for the getChoice function.
 int getValidatedInput(const string input, const int maxValue) {
@@ -49,15 +47,12 @@ string getChoice(const string[] choices) {
         return choice;
 }
 
+// Get a config in the pattern of "^(?<key>[^:]+)\s*:\s*(?<value>.+)$" from a string.
+string[string] parseConfig(const string config) {
+    string[string] data;
 
-// Get a config in the pattern of "^(?<key>[^:]+)\s*:\s*(?<value>.+)$".
-string[string] getOnlineConfig(const string url) {
-    const string response = get(url).idup; // Get the string of the resource content.
-
-    string[string] config;
-
-    foreach (line; response.splitLines()) {
-        if (line.stripLeft()[0 .. 1] == "//") // Ignore comments.
+    foreach (line; config.splitLines()) {
+        if (line.stripLeft()[0 .. 2] == "//") // Ignore comments.
             continue;
 
         const int sepIndex = line.indexOf(":");
@@ -65,8 +60,8 @@ string[string] getOnlineConfig(const string url) {
         const string key = line[0 .. sepIndex].strip();
         const string value = line[sepIndex + 1 .. $].strip();
 
-        config[key] = value;
+        data[key] = value;
     }
 
-    return config;
+    return data;
 }

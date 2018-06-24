@@ -3,7 +3,8 @@ import std.windows.registry;
 import std.algorithm.sorting : sort;
 import std.range : array, enumerate;
 import std.array : split;
-import helpers : getChoice, getOnlineConfig;
+import helpers : getChoice, parseConfig;
+import std.net.curl : get;
 
 // Online resource to the repository of the project containing a list of search engine choices.
 immutable string enginesURL = "https://raw.githubusercontent.com/spikespaz/search-deflector/master/engines.txt";
@@ -17,8 +18,10 @@ void main(string[] args) {
 
 // Function to run when setting up the deflector.
 void setup() {
+    const string enginesText = get(enginesURL).idup; // Get the string of the resource content.
+
     const string[string] browsers = getAvailableBrowsers();
-    const string[string] engines = getOnlineConfig(enginesURL);
+    const string[string] engines = parseConfig(enginesText);
 
     const string browser = getBrowserChoice(browsers);
     const string engine = getEngineChoice(engines);
