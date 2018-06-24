@@ -1,10 +1,11 @@
-import std.stdio : writeln;
+import std.stdio : write, writeln, readln;
 import std.windows.registry;
 import std.algorithm.sorting : sort;
 import std.range : array, enumerate;
 import std.array : split;
+import std.string : indexOf, strip, toLower;
 import helpers : getChoice, parseConfig;
-import std.net.curl : get;
+import std.net.curl : get, CurlException;
 
 // Online resource to the repository of the project containing a list of search engine choices.
 immutable string enginesURL = "https://raw.githubusercontent.com/spikespaz/search-deflector/master/engines.txt";
@@ -18,6 +19,8 @@ void main(string[] args) {
 
 // Function to run when setting up the deflector.
 void setup() {
+    getCustomEngine();
+
     const string enginesText = get(enginesURL).idup; // Get the string of the resource content.
 
     const string[string] browsers = getAvailableBrowsers();
@@ -59,6 +62,45 @@ string getEngineChoice(const string[string] engines) {
 
     string choice = getChoice(choices);
     return choice;
+}
+
+// Validate that a user's custom search engine URL is a valid candidate.
+bool validateEngineURL(const string url) {
+    if (url.indexOf("{{query}}") == -1)
+        return false;
+
+    try {
+        if (get(url))
+            return true;
+        else
+            return false;
+    }
+    catch (CurlException) {
+        return false;
+    }
+}
+
+string getCustomEngine() {
+    writeln("Please enter a custom search engine URL.\n"
+            ~ "Include the string '{{query}}' which will be replaced with the search component.\n"
+            ~ "For example, Google would be 'google.com/search?q={{query}}'.");
+
+    write("\nURL: ");
+    string url = readln().strip();
+
+    while (!validateEngineURL(url)) {
+        write("Please enter a valid URL: ");
+        url = readln().strip();
+    }
+
+    write("\nYou entered '" ~ url ~ "'.\nIs this correct? (Y/n): ");
+
+    if (readln().strip().toLower() == "n") {
+        writeln();
+        return getCustomEngine();
+    }
+    else
+        return url;
 }
 
 // Fetch a list of available browsers from the Windows registry along with their paths.
