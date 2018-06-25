@@ -1,8 +1,6 @@
 module deflect;
 
-import std.stdio : writeln;
+import std.windows.registry;
 
 // Function to run after setup, actually deflected.
-void deflect(const string url) {
-    writeln(url); // Debug for now, just print the URL argument.
-}
+void deflect(const string url) { }
