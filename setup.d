@@ -173,13 +173,13 @@ string getChoice(const string[] choices) {
 
     write("\nYou chose '" ~ choice ~ "'.\nIs this correct? (Y/n): ");
 
-    if (readln().strip().toLower() == "n") {
+    if (readln().strip().toLower() == "y") {
         writeln();
-        return getChoice(choices);
+        return choice;
     }
     else {
         writeln();
-        return choice;
+        return getChoice(choices);
     }
 }
 
@@ -245,13 +245,13 @@ string getCustomEngine() {
 
     write("\nYou entered '" ~ url ~ "'.\nIs this correct? (Y/n): ");
 
-    if (readln().strip().toLower() == "n") {
+    if (readln().strip().toLower() == "y") {
         writeln();
-        return getCustomEngine();
+        return url;
     }
     else {
         writeln();
-        return url;
+        return getCustomEngine();
     }
 }
 
