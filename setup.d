@@ -110,6 +110,8 @@ void registerHandler(const string filePath, const string engine, const string br
         urlAssociationsKey = capabilityKey.createKey("UrlAssociations", REGSAM.KEY_WRITE);
     }
 
+    Key registeredAppsKey = Registry.localMachine.getKey("SOFTWARE\\RegisteredApplications", REGSAM.KEY_WRITE);
+
     // Write necessary changes.
     deflectorKey.setValue("Engine", engine);
     deflectorKey.setValue("Browser", browser);
@@ -126,6 +128,7 @@ void registerHandler(const string filePath, const string engine, const string br
             "Force web links for MS Edge to be opened with your preferred browser and search engine.");
 
     urlAssociationsKey.setValue("microsoft-edge", "SearchDeflector");
+    registeredAppsKey.setValue("SearchDeflector", "Software\\Clients\\SearchDeflector\\Capabilities");
 
     // Flush all of the keys and write changes.
     deflectorKey.flush();
@@ -135,6 +138,7 @@ void registerHandler(const string filePath, const string engine, const string br
     softwareKey.flush();
     capabilityKey.flush();
     urlAssociationsKey.flush();
+    registeredAppsKey.flush()
 }
 
 // Fetch a list of available browsers from the Windows registry along with their paths.
@@ -176,8 +180,7 @@ string getChoice(const string[] choices) {
     if (readln().strip().toLower() == "y") {
         writeln();
         return choice;
-    }
-    else {
+    } else {
         writeln();
         return getChoice(choices);
     }
@@ -248,8 +251,7 @@ string getCustomEngine() {
     if (readln().strip().toLower() == "y") {
         writeln();
         return url;
-    }
-    else {
+    } else {
         writeln();
         return getCustomEngine();
     }
