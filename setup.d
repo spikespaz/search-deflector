@@ -115,11 +115,11 @@ void registerHandler(const string filePath, const string engine, const string br
     deflectorKey.setValue("Browser", browser);
 
     uriClassKey.setValue("", "Search Deflector");
-    // uriClassKey.setValue("URL Protocol", "");
+    uriClassKey.setValue("URL Protocol", "");
 
     iconKey.setValue("", filePath ~ ",0");
 
-    shellCommandKey.setValue("", filePath ~ " '%1'");
+    shellCommandKey.setValue("'", filePath ~ "' '%1'");
 
     capabilityKey.setValue("ApplicationName", "Search Deflector");
     capabilityKey.setValue("ApplicationDescription",
