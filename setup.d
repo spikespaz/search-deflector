@@ -26,31 +26,33 @@ void setup(const string filePath) {
     const string[string] browsers = getAvailableBrowsers();
     const string[string] engines = parseConfig(enginesText);
 
-    const string browser = getBrowserChoice(browsers);
-    const string engine = getEngineChoice(engines);
-    const string engineURL = engine == "Custom URL" ? getCustomEngine() : engines[engine];
+    const string browserName = getBrowserChoice(browsers);
+    const string engineName = getEngineChoice(engines);
+    const string engineURL = engineName == "Custom URL" ? getCustomEngine() : engines[engineName];
+    // dfmt off
+    const string browserPath =
+        browserName == "System Default" ? "system_default" :
+        browserName == "Microsoft Edge" ? "microsoft_edge" : browsers[browserName];
+    // dfmt on
 
     // dfmt off
     writeln("Search Deflector will be set up using the following variables.\n",
             "If these are incorrect, run this executable again without any arguments passed to restart the setup.\n",
-            "\nSearch Engine: ", engine,
+            "\nSearch Engine: ", engineName,
             "\nSearch Engine URL: ", engineURL,
-            "\nBrowser: ", browser);
+            "\nBrowser Name: ", browserName,
+            "\nBrowser Path: ", browserPath);
     // dfmt on
 
-    if (browser == "System Default")
-        registerHandler(filePath, engineURL, "system_default");
-    else if (browser == "Microsoft Edge")
-        registerHandler(filePath, engineURL, "microsoft_edge");
-    else {
-        writeln("Browser Path: ", browsers[browser]);
-
-        registerHandler(filePath, engineURL, browsers[browser]);
-    }
+    registerHandler(filePath, engineName, engineURL, browserName, browserPath);
 }
 
 // Make necessary registry modifications to register the application as a handler for the Edge protocol.
-void registerHandler(const string filePath, const string engine, const string browser) {
+// dfmt off
+void registerHandler(const string filePath,
+                     const string engineName, const string engineURL,
+                     const string browserName, const string browserPath) {
+    // dfmt on
     // Declare all of the Key variables I will need.
     Key deflectorKey;
     Key uriClassKey;
@@ -113,8 +115,10 @@ void registerHandler(const string filePath, const string engine, const string br
     Key registeredAppsKey = Registry.localMachine.getKey("SOFTWARE\\RegisteredApplications", REGSAM.KEY_WRITE);
 
     // Write necessary changes.
-    deflectorKey.setValue("Engine", engine);
-    deflectorKey.setValue("Browser", browser);
+    deflectorKey.setValue("EngineName", engineName);
+    deflectorKey.setValue("EngineURL", engineURL);
+    deflectorKey.setValue("BrowserName", browserName);
+    deflectorKey.setValue("BrowserPath", browserPath);
 
     uriClassKey.setValue("", "Search Deflector");
     uriClassKey.setValue("URL Protocol", "");
@@ -125,7 +129,7 @@ void registerHandler(const string filePath, const string engine, const string br
 
     capabilityKey.setValue("ApplicationName", "Search Deflector");
     capabilityKey.setValue("ApplicationDescription",
-            "Force web links for MS Edge to be opened with your preferred browser and search engine.");
+            "Force web links for MS Edge to be opened with your preferred browser and search engineName.");
 
     urlAssociationsKey.setValue("microsoft-edge", "SearchDeflector");
     registeredAppsKey.setValue("SearchDeflector", "Software\\Clients\\SearchDeflector\\Capabilities");
@@ -138,7 +142,7 @@ void registerHandler(const string filePath, const string engine, const string br
     softwareKey.flush();
     capabilityKey.flush();
     urlAssociationsKey.flush();
-    registeredAppsKey.flush()
+    registeredAppsKey.flush();
 }
 
 // Fetch a list of available browsers from the Windows registry along with their paths.
