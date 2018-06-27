@@ -1,6 +1,6 @@
 module main;
 
-import std.stdio : writeln;
+import std.stdio : writeln, readln;
 
 void main(string[] args) {
     if (args.length > 1) { // A URL has been passed, deflect it.
@@ -21,8 +21,8 @@ void main(string[] args) {
                     "=== BEGIN CRASH EXCEPTION ===\n\n", error, "\n\n=== END CRASH EXCEPTION ===");
         }
         finally {
-            writeln("\nSearch Deflector setup completed. You may now close this terminal.");
-            while (true) { }
+            writeln("\nSearch Deflector setup completed. You may now close this terminal.\nPress Enter to exit.");
+            readln();
         }
     }
 }
