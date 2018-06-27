@@ -5,18 +5,17 @@ import std.process : spawnShell;
 import std.string : replace, indexOf;
 import std.array : split;
 import std.stdio : writeln, readln;
-import std.uri : decodeComponent;
+import std.uri : decodeComponent, encodeComponent;
 
 // Function to run after setup, actually deflected.
 void deflect(const string uri) {
     const string[string] registryInfo = getRegistryInfo();
-    const string[string] queryParams = getQueryParams(uri);
+    const string[string] uriQueryParams = getQueryParams(uri);
+    const string[string] bingQueryParams = getQueryParams(uriQueryParams["url"].decodeComponent());
+    const string searchComponent = bingQueryParams["q"];
+    const string searchURL = registryInfo["EngineURL"].replace("{{query}}", searchComponent);
 
-    writeln(queryParams);
-
-    readln();
-
-    openURI(registryInfo["BrowserPath"], registryInfo["Engineuri"].replace("{{query}}", "Test+Search"));
+    openURI(registryInfo["BrowserPath"], searchURL);
 }
 
 // Get all of the configuration information from the registry.
@@ -50,7 +49,7 @@ string[string] getQueryParams(const string uri) {
         const string key = param[0 .. equalsIndex];
         const string value = param[equalsIndex + 1 .. $];
 
-        queryParams[key] = value.decodeComponent();
+        queryParams[key] = value;
     }
 
     return queryParams;
