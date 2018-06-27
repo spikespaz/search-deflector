@@ -1,6 +1,6 @@
 module deflect;
 
-import std.windows.registry;
+import std.windows.registry : Registry, Key, REGSAM;
 import std.process : spawnShell;
 import std.string : replace, indexOf;
 import std.array : split;

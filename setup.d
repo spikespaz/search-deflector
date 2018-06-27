@@ -7,7 +7,7 @@ import std.array : split;
 import std.net.curl : get, CurlException;
 import std.conv : parse, ConvException;
 import std.string : toLower, strip, splitLines, indexOf, stripLeft;
-import std.windows.registry;
+import std.windows.registry : Key, Registry, REGSAM, RegistryException;
 
 // Online resource to the repository of the project containing a list of search engine choices.
 immutable string enginesURL = "https://raw.githubusercontent.com/spikespaz/search-deflector/master/engines.txt";
@@ -53,96 +53,98 @@ void registerHandler(const string filePath,
                      const string engineName, const string engineURL,
                      const string browserName, const string browserPath) {
     // dfmt on
-    // Declare all of the Key variables I will need.
-    Key deflectorKey;
-    Key uriClassKey;
-    Key iconKey;
-    Key shellCommandKey;
-    Key softwareKey;
-    Key capabilityKey;
-    Key urlAssociationsKey;
+// Declare all of the Key variables I will need.
+Key deflectorKey;
+Key uriClassKey;
+Key iconKey;
+Key shellCommandKey;
+Key softwareKey;
+Key capabilityKey;
+Key urlAssociationsKey;
 
-    // Try to open each one, if it doesn't exist, make it.
-    try {
-        deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
-    }
-    catch (RegistryException) {
-        deflectorKey = Registry.currentUser.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
-    }
+// Try to open each one, if it doesn't exist, make it.
+try {
+    deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
+}
+catch (RegistryException) {
+    deflectorKey = Registry.currentUser.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
+}
 
-    try {
-        uriClassKey = Registry.classesRoot.getKey("SearchDeflector", REGSAM.KEY_WRITE);
-    }
-    catch (RegistryException) {
-        uriClassKey = Registry.classesRoot.createKey("SearchDeflector", REGSAM.KEY_WRITE);
-    }
+try {
+    uriClassKey = Registry.classesRoot.getKey("SearchDeflector", REGSAM.KEY_WRITE);
+}
+catch (RegistryException) {
+    uriClassKey = Registry.classesRoot.createKey("SearchDeflector", REGSAM.KEY_WRITE);
+}
 
-    try {
-        iconKey = uriClassKey.getKey("DefaultIcon", REGSAM.KEY_WRITE);
-    }
-    catch (RegistryException) {
-        iconKey = uriClassKey.createKey("DefaultIcon", REGSAM.KEY_WRITE);
-    }
+try {
+    iconKey = uriClassKey.getKey("DefaultIcon", REGSAM.KEY_WRITE);
+}
+catch (RegistryException) {
+    iconKey = uriClassKey.createKey("DefaultIcon", REGSAM.KEY_WRITE);
+}
 
-    try {
-        shellCommandKey = uriClassKey.getKey("shell\\open\\command", REGSAM.KEY_WRITE);
-    }
-    catch (RegistryException) {
-        shellCommandKey = uriClassKey.createKey("shell\\open\\command", REGSAM.KEY_WRITE);
-    }
+try {
+    shellCommandKey = uriClassKey.getKey("shell\\open\\command", REGSAM.KEY_WRITE);
+}
+catch (RegistryException) {
+    shellCommandKey = uriClassKey.createKey("shell\\open\\command", REGSAM.KEY_WRITE);
+}
 
-    try {
-        softwareKey = Registry.localMachine.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
-    }
-    catch (RegistryException) {
-        softwareKey = Registry.localMachine.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
-    }
+try {
+    softwareKey = Registry.localMachine.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
+}
+catch (RegistryException) {
+    softwareKey = Registry.localMachine.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
+}
 
-    try {
-        capabilityKey = softwareKey.getKey("Capabilities", REGSAM.KEY_WRITE);
-    }
-    catch (RegistryException) {
-        capabilityKey = softwareKey.createKey("Capabilities", REGSAM.KEY_WRITE);
-    }
+try {
+    capabilityKey = softwareKey.getKey("Capabilities", REGSAM.KEY_WRITE);
+}
+catch (RegistryException) {
+    capabilityKey = softwareKey.createKey("Capabilities", REGSAM.KEY_WRITE);
+}
 
-    try {
-        urlAssociationsKey = capabilityKey.getKey("UrlAssociations", REGSAM.KEY_WRITE);
-    }
-    catch (RegistryException) {
-        urlAssociationsKey = capabilityKey.createKey("UrlAssociations", REGSAM.KEY_WRITE);
-    }
+try {
+    urlAssociationsKey = capabilityKey.getKey("UrlAssociations", REGSAM.KEY_WRITE);
+}
+catch (RegistryException) {
+    urlAssociationsKey = capabilityKey.createKey("UrlAssociations", REGSAM.KEY_WRITE);
+}
 
-    Key registeredAppsKey = Registry.localMachine.getKey("SOFTWARE\\RegisteredApplications", REGSAM.KEY_WRITE);
+Key registeredAppsKey = Registry.localMachine.getKey("SOFTWARE\\RegisteredApplications", REGSAM.KEY_WRITE);
 
-    // Write necessary changes.
-    deflectorKey.setValue("EngineName", engineName);
-    deflectorKey.setValue("EngineURL", engineURL);
-    deflectorKey.setValue("BrowserName", browserName);
-    deflectorKey.setValue("BrowserPath", browserPath);
+// Write necessary changes.
+deflectorKey.setValue("EngineName", engineName);
+deflectorKey.setValue("EngineURL", engineURL);
+deflectorKey.setValue("BrowserName", browserName);
+deflectorKey.setValue("BrowserPath", browserPath);
 
-    uriClassKey.setValue("", "Search Deflector");
-    uriClassKey.setValue("URL Protocol", "");
+uriClassKey.setValue("", "Search Deflector");
+uriClassKey.setValue("URL Protocol", "");
 
-    iconKey.setValue("", filePath ~ ",0");
+iconKey.setValue("", filePath ~ ",0");
 
-    shellCommandKey.setValue("", '"' ~ filePath ~ "\" \"%1\"");
+shellCommandKey.setValue("", '"' ~ filePath ~ "\" \"%1\"");
 
-    capabilityKey.setValue("ApplicationName", "Search Deflector");
-    capabilityKey.setValue("ApplicationDescription",
-            "Force web links for MS Edge to be opened with your preferred browser and search engine.");
+capabilityKey.setValue("ApplicationName", "Search Deflector");
+// dfmt off
+capabilityKey.setValue("ApplicationDescription",
+    "Force web links for MS Edge to be opened with your preferred browser and search engine.");
+// dfmt on
 
-    urlAssociationsKey.setValue("microsoft-edge", "SearchDeflector");
-    registeredAppsKey.setValue("SearchDeflector", "SOFTWARE\\Clients\\SearchDeflector\\Capabilities");
+urlAssociationsKey.setValue("microsoft-edge", "SearchDeflector");
+registeredAppsKey.setValue("SearchDeflector", "SOFTWARE\\Clients\\SearchDeflector\\Capabilities");
 
-    // Flush all of the keys and write changes.
-    deflectorKey.flush();
-    uriClassKey.flush();
-    iconKey.flush();
-    shellCommandKey.flush();
-    softwareKey.flush();
-    capabilityKey.flush();
-    urlAssociationsKey.flush();
-    registeredAppsKey.flush();
+// Flush all of the keys and write changes.
+deflectorKey.flush();
+uriClassKey.flush();
+iconKey.flush();
+shellCommandKey.flush();
+softwareKey.flush();
+capabilityKey.flush();
+urlAssociationsKey.flush();
+registeredAppsKey.flush();
 }
 
 // Fetch a list of available browsers from the Windows registry along with their paths.
