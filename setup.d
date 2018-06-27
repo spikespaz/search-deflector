@@ -125,14 +125,14 @@ void registerHandler(const string filePath,
 
     iconKey.setValue("", filePath ~ ",0");
 
-    shellCommandKey.setValue("'", filePath ~ "' '%1'");
+    shellCommandKey.setValue("", '"' ~ filePath ~ "\" \"%1\"");
 
     capabilityKey.setValue("ApplicationName", "Search Deflector");
     capabilityKey.setValue("ApplicationDescription",
-            "Force web links for MS Edge to be opened with your preferred browser and search engineName.");
+            "Force web links for MS Edge to be opened with your preferred browser and search engine.");
 
     urlAssociationsKey.setValue("microsoft-edge", "SearchDeflector");
-    registeredAppsKey.setValue("SearchDeflector", "Software\\Clients\\SearchDeflector\\Capabilities");
+    registeredAppsKey.setValue("SearchDeflector", "SOFTWARE\\Clients\\SearchDeflector\\Capabilities");
 
     // Flush all of the keys and write changes.
     deflectorKey.flush();
