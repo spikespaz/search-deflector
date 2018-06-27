@@ -3,12 +3,12 @@ module main;
 import std.stdio : writeln;
 
 void main(string[] args) {
-    if (args.length > 1) {
+    if (args.length > 1) { // A URL has been passed, deflect it.
         import deflect : deflect;
 
         deflect(args[1]);
     }
-    else {
+    else { // There has been no arguments. The user is probably wanting to set up.
         try {
             import setup : setup;
 
