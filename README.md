@@ -16,13 +16,11 @@ I will accept donations through PayPal.Me, Buy Me a Coffee, or Patreon.
 
 ## Setup
 
-The setup is simple. Make sure that you move the executable to a location where you can find it again.
+The setup is simple. Extract the zip file to a location where you can find it again, and follow the instructions below.
 
 Some examples I would recommend are `C:/Program Files/Search Deflector/` or `C:/Utilities/`.
 
-Then, rename the executable to `SearchDeflector.exe` instead of how you downloaded it, `SearchDeflector-X.Y.Z.exe`. This will ensure that you don't have to run the setup again if you update the program.
-
-Then, right click the executable to open the context menu and choose "Run as administrator". A console window will open, and look something like below.
+Then, right click `SearchDeflector.exe` to open the context menu and choose "Run as administrator". A console window will open, and look something like below.
 
 ### 1. Choosing a browser
 
