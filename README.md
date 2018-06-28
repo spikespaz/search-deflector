@@ -6,6 +6,16 @@ This repository depends on submodules. Clone recursively with the `--recursive` 
 
 You need `rcedit.exe` from https://github.com/electron/rcedit to add the icon to the executable.
 
+## Donations
+
+If you would like to show appreciation for my work, I would gladly accept a small donation!
+
+I will accept donations through PayPal.Me, Buy Me a Coffee, or Patreon.
+
+[![Buy Me a Coffee](https://i.imgur.com/fN422E7.png)](https://buymeacoffee.com/spikespaz)
+[![PayPal.Me](https://i.imgur.com/JWkunGi.png)](https://paypal.me/spikespaz)
+[![Patreon](https://i.imgur.com/K05b2RO.png)](https://patreon.com/spikespaz)
+
 ## Setup
 
 The setup is simple. Make sure that you move the executable to a location where you can find it again.
