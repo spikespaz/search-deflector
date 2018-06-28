@@ -2,9 +2,7 @@
 
 This is a small program that will redirect searches made with Cortana to your preferred browser and search engine. While this software is extremely similar to Edge Deflector and Search With My Browser, it allows the user to use any search engine they want and select any installed browser--not just the system default.
 
-This repository depends on submodules. Clone recursively with the `--recursive` flag to obtain the source of the submodules.
-
-You need `rcedit.exe` from https://github.com/electron/rcedit to add the icon to the executable.
+You need `rcedit.exe` on your system `PATH` variable to add the icon to the executable. Get that from https://github.com/electron/rcedit.
 
 ## Donations
 
