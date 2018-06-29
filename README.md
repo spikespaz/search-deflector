@@ -1,6 +1,6 @@
 # Search Deflector
 
-This is a small program that will redirect searches made with Cortana to your preferred browser and search engine. While this software is extremely similar to Edge Deflector and Search With My Browser, it allows the user to use any search engine they want and select any installed browser--not just the system default.
+This is a small program that will redirect searches made with Cortana and the Start Menu to your preferred browser and search engine. While this software is extremely similar to Edge Deflector and Search With My Browser, it allows the user to use any search engine they want and select any installed browser--not just the system default.
 
 ## Donations
 
