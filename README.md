@@ -2,8 +2,6 @@
 
 This is a small program that will redirect searches made with Cortana to your preferred browser and search engine. While this software is extremely similar to Edge Deflector and Search With My Browser, it allows the user to use any search engine they want and select any installed browser--not just the system default.
 
-You need `rcedit.exe` on your system `PATH` variable to add the icon to the executable. Get that from https://github.com/electron/rcedit.
-
 ## Donations
 
 If you would like to show appreciation for my work, I would gladly accept a small donation!
@@ -53,4 +51,10 @@ If you use this option, please create a [new issue](https://github.com/spikespaz
 The setup is complete. Make sure that the information listed is what you expected it to be. If it isn't, select all of the console output and paste it into a [new issue](https://github.com/spikespaz/search-deflector/issues/new) on GitHub. That is unintentional. If there was a crash before you get to this point, do the same.
 
 ![Setup Screenshot 4](screenshots/setup-3.png)
+
+# Building
+
+You need a D compiler. I recommend `DMD`, if you have that you can just run `build.sh` with MinGW or Git Bash. Read the build script to figure out what needs to be done.
+
+You need `rcedit.exe` on your system `PATH` variable to add the icon to the executable. Get that from https://github.com/electron/rcedit.
 
