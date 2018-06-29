@@ -2,7 +2,7 @@ module deflect;
 
 import std.windows.registry : Registry, Key, REGSAM;
 import std.process : spawnShell;
-import std.string : replace, indexOf;
+import std.string : replace, indexOf, toLower, startsWith;
 import std.array : split;
 import std.stdio : writeln, readln;
 import std.uri : decodeComponent, encodeComponent;
@@ -10,12 +10,33 @@ import std.uri : decodeComponent, encodeComponent;
 // Function to run after setup, actually deflected.
 void deflect(const string uri) {
     const string[string] registryInfo = getRegistryInfo();
-    const string[string] uriQueryParams = getQueryParams(uri);
-    const string[string] bingQueryParams = getQueryParams(uriQueryParams["url"].decodeComponent());
-    const string searchComponent = bingQueryParams["q"];
-    const string searchURL = registryInfo["EngineURL"].replace("{{query}}", searchComponent);
 
-    openURI(registryInfo["BrowserPath"], searchURL);
+    if (uri.toLower().startsWith("microsoft-edge:")) {
+        const string url = getQueryParams(uri)["url"].decodeComponent();
+
+        if (url.startsWith("https://www.bing.com")) {
+            const string searchQuery = getQueryParams(url)["pq"];
+            const string searchURL = "https://" ~ registryInfo["EngineURL"].replace("{{query}}", searchQuery);
+
+            openURI(registryInfo["BrowserPath"], searchURL);
+        } else if (checkHTTPURI(url))
+            openURI(registryInfo["BrowserPath"], url);
+        else
+            deflectionError(uri);
+    } else
+        deflectionError(uri);
+}
+
+void deflectionError(const string uri) {
+    writeln("Search Deflector doesn't know what to do with the URI it recieved.\n",
+            "Please submit a GitHub issue at https://github.com/spikespaz/search-deflector/issues.\n",
+            "Be sure to include the text below.\n\n", uri, "\n\nPress Enter to exit.");
+    readln();
+}
+
+// Check if a URI is HTTP protocol.
+bool checkHTTPURI(const string uri) {
+    return 0 < uri.toLower().startsWith("http://", "https://");
 }
 
 // Get all of the configuration information from the registry.
