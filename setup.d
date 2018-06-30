@@ -1,13 +1,13 @@
 module setup;
 
-import std.stdio : write, writeln, readln;
-import std.algorithm.sorting : sort;
-import std.range : array, enumerate;
-import std.array : split;
-import std.net.curl : get, CurlException;
-import std.conv : parse, ConvException;
-import std.string : toLower, strip, splitLines, indexOf, stripLeft;
-import std.windows.registry : Key, Registry, REGSAM, RegistryException;
+import std.stdio: write, writeln, readln;
+import std.algorithm.sorting: sort;
+import std.range: array, enumerate;
+import std.array: split;
+import std.net.curl: get, CurlException;
+import std.conv: parse, ConvException;
+import std.string: toLower, strip, splitLines, indexOf, stripLeft;
+import std.windows.registry: Key, Registry, REGSAM, RegistryException;
 
 // Online resource to the repository of the project containing a list of search engine choices.
 immutable string enginesURL = "https://raw.githubusercontent.com/spikespaz/search-deflector/master/engines.txt";

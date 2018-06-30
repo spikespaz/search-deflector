@@ -1,11 +1,11 @@
 module deflect;
 
-import std.windows.registry : Registry, Key, REGSAM;
-import std.process : spawnShell;
-import std.string : replace, indexOf, toLower, startsWith;
-import std.array : split;
-import std.stdio : writeln, readln;
-import std.uri : decodeComponent, encodeComponent;
+import std.windows.registry: Registry, Key, REGSAM;
+import std.process: spawnShell;
+import std.string: replace, indexOf, toLower, startsWith;
+import std.array: split;
+import std.stdio: writeln, readln;
+import std.uri: decodeComponent, encodeComponent;
 
 // Function to run after setup, actually deflected.
 void deflect(const string uri) {
