@@ -55,7 +55,10 @@ string[string] getRegistryInfo() {
 
 // Open a URL by spawning a shell process to the browser executable, or system default.
 void openURI(const string browserPath, const string url) {
-    spawnShell('"' ~ browserPath ~ "\" \"" ~ url ~ '"');
+    if (browserPath == "system_default")
+        spawnShell("start \"\" " ~ url ~ '"');
+    else
+        spawnShell("start \"\" \"" ~ browserPath ~ "\" \"" ~ url ~ '"');
 }
 
 // Parse the query parameters from a URI and return as an associative array.
