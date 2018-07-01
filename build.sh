@@ -1,5 +1,5 @@
 #! /bin/sh
-dmd main.d deflect.d setup.d -O -release -inline -boundscheck=off
+ldc2 main.d -m64 -i -O3 -ffast-math -release
 mkdir -p SearchDeflector
 cp $(which libcurl.dll) SearchDeflector/libcurl.dll
 [ -e main.obj ] && rm main.obj

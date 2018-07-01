@@ -3,15 +3,14 @@ module main;
 import std.stdio: writeln, readln;
 import setup: setup;
 import deflect: deflect;
-
-import core.sys.windows.windows: ShowWindow, GetConsoleWindow, SW_HIDE;
+import core.sys.windows.winuser: ShowWindow, SW_HIDE;
+import core.sys.windows.wincon: GetConsoleWindow;
 
 void main(string[] args) {
     if (args.length > 1) { // A URL has been passed, deflect it.
         ShowWindow(GetConsoleWindow(), SW_HIDE);
         deflect(args[1]);
-    }
-    else { // There has been no arguments. The user is probably wanting to set up.
+    } else { // There has been no arguments. The user is probably wanting to set up.
         try {
             setup(args[0]);
         }

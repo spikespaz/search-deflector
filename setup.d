@@ -172,7 +172,7 @@ string getChoice(const string[] choices) {
         writeln("[", index, "]: ", choice);
 
     write("\nSelection: ");
-    int selection = getValidatedInput(readln(), choices.length);
+    size_t selection = getValidatedInput(readln(), choices.length);
 
     while (selection == -1) {
         write("Please make a valid selection: ");
@@ -222,7 +222,7 @@ string getEngineChoice(const string[string] engines) {
 }
 
 // Validate that a string is a proper numeral between 1 and maxValue inclusive for the getChoice function.
-int getValidatedInput(const string input, const int maxValue) {
+int getValidatedInput(const string input, const size_t maxValue) {
     string temp = input.strip();
 
     try {
@@ -287,7 +287,7 @@ string[string] parseConfig(const string config) {
         if (line.stripLeft()[0 .. 2] == "//") // Ignore comments.
             continue;
 
-        const int sepIndex = line.indexOf(":");
+        const size_t sepIndex = line.indexOf(":");
 
         const string key = line[0 .. sepIndex].strip();
         const string value = line[sepIndex + 1 .. $].strip();

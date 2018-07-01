@@ -65,11 +65,11 @@ void openURI(const string browserPath, const string url) {
 string[string] getQueryParams(const string uri) {
     string[string] queryParams;
 
-    const int queryStart = uri.indexOf('?');
+    const size_t queryStart = uri.indexOf('?');
     const string[] paramStrings = uri[queryStart + 1 .. $].split('&');
 
     foreach (param; paramStrings) {
-        const int equalsIndex = param.indexOf('=');
+        const size_t equalsIndex = param.indexOf('=');
         const string key = param[0 .. equalsIndex];
         const string value = param[equalsIndex + 1 .. $];
 
