@@ -1,8 +1,12 @@
 #! /bin/sh
-ldc2 main.d -m64 -i -O3 -ffast-math -release
-mkdir -p SearchDeflector
-cp $(which libcurl.dll) SearchDeflector/libcurl.dll
+mkdir -p build
+ldc2 main.d -of="build/SearchDeflector-x86.exe" -i -O3 -ffast-math -release
+ldc2 main.d -of="build/SearchDeflector-x64.exe" -m64 -i -O3 -ffast-math -release
+cp $(which libcurl.dll) "build/libcurl.dll"
 [ -e main.obj ] && rm main.obj
-[ -e main.exe ] &&
-    rcedit main.exe --set-icon icons/icon.ico &&
-    mv main.exe SearchDeflector/SearchDeflector.exe
+cd build
+[ -e SearchDeflector-x86.exe ] &&
+    rcedit SearchDeflector-x86.exe --set-icon ../icons/icon.ico
+[ -e SearchDeflector-x64.exe ] &&
+    rcedit SearchDeflector-x64.exe --set-icon ../icons/icon.ico
+rm *.obj

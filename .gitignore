@@ -1,4 +1,4 @@
 .vscode/
 *.exe
 *.obj
-SearchDeflector/
+build/
