@@ -6,6 +6,8 @@ import std.string: replace, indexOf, toLower, startsWith;
 import std.array: split;
 import std.stdio: writeln, readln;
 import std.uri: decodeComponent, encodeComponent;
+import core.sys.windows.winuser: ShowWindow, SW_SHOWDEFAULT;
+import core.sys.windows.wincon: GetConsoleWindow;
 
 // Function to run after setup, actually deflected.
 void deflect(const string uri) {
@@ -18,7 +20,7 @@ void deflect(const string uri) {
             const string searchQuery = getQueryParams(url)["pq"];
             const string searchURL = "https://" ~ registryInfo["EngineURL"].replace("{{query}}", searchQuery);
 
-                openURI(registryInfo["BrowserPath"], searchURL);
+            openURI(registryInfo["BrowserPath"], searchURL);
         } else if (checkHTTPURI(url))
             openURI(registryInfo["BrowserPath"], url);
         else
@@ -32,6 +34,8 @@ void deflectionError(const string uri) {
             "Please submit a GitHub issue at https://github.com/spikespaz/search-deflector/issues.\n",
             "Be sure to include the text below.\n\n", uri, "\n\nPress Enter to exit.");
     readln();
+
+    ShowWindow(GetConsoleWindow(), SW_SHOWDEFAULT);
 }
 
 // Check if a URI is HTTP protocol.
