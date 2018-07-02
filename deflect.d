@@ -1,7 +1,7 @@
 module deflect;
 
 import std.windows.registry: Registry, Key, REGSAM;
-import std.process: spawnShell;
+import std.process: browse, spawnProcess, Config;
 import std.string: replace, indexOf, toLower, startsWith;
 import std.array: split;
 import std.stdio: writeln, readln;
@@ -18,7 +18,7 @@ void deflect(const string uri) {
             const string searchQuery = getQueryParams(url)["pq"];
             const string searchURL = "https://" ~ registryInfo["EngineURL"].replace("{{query}}", searchQuery);
 
-            openURI(registryInfo["BrowserPath"], searchURL);
+                openURI(registryInfo["BrowserPath"], searchURL);
         } else if (checkHTTPURI(url))
             openURI(registryInfo["BrowserPath"], url);
         else
@@ -56,9 +56,9 @@ string[string] getRegistryInfo() {
 // Open a URL by spawning a shell process to the browser executable, or system default.
 void openURI(const string browserPath, const string url) {
     if (browserPath == "system_default")
-        spawnShell("start \"\" " ~ url ~ '"');
+        browse(url); // Automatically calls the system default browser.
     else
-        spawnShell("start \"\" \"" ~ browserPath ~ "\" \"" ~ url ~ '"');
+        spawnProcess([browserPath, url], null, Config.newEnv); // Uses a specific executable.
 }
 
 // Parse the query parameters from a URI and return as an associative array.
