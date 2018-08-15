@@ -9,10 +9,10 @@ import std.conv: parse, ConvException;
 import std.string: toLower, strip, splitLines, indexOf, stripLeft;
 import std.windows.registry: Key, Registry, REGSAM, RegistryException;
 
-// Online resource to the repository of the project containing a list of search engine choices.
+/// Online resource to the repository of the project containing a list of search engine choices.
 immutable string enginesURL = "https://raw.githubusercontent.com/spikespaz/search-deflector/master/engines.txt";
 
-// Function to run when setting up the deflector.
+/// Function to run when setting up the deflector.
 void setup(const string filePath) {
     // dfmt off
     writeln("Welcome to Search Deflector setup.\n",
@@ -47,7 +47,7 @@ void setup(const string filePath) {
     registerHandler(filePath, engineName, engineURL, browserName, browserPath);
 }
 
-// Make necessary registry modifications to register the application as a handler for the Edge protocol.
+/// Make necessary registry modifications to register the application as a handler for the Edge protocol.
 void registerHandler(const string filePath, const string engineName, const string engineURL, const string browserName,
         const string browserPath) {
     // Declare all of the Key variables I will need.
@@ -137,8 +137,8 @@ void registerHandler(const string filePath, const string engineName, const strin
     registeredAppsKey.flush();
 }
 
-// Fetch a list of available browsers from the Windows registry along with their paths.
-// Use the names as the keys in an associative array containing the browser executable paths.
+/// Fetch a list of available browsers from the Windows registry along with their paths.
+/// Use the names as the keys in an associative array containing the browser executable paths.
 string[string] getAvailableBrowsers() {
     string[string] availableBrowsers;
     Key startMenuInternetKey = Registry.localMachine.getKey("SOFTWARE\\Clients\\StartMenuInternet");
@@ -156,7 +156,7 @@ string[string] getAvailableBrowsers() {
     return availableBrowsers;
 }
 
-// Helper function to ask the user to pick one of the strings passed in as choices.
+/// Helper function to ask the user to pick one of the strings passed in as choices.
 string getChoice(const string[] choices) {
     foreach (index, choice; choices.enumerate(1))
         writeln("[", index, "]: ", choice);
@@ -182,8 +182,8 @@ string getChoice(const string[] choices) {
     }
 }
 
-// Ask the user which browser they want to use from the available options found in registry.
-// Optional extras for Edge and the system default browser, requires custom handling.
+/// Ask the user which browser they want to use from the available options found in registry.
+/// Optional extras for Edge and the system default browser, requires custom handling.
 string getBrowserChoice(const string[string] browsers) {
     string[] choices = browsers.keys.sort().array;
 
@@ -198,9 +198,9 @@ string getBrowserChoice(const string[string] browsers) {
     return choice;
 }
 
-// Similar to getBrowserChoice(), this function asks the user which search engine they prefer.
-// If the user chooses the "Custom URL" option, the return value must be handled specially,
-// asking for further input (their own search URL).
+/// Similar to getBrowserChoice(), this function asks the user which search engine they prefer.
+/// If the user chooses the "Custom URL" option, the return value must be handled specially,
+/// asking for further input (their own search URL).
 string getEngineChoice(const string[string] engines) {
     string[] choices = engines.keys.sort().array;
     choices ~= "Custom URL"; // This string needs custom handling if returned.
@@ -211,7 +211,7 @@ string getEngineChoice(const string[string] engines) {
     return choice;
 }
 
-// Validate that a string is a proper numeral between 1 and maxValue inclusive for the getChoice function.
+/// Validate that a string is a proper numeral between 1 and maxValue inclusive for the getChoice function.
 int getValidatedInput(const string input, const size_t maxValue) {
     string temp = input.strip();
 
@@ -225,7 +225,7 @@ int getValidatedInput(const string input, const size_t maxValue) {
         return -1; // Since the minimum choice index is 1, just return -1 if the input is invalid.
 }
 
-// Ask the user for a custom engine URL and validate the input.
+/// Ask the user for a custom engine URL and validate the input.
 string getCustomEngine() {
     // dfmt off
     writeln("Please enter a custom search engine URL.\n",
@@ -236,7 +236,7 @@ string getCustomEngine() {
     write("\nURL: ");
     string url = readln().strip();
 
-    while (!validateEngineURL(url)) {
+    while (!validateEngineUrl(url)) {
         write("Please enter a valid URL: ");
         url = readln().strip();
     }
@@ -252,8 +252,8 @@ string getCustomEngine() {
     }
 }
 
-// Validate that a user's custom search engine URL is a valid candidate.
-bool validateEngineURL(const string url) {
+/// Validate that a user's custom search engine URL is a valid candidate.
+bool validateEngineUrl(const string url) {
     if (url.indexOf("{{query}}") == -1)
         return false;
 
@@ -267,7 +267,7 @@ bool validateEngineURL(const string url) {
     }
 }
 
-// Get a config in the pattern of "^(?<key>[^:]+)\s*:\s*(?<value>.+)$" from a string.
+/// Get a config in the pattern of "^(?<key>[^:]+)\s*:\s*(?<value>.+)$" from a string.
 string[string] parseConfig(const string config) {
     string[string] data;
 
