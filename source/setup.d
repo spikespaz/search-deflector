@@ -31,8 +31,9 @@ void setup(const string filePath) {
     const string engineURL = engineName == "Custom URL" ? getCustomEngine() : engines[engineName];
     // dfmt off
     const string browserPath =
-        browserName == "System Default" ? "system_default" :
-        browserName == "Microsoft Edge" ? "microsoft_edge" : browsers[browserName];
+        browserName == "System Default" ? "system_default" : browsers[browserName];
+        // browserName == "System Default" ? "system_default" :
+        // browserName == "Microsoft Edge" ? "microsoft_edge" : browsers[browserName];
     // dfmt on
 
     // dfmt off
@@ -190,7 +191,8 @@ string getBrowserChoice(const string[string] browsers) {
     foreach (index, choice; choices.enumerate())
         choices[index] = choice ~ " ~ " ~ browsers[choice];
 
-    choices ~= ["Microsoft Edge", "System Default"]; // Each of these strings, if returned, need special handling.
+    choices ~= ["System Default"]; // Each of these strings, if returned, need special handling.
+    // choices ~= ["Microsoft Edge", "System Default"];
 
     writeln("Please make a selection of one of the browsers below.\n");
 
