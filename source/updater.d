@@ -7,11 +7,8 @@ import std.format: format;
 import std.range: zip, popFront;
 import std.algorithm: sort;
 import std.conv: to;
-
-version (Win64)
-    private enum bool COMPILED_64 = true;
-else
-    private enum bool COMPILED_64;
+import std.windows.registry: Key, Registry, REGSAM;
+import std.datetime: SysTime;
 
 private enum string RELEASES_URL = "https://api.github.com/repos/%s/%s/releases";
 
@@ -58,9 +55,32 @@ public bool compareVersions(const string firstVer, const string secondVer) {
     return false;
 }
 
-void main() {
-    import std.stdio;
+/// Get the last recorded update check time.
+public SysTime getLastUpdateCheck() {
+    Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
 
-    foreach (release; getSortedReleases("spikespaz", "example-releases"))
-        writeln(release["tag_name"].str);
+    return SysTime.fromISOString(deflectorKey.getValue("LastUpdateCheck").value_SZ);
 }
+
+/// Set the new last update check time.
+public void setLastUpdateCheck(SysTime checkTime) {
+    Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
+
+    deflectorKey.setValue("LastUpdateCheck", checkTime.toISOString());
+}
+
+// void main() {
+//     import std.stdio;
+
+//     foreach (release; getSortedReleases("spikespaz", "example-releases"))
+//         writeln(release["tag_name"].str);
+
+
+//         // SysTime lastUpdateCheck = getLastUpdateCheck();
+//         // SysTime currentTime = Clock.currTime();
+
+//         // if (lastUpdateCheck.add!"minutes"(1) < currentTime) {
+//         //     setLastUpdateCheck(currentTime);
+//         //     writeln(currentTime);
+//         // }
+// }

@@ -1,7 +1,7 @@
 #! /bin/sh
 mkdir -p build
-ldc2 source/main.d source/setup.d source/deflect.d -of="build/SearchDeflector-x86.exe" -O3 -ffast-math -release
-ldc2 source/main.d source/setup.d source/deflect.d -of="build/SearchDeflector-x64.exe" -m64 -O3 -ffast-math -release
+ldc2 source/* -of="build/SearchDeflector-x86.exe" -O3 -ffast-math -release
+ldc2 source/* -of="build/SearchDeflector-x64.exe" -m64 -O3 -ffast-math -release
 cp $(which libcurl.dll) "build/libcurl.dll"
 [ -e main.obj ] && rm main.obj
 cd build

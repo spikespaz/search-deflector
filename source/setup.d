@@ -8,6 +8,7 @@ import std.net.curl: get, CurlException;
 import std.conv: parse, ConvException;
 import std.string: toLower, strip, splitLines, indexOf, stripLeft;
 import std.windows.registry: Key, Registry, REGSAM, RegistryException;
+import std.datetime: Clock, SysTime;
 
 /// Online resource to the repository of the project containing a list of search engine choices.
 enum string enginesURL = "https://raw.githubusercontent.com/spikespaz/search-deflector/master/engines.txt";
@@ -110,6 +111,7 @@ void registerHandler(const string filePath, const string engineName, const strin
     deflectorKey.setValue("EngineURL", engineURL);
     deflectorKey.setValue("BrowserName", browserName);
     deflectorKey.setValue("BrowserPath", browserPath);
+    deflectorKey.setValue("LastUpdateCheck", Clock.currTime.toISOString());
 
     uriClassKey.setValue("", "Search Deflector");
     uriClassKey.setValue("URL Protocol", "");
