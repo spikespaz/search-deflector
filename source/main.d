@@ -3,8 +3,11 @@ module main;
 import std.stdio: writeln, readln;
 import setup: setup;
 import deflect: deflect;
+import updater;
 import core.sys.windows.winuser: ShowWindow, SW_HIDE;
 import core.sys.windows.wincon: GetConsoleWindow;
+
+private enum string VERSION = "0.0.5";
 
 void main(string[] args) {
     if (args.length > 1) { // A URL has been passed, deflect it.
