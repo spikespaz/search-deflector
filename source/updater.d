@@ -68,19 +68,3 @@ public void setLastUpdateCheck(SysTime checkTime) {
 
     deflectorKey.setValue("LastUpdateCheck", checkTime.toISOString());
 }
-
-// void main() {
-//     import std.stdio;
-
-//     foreach (release; getSortedReleases("spikespaz", "example-releases"))
-//         writeln(release["tag_name"].str);
-
-
-//         // SysTime lastUpdateCheck = getLastUpdateCheck();
-//         // SysTime currentTime = Clock.currTime();
-
-//         // if (lastUpdateCheck.add!"minutes"(1) < currentTime) {
-//         //     setLastUpdateCheck(currentTime);
-//         //     writeln(currentTime);
-//         // }
-// }

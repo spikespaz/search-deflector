@@ -6,7 +6,7 @@ import deflect: deflect;
 import updater: getLastUpdateCheck, setLastUpdateCheck;
 import core.sys.windows.winuser: ShowWindow, SW_HIDE;
 import core.sys.windows.wincon: GetConsoleWindow;
-import std.datetime: Clock, SysTime;
+import std.datetime: Clock, SysTime, dur;
 
 private enum string VERSION = "0.0.5";
 
@@ -20,6 +20,13 @@ void main(string[] args) {
     if (args.length > 1) { // A URL has been passed, deflect it.
         ShowWindow(GetConsoleWindow(), SW_HIDE);
         deflect(args[1]);
+
+        SysTime currentTime = Clock.currTime();
+
+        if ((getLastUpdateCheck() + dur!"minutes"(1)) < currentTime) {
+            setLastUpdateCheck(currentTime);
+            writeln(currentTime);
+        }
     } else { // There has been no arguments. The user is probably wanting to set up.
         try {
             setup(args[0]);
