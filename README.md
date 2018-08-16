@@ -54,7 +54,6 @@ The setup is complete. Make sure that the information listed is what you expecte
 
 # Building
 
-You need a D compiler. I recommend `DMD`, if you have that you can just run `build.sh` with MinGW or Git Bash. Read the build script to figure out what needs to be done.
+You need a D compiler. I recommend [`LDC2`](https://github.com/ldc-developers/ldc/releases), if you have that you can just run `build.sh` with MinGW or Git Bash. Read the build script to figure out what needs to be done.
 
 You need `rcedit.exe` on your system `PATH` variable to add the icon to the executable. Get that from https://github.com/electron/rcedit.
-
