@@ -3,7 +3,7 @@ module main;
 import std.stdio: writeln, readln;
 import setup: setup;
 import deflect: deflect;
-import updater: getLastUpdateCheck, setLastUpdateCheck;
+import updater: getLastUpdateCheck, setLastUpdateCheck, checkAndUpdate;
 import core.sys.windows.winuser: ShowWindow, SW_HIDE;
 import core.sys.windows.wincon: GetConsoleWindow;
 import std.datetime: Clock, SysTime, dur;
@@ -25,17 +25,28 @@ void main(string[] args) {
 
         if ((getLastUpdateCheck() + dur!"minutes"(1)) < currentTime) {
             setLastUpdateCheck(currentTime);
-            writeln(currentTime);
+            try {
+                checkAndUpdate(COMPILED_64, VERSION);
+            } catch (Exception error) {
+                writeln(
+                    "\nSearch Deflector update failed.",
+                    "\nPlease go to the repository and manually download the latest update.",
+                    "\nhttps://github.com/spikespaz/search-deflector/releases"
+                );
+            } finally {
+                writeln("\nSearch Deflector setup completed. You may now close this terminal.\nPress Enter to exit.");
+                readln();
+            }
         }
     } else { // There has been no arguments. The user is probably wanting to set up.
         try {
             setup(args[0]);
         } catch (Exception error) {
             writeln(
-                    "\nThe SearchDeflector setup has crashed. Try running the executable as administrator.\n",
-                    "If the problem persists, please copy the error below and submit an issue on GitHub.\n",
-                    "https://github.com/spikespaz/search-deflector/issues\n\n",
-                    "=== BEGIN CRASH EXCEPTION ===\n\n", error, "\n\n=== END CRASH EXCEPTION ===");
+                    "\nThe Search Deflector setup has crashed. Try running the executable as administrator.",
+                    "\nIf the problem persists, please copy the error below and submit an issue on GitHub.",
+                    "\nhttps://github.com/spikespaz/search-deflector/issues",
+                    "\n\n=== BEGIN CRASH EXCEPTION ===\n\n", error, "\n\n=== END CRASH EXCEPTION ===");
         } finally {
             writeln("\nSearch Deflector setup completed. You may now close this terminal.\nPress Enter to exit.");
             readln();
