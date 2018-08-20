@@ -8,6 +8,7 @@ import std.stdio: writeln, readln;
 import std.uri: decodeComponent, encodeComponent;
 import core.sys.windows.winuser: ShowWindow, SW_SHOWDEFAULT;
 import core.sys.windows.wincon: GetConsoleWindow;
+import core.sys.windows.wincon: SetConsoleTitle;
 
 /// Function to run after setup, actually deflected.
 void deflect(const string uri) {
@@ -36,6 +37,7 @@ void deflectionError(const string uri) {
             "Be sure to include the text below.\n\n", uri, "\n\nPress Enter to exit.");
     readln();
 
+    // SetConsoleTitle("Search Deflector - Version " ~ VERSION);
     ShowWindow(GetConsoleWindow(), SW_SHOWDEFAULT);
 }
 
