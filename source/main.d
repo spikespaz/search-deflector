@@ -1,12 +1,12 @@
 module main;
 
 import updater: compareVersions, getLastUpdateCheck, setLastUpdateCheck, getLatestRelease, update;
-import core.sys.windows.winuser: ShowWindow, SW_HIDE, SW_SHOWDEFAULT;
+import core.sys.windows.winuser: ShowWindow, SW_HIDE, SW_SHOW;
 import core.sys.windows.wincon: SetConsoleTitle, GetConsoleWindow;
 import std.datetime: Clock, SysTime, dur;
 import std.stdio: writeln, readln;
 import std.json: JSONValue;
-import deflect: deflect;
+import deflect: deflect, DeflectionError;
 import setup: setup;
 
 private enum string VERSION = "0.0.4";
@@ -20,12 +20,23 @@ else
 void main(string[] args) {
     if (args.length > 1) { // A URL has been passed, deflect it.
         ShowWindow(GetConsoleWindow(), SW_HIDE);
-        deflect(args[1]);
+
+        try {
+            deflect(args[1]);
+        } catch (DeflectionError error) {
+            writeln("Search Deflector doesn't know what to do with the URI it recieved.\n",
+                    "Please submit a GitHub issue at https://github.com/spikespaz/search-deflector/issues.\n",
+                    "Be sure to include the text below.\n\n", args[1], "\n\nPress Enter to exit.");
+            readln();
+
+            SetConsoleTitle("Search Deflector - Version " ~ VERSION);
+            ShowWindow(GetConsoleWindow(), SW_SHOW);
+        }
 
         SysTime currentTime = Clock.currTime();
 
+        if (false) {
         // if ((getLastUpdateCheck() + dur!"minutes"(1)) < currentTime) {
-        if (true) {
             setLastUpdateCheck(currentTime);
             try {
                 JSONValue latestRelease = getLatestRelease("spikespaz", "search-deflector");
@@ -40,8 +51,8 @@ void main(string[] args) {
                     "\n\n=== BEGIN CRASH EXCEPTION ===\n\n", error, "\n\n=== END CRASH EXCEPTION ==="
                 );
 
-                // SetConsoleTitle("Search Deflector - Version " ~ VERSION);
-                ShowWindow(GetConsoleWindow(), SW_SHOWDEFAULT);
+                SetConsoleTitle("Search Deflector - Version " ~ VERSION);
+                ShowWindow(GetConsoleWindow(), SW_SHOW);
             } finally {
                 writeln("\nSearch Deflector setup completed. You may now close this terminal.\nPress Enter to exit.");
                 readln();

@@ -6,9 +6,9 @@ import std.string: replace, indexOf, toLower, startsWith;
 import std.array: split;
 import std.stdio: writeln, readln;
 import std.uri: decodeComponent, encodeComponent;
-import core.sys.windows.winuser: ShowWindow, SW_SHOWDEFAULT;
-import core.sys.windows.wincon: GetConsoleWindow;
 import core.sys.windows.wincon: SetConsoleTitle;
+
+alias DeflectionError = Exception;
 
 /// Function to run after setup, actually deflected.
 void deflect(const string uri) {
@@ -25,20 +25,9 @@ void deflect(const string uri) {
         } else if (checkHttpUri(url))
             openUri(registryInfo["BrowserPath"], url);
         else
-            deflectionError(uri);
+            throw new DeflectionError("Error deflecting: " ~ uri);
     } else
-        deflectionError(uri);
-}
-
-/// Print an error message for an error while deflecting an unrecognized URI.
-void deflectionError(const string uri) {
-    writeln("Search Deflector doesn't know what to do with the URI it recieved.\n",
-            "Please submit a GitHub issue at https://github.com/spikespaz/search-deflector/issues.\n",
-            "Be sure to include the text below.\n\n", uri, "\n\nPress Enter to exit.");
-    readln();
-
-    // SetConsoleTitle("Search Deflector - Version " ~ VERSION);
-    ShowWindow(GetConsoleWindow(), SW_SHOWDEFAULT);
+        throw new DeflectionError("Error deflecting: " ~ uri);
 }
 
 /// Check if a URI is HTTP protocol.
