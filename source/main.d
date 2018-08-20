@@ -15,11 +15,14 @@ private
 version (Win64)
     enum string DL_FILENAME = "SearchDeflector-x64.zip";
 else
-    enum string DL_FILENAME = "SearchDeflector-x32.zip";
+    enum string DL_FILENAME = "SearchDeflector-x86.zip";
 
 void main(string[] args) {
+    writeln("Search Deflector Version: " ~ VERSION,
+            "\nUpdate File Name: " ~ DL_FILENAME);
+
     if (args.length > 1) { // A URL has been passed, deflect it.
-        ShowWindow(GetConsoleWindow(), SW_HIDE);
+        // ShowWindow(GetConsoleWindow(), SW_HIDE);
 
         try {
             deflect(args[1]);
@@ -60,8 +63,6 @@ void main(string[] args) {
         }
     } else { // There has been no arguments. The user is probably wanting to set up.
         try {
-            writeln("Search Deflector Version: " ~ VERSION,
-                    "\nUpdate File Name: " ~ DL_FILENAME);
             setup(args[0]);
         } catch (Exception error) {
             writeln(
