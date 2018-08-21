@@ -4,11 +4,9 @@ import std.string: replace, indexOf, toLower, startsWith;
 import std.windows.registry: Registry, Key, REGSAM;
 import std.process: browse, spawnProcess, Config;
 import std.uri: decodeComponent, encodeComponent;
-import core.sys.windows.wincon: SetConsoleTitle;
-import std.stdio: writeln, readln;
 import common: createErrorDialog;
 import std.array: split;
-import conv: to;
+import std.conv: to;
 
 alias DeflectionError = Exception;
 
@@ -16,7 +14,7 @@ alias DeflectionError = Exception;
 int main(string[] args) {
     if (args.length > 1) {
         try {
-            deflect[1];
+            deflect(args[1]);
 
             return 0;
         } catch (Exception error) {
@@ -48,9 +46,9 @@ void deflect(const string uri) {
         } else if (checkHttpUri(url))
             openUri(registryInfo["BrowserPath"], url);
         else
-            throw new DeflectionError("Error deflecting: " ~ uri);
+            throw new DeflectionError("Error deflecting:\n" ~ uri);
     } else
-        throw new DeflectionError("Error deflecting: " ~ uri);
+        throw new DeflectionError("Error deflecting:\n" ~ uri);
 }
 
 /// Check if a URI is HTTP protocol.
