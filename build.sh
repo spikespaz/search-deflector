@@ -7,8 +7,8 @@ mkdir -p "build/$release"
 #     -L/SUBSYSTEM:WINDOWS -O3 -ffast-math -release
 ldc2 "source/launcher.d" "source/common.d" -of="build/$release/launcher.exe" \
     -L/SUBSYSTEM:WINDOWS -O3 -ffast-math -release
-# ldc2 "source/deflector.d" -of="build/$release/deflector.exe" \
-#     -L/SUBSYSTEM:WINDOWS -O3 -ffast-math -release
+ldc2 "source/deflector.d" "source/common.d" -of="build/$release/deflector.exe" \
+    -O3 -ffast-math -release
 
 find "build/$release" -name "*.obj" -delete
 
