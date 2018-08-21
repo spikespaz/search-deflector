@@ -1,15 +1,20 @@
 import core.sys.windows.winuser: MessageBox, MB_ICONERROR, MB_YESNO, IDYES;
-import core.sys.windows.windows: GetCommandLine;
+import std.process: browse, spawnProcess, Config;
+import core.sys.windows.windows: GetCommandLine, CommandLineToArgvW;
+import common: createIssueMessage, VERSION;
+import std.path: buildPath, dirName;
 import std.uri: encodeComponent;
 import core.runtime: Runtime;
-import std.process: browse;
+import std.file: thisExePath;
 import std.format: format;
-import std.string: split;
-import std.uni: isWhite;
-import std.conv: text;
+import std.conv: to;
 
 /// Main launch function to check for updates and redirect the URI.
 int launch(const string[] arguments) {
+    const string launchPath = buildPath(thisExePath().dirName(), VERSION, "deflector.exe");
+
+    spawnProcess(launchPath ~ arguments, null, Config.suppressConsole | Config.detached);
+
     return 0;
 }
 
@@ -20,8 +25,7 @@ extern (Windows) int WinMain() {
     try {
         Runtime.initialize();
 
-        string[] arguments = GetCommandLine().text.split!isWhite[1 .. $];
-        result = launch(arguments);
+        launch(getConsoleArgs()[1 .. $]);
 
         Runtime.terminate();
     } catch (Exception error) {
@@ -43,23 +47,17 @@ extern (Windows) int WinMain() {
     return result;
 }
 
-/// Creates a GitHub issue body with the data from an Exception.
-string createIssueMessage(const Exception error) {
-    return "I have encountered an error launching Search Deflector.
-The error information follows below.
+/// Return a string array of arguments as if it were in the main function.
+string[] getConsoleArgs() {
+    wchar** argList;
+    int argCount;
 
-**File:** `%s`
+    string[] args;
 
-**Line:** %s
+    argList = CommandLineToArgvW(GetCommandLine(), &argCount);
 
-**Message:**
-```
-%s
-```
+    for (int index; index < argCount; index++)
+        args ~= argList[index].to!string();
 
-**Stack Trace:**
-```
-%s
-```
-".format(error.file, error.line, error.msg, error.info);
+    return args;
 }
