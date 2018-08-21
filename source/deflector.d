@@ -1,14 +1,37 @@
-module deflect;
+module deflector;
 
+import std.string: replace, indexOf, toLower, startsWith;
 import std.windows.registry: Registry, Key, REGSAM;
 import std.process: browse, spawnProcess, Config;
-import std.string: replace, indexOf, toLower, startsWith;
-import std.array: split;
-import std.stdio: writeln, readln;
 import std.uri: decodeComponent, encodeComponent;
 import core.sys.windows.wincon: SetConsoleTitle;
+import std.stdio: writeln, readln;
+import common: createErrorDialog;
+import std.array: split;
+import conv: to;
 
 alias DeflectionError = Exception;
+
+/// Entry to call the deflection, or error out.
+int main(string[] args) {
+    if (args.length > 1) {
+        try {
+            deflect[1];
+
+            return 0;
+        } catch (Exception error) {
+            createErrorDialog(error);
+
+            return 1;
+        }
+    }
+
+    createErrorDialog(
+        new Exception("Expected one URI argument, recieved: \n" ~ args.to!string())
+    );
+
+    return 1;
+}
 
 /// Function to run after setup, actually deflected.
 void deflect(const string uri) {
