@@ -2,6 +2,7 @@ module common;
 
 import std.format: format;
 
+/// Public version string determined at compile time.
 enum string VERSION = "0.0.5-master";
 
 /// Creates a GitHub issue body with the data from an Exception.
