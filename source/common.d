@@ -1,19 +1,15 @@
 module common;
 
-import core.sys.windows.winuser: MessageBox, MB_ICONERROR, MB_YESNO, IDYES;
+import core.sys.windows.windows: MessageBox, MB_ICONERROR, MB_YESNO, IDYES;
+import std.windows.registry: Registry, Key, REGSAM;
+import std.json: JSONValue, parseJSON;
 import std.uri: encodeComponent;
-import std.process: browse;
-import std.format: format;
-import std.windows.registry: Key, Registry, REGSAM;
-import std.json: parseJSON, JSONValue;
-import std.net.curl: get, download;
 import std.range: zip, popFront;
 import std.datetime: SysTime;
-import std.path: buildPath;
+import std.process: browse;
 import std.algorithm: sort;
-import std.zip: ZipArchive;
 import std.format: format;
-import std.stdio: writeln;
+import std.net.curl: get;
 import std.string: split;
 import std.conv: to;
 
