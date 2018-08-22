@@ -1,23 +1,17 @@
 module launcher;
 
-import core.sys.windows.windows: GetCommandLine, CommandLineToArgvW;
-import std.process: browse, spawnProcess, Config;
-import common: createErrorDialog, VERSION;
-import std.path: buildPath, dirName;
-import std.uri: encodeComponent;
+import common: VERSION, UPDATE_FILE, getLastUpdateCheck, getLatestRelease, compareVersions, createErrorDialog;
+import core.sys.windows.windows: CommandLineToArgvW, GetCommandLine;
+import std.process: spawnProcess, Config;
+import std.datetime: Clock, SysTime, days;
+import std.path: dirName, buildPath;
 import core.runtime: Runtime;
 import std.file: thisExePath;
+import std.json: JSONValue;
 import std.format: format;
+import std.string: split;
 import std.conv: to;
 
-/// Main launch function to check for updates and redirect the URI.
-int launch(const string[] arguments) {
-    const string launchPath = buildPath(thisExePath().dirName(), VERSION, "deflector.exe");
-
-    spawnProcess(launchPath ~ arguments, null, Config.suppressConsole | Config.detached);
-
-    return 0;
-}
 
 /// Windows entry point.
 extern (Windows) int WinMain() {
@@ -26,7 +20,37 @@ extern (Windows) int WinMain() {
     try {
         Runtime.initialize();
 
-        launch(getConsoleArgs()[1 .. $]);
+        const string[] args = getConsoleArgs();
+        const string launchPath = buildPath(thisExePath().dirName(), VERSION, "%s");
+
+        // dfmt off
+        if (args.length > 1)
+            spawnProcess(launchPath.format("deflector.exe") ~ args[1 .. $],
+                null, Config.suppressConsole | Config.detached);
+        // dfmt on
+
+        const SysTime currentTime = Clock.currTime();
+
+        if (getLastUpdateCheck() + days(1) < currentTime) {
+            JSONValue releaseData = getLatestRelease("spikespaz", "search-deflector");
+
+            if (compareVersions(releaseData["tag_name"].str, VERSION.split("-")[0])) {
+                string downloadUrl;
+
+                foreach (assetData; releaseData["assets"].array)
+                    if (assetData["name"].str == UPDATE_FILE)
+                        downloadUrl = assetData["browser_download_url"].str;
+
+                // dfmt off
+                spawnProcess([
+                        launchPath.format("updater.exe"), releaseData["tag_name"].str,
+                        releaseData["target_commitish"].str, downloadUrl
+                    ],
+                    null, Config.suppressConsole | Config.detached);
+                // dfmt on
+            }
+
+        }
 
         Runtime.terminate();
     } catch (Exception error) {

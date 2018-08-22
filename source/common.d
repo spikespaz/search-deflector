@@ -4,13 +4,27 @@ import core.sys.windows.winuser: MessageBox, MB_ICONERROR, MB_YESNO, IDYES;
 import std.uri: encodeComponent;
 import std.process: browse;
 import std.format: format;
+import std.windows.registry: Key, Registry, REGSAM;
+import std.json: parseJSON, JSONValue;
+import std.net.curl: get, download;
+import std.range: zip, popFront;
+import std.datetime: SysTime;
+import std.path: buildPath;
+import std.algorithm: sort;
+import std.zip: ZipArchive;
+import std.format: format;
+import std.stdio: writeln;
+import std.string: split;
+import std.conv: to;
 
 /// Public version strings determined at compile time.
-enum string VERSION = "0.0.5-master";
+enum string VERSION = "0.0.0-master";
 enum string UPDATE_FILE = "SearchDeflector-x86.zip";
+enum string RELEASES_URL = "https://api.github.com/repos/%s/%s/releases";
+
 
 /// Creates a messabe box telling the user there was an error, and redirect to issues page.
-void createErrorDialog(const Exception error) {
+public void createErrorDialog(const Exception error) {
     const uint messageId = MessageBox(null, "Search Deflector launch failed." ~
             "\nWould you like to open the issues page to submit a bug report?" ~
             "\nThe important information will be filled out for you." ~
@@ -25,7 +39,7 @@ void createErrorDialog(const Exception error) {
 }
 
 /// Creates a GitHub issue body with the data from an Exception.
-string createIssueMessage(const Exception error) {
+public string createIssueMessage(const Exception error) {
     return "I have encountered an error launching Search Deflector.
 The error information follows below.
 
@@ -45,3 +59,69 @@ The error information follows below.
 ".format(error.file, error.line, error.msg, error.info);
 }
 
+/// Get all current releases as JSON from the GitHub API.
+public JSONValue getReleases(const string author, const string repository) {
+    return get(RELEASES_URL.format(author, repository)).parseJSON();
+}
+
+/// Return a JSONValue array sorted by the `tag_name` as semantic versions.
+public JSONValue[] getSortedReleases(const string author, const string repository) {
+    JSONValue jsonData = getReleases(author, repository);
+    JSONValue[] releasesArray = jsonData.array;
+
+    // dfmt off
+    releasesArray.sort!(
+        (firstVer, secondVer) => compareVersions(firstVer["tag_name"].str, secondVer["tag_name"].str)
+    );
+    // dfmt on
+
+    return releasesArray;
+}
+
+/// Return the latest release according to semantic versioning.
+public JSONValue getLatestRelease(const string author, const string repository) {
+    return getSortedReleases(author, repository)[0];
+}
+
+/// Compare two semantic versions, returning true if the first version is newer, false otherwise.
+public bool compareVersions(const string firstVer, const string secondVer) {
+    ushort[] firstVerParts = firstVer.split('.').to!(ushort[]);
+    ushort[] secondVerParts = secondVer.split('.').to!(ushort[]);
+
+    while (firstVerParts.length > secondVerParts.length) {
+        if (firstVerParts[0] != 0)
+            return true;
+        firstVerParts.popFront();
+    }
+
+    while (secondVerParts.length > firstVerParts.length) {
+        if (secondVerParts[0] != 0)
+            return false;
+        secondVerParts.popFront();
+    }
+
+    foreach (verParts; zip(firstVerParts, secondVerParts)) {
+        if (verParts[0] > verParts[1])
+            return true;
+        else if (verParts[1] > verParts[0])
+            return false;
+    }
+
+    return false;
+}
+
+/// Get the last recorded update check time.
+public SysTime getLastUpdateCheck() {
+    Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
+
+    return SysTime.fromISOString(deflectorKey.getValue("LastUpdateCheck").value_SZ);
+}
+
+/// Set the new last update check time.
+public void setLastUpdateCheck(SysTime checkTime) {
+    Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
+
+    deflectorKey.setValue("LastUpdateCheck", checkTime.toISOString());
+
+    deflectorKey.flush();
+}
