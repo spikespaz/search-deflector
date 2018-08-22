@@ -1,12 +1,15 @@
 #! /bin/sh
 
-release="$(git describe --tags --abbrev=0)-$(git rev-parse --abbrev-ref HEAD)"
+# release="$(git describe --tags --abbrev=0)-$(git rev-parse --abbrev-ref HEAD)"
+release="0.0.0-$(git rev-parse --abbrev-ref HEAD)"
 mkdir -p "build/$release"
 
 # ldc2 "source/setup.d" -of="build/$release/setup.exe" \
 #     -L/SUBSYSTEM:WINDOWS -O3 -ffast-math -release
 ldc2 "source/launcher.d" "source/common.d" -of="build/$release/launcher.exe" \
     -L/SUBSYSTEM:WINDOWS -O3 -ffast-math -release
+ldc2 "source/updater.d" "source/common.d" -of="build/$release/updater.exe" \
+    -O3 -ffast-math -release
 ldc2 "source/deflector.d" "source/common.d" -of="build/$release/deflector.exe" \
     -O3 -ffast-math -release
 
