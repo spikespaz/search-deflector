@@ -6,8 +6,8 @@ import std.json: JSONValue, parseJSON;
 import std.uri: encodeComponent;
 import std.range: zip, popFront;
 import std.datetime: SysTime;
-import std.process: browse;
 import std.algorithm: sort;
+import std.process: browse;
 import std.format: format;
 import std.net.curl: get;
 import std.string: split;
@@ -107,14 +107,14 @@ public bool compareVersions(const string firstVer, const string secondVer) {
 }
 
 /// Get the last recorded update check time.
-public SysTime getLastUpdateCheck() {
+public SysTime lastUpdateCheck() {
     Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
 
     return SysTime.fromISOString(deflectorKey.getValue("LastUpdateCheck").value_SZ);
 }
 
 /// Set the new last update check time.
-public void setLastUpdateCheck(SysTime checkTime) {
+public void lastUpdateCheck(SysTime checkTime) {
     Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
 
     deflectorKey.setValue("LastUpdateCheck", checkTime.toISOString());
