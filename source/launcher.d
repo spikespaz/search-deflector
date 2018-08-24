@@ -28,7 +28,7 @@ extern (Windows) int WinMain() {
                 null, Config.suppressConsole | Config.detached);
         // dfmt on
 
-        if (shouldCheckUpdate(days(0))) {
+        if (shouldCheckUpdate(days(1))) {
             string[string] updateInfo = getUpdateInfo(VERSION.split('-')[0]);
 
             if (updateInfo)

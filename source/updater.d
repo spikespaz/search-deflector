@@ -25,9 +25,6 @@ void update(const string downloadUrl, const string updateVer) {
     const string installDir = buildPath(thisExePath().dirName(), "..", updateVer);
     const string archivePath = buildPath(tempDir, "update.zip");
 
-    writeln(installDir);
-    writeln(archivePath);
-
     if (!exists(installDir))
         mkdirRecurse(installDir);
 
