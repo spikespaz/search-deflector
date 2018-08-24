@@ -1,17 +1,30 @@
 module setup;
 
+import std.windows.registry: Key, Registry, REGSAM, RegistryException;
+import std.string: toLower, strip, splitLines, indexOf, stripLeft;
+import common: createErrorDialog, VERSION;
 import std.stdio: write, writeln, readln;
+import std.net.curl: get, CurlException;
+import std.file: thisExePath, readText;
+import std.conv: parse, ConvException;
+import std.datetime: Clock, SysTime;
+import std.path: buildPath, dirName;
 import std.algorithm.sorting: sort;
 import std.range: array, enumerate;
 import std.array: split;
-import std.net.curl: get, CurlException;
-import std.conv: parse, ConvException;
-import std.string: toLower, strip, splitLines, indexOf, stripLeft;
-import std.windows.registry: Key, Registry, REGSAM, RegistryException;
-import std.datetime: Clock, SysTime;
 
 /// Online resource to the repository of the project containing a list of search engine choices.
 enum string enginesURL = "https://raw.githubusercontent.com/spikespaz/search-deflector/master/engines.txt";
+
+void main() {
+    try {
+        setup(buildPath(thisExePath().dirName(), "launcher.exe"));
+    } catch (Exception error)
+        createErrorDialog(error);
+
+    writeln("\nPress Enter to close the setup.");
+    readln();
+}
 
 /// Function to run when setting up the deflector.
 void setup(const string filePath) {
@@ -22,10 +35,8 @@ void setup(const string filePath) {
             "or create an Issue on the GitHub repository (https://github.com/spikespaz/search-deflector/issues).\n");
     // dfmt on
 
-    const string enginesText = get(enginesURL).idup; // Get the string of the resource content.
-
     const string[string] browsers = getAvailableBrowsers();
-    const string[string] engines = parseConfig(enginesText);
+    const string[string] engines = getEnginePresets();
 
     const string browserName = getBrowserChoice(browsers);
     const string engineName = getEngineChoice(engines);
@@ -157,6 +168,19 @@ string[string] getAvailableBrowsers() {
     }
 
     return availableBrowsers;
+}
+
+/// Try to fetch the engine presets from the repository, if it fails, read from local.
+string[string] getEnginePresets() {
+    string enginesText;
+
+    try {
+        enginesText = get(enginesURL).idup; // Get the string of the resource content.
+    } catch (CurlException) {
+        enginesText = readText("engines.txt");
+    }
+
+    return parseConfig(enginesText);
 }
 
 /// Helper function to ask the user to pick one of the strings passed in as choices.
