@@ -1,17 +1,16 @@
 module launcher;
 
-import common: VERSION, UPDATE_FILE, getLastUpdateCheck, getLatestRelease, compareVersions, createErrorDialog;
-import core.sys.windows.windows: CommandLineToArgvW, GetCommandLine;
-import std.process: spawnProcess, Config;
-import std.datetime: Clock, SysTime, days;
+import common: VERSION, UPDATE_FILE, lastUpdateCheck, getLatestRelease, compareVersions, createErrorDialog;
+import core.sys.windows.windows: CommandLineToArgvW, GetCommandLine, ShellExecuteA, SW_HIDE;
+import std.process: spawnProcess, escapeWindowsArgument, Config;
+import std.datetime: Clock, SysTime, Duration, days;
 import std.path: dirName, buildPath;
+import std.string: toStringz, split;
 import core.runtime: Runtime;
 import std.file: thisExePath;
 import std.json: JSONValue;
 import std.format: format;
-import std.string: split;
 import std.conv: to;
-
 
 /// Windows entry point.
 extern (Windows) int WinMain() {
@@ -21,7 +20,7 @@ extern (Windows) int WinMain() {
         Runtime.initialize();
 
         const string[] args = getConsoleArgs();
-        const string launchPath = buildPath(thisExePath().dirName(), VERSION, "%s");
+        const string launchPath = buildPath(thisExePath().dirName(), "%s");
 
         // dfmt off
         if (args.length > 1)
@@ -29,27 +28,13 @@ extern (Windows) int WinMain() {
                 null, Config.suppressConsole | Config.detached);
         // dfmt on
 
-        const SysTime currentTime = Clock.currTime();
+        if (shouldCheckUpdate(days(0))) {
+            string[string] updateInfo = getUpdateInfo(VERSION.split('-')[0]);
 
-        if (getLastUpdateCheck() + days(1) < currentTime) {
-            JSONValue releaseData = getLatestRelease("spikespaz", "search-deflector");
-
-            if (compareVersions(releaseData["tag_name"].str, VERSION.split("-")[0])) {
-                string downloadUrl;
-
-                foreach (assetData; releaseData["assets"].array)
-                    if (assetData["name"].str == UPDATE_FILE)
-                        downloadUrl = assetData["browser_download_url"].str;
-
-                // dfmt off
-                spawnProcess([
-                        launchPath.format("updater.exe"), releaseData["tag_name"].str,
-                        releaseData["target_commitish"].str, downloadUrl
-                    ],
-                    null, Config.suppressConsole | Config.detached);
-                // dfmt on
-            }
-
+            if (updateInfo)
+                ShellExecuteA(null, "runas".toStringz(), launchPath.format("updater.exe").toStringz(),
+                        (escapeWindowsArgument(updateInfo["download"]) ~ ' ' ~ escapeWindowsArgument(
+                            updateInfo["version"] ~ '-' ~ updateInfo["branch"])).toStringz(), null, SW_HIDE);
         }
 
         Runtime.terminate();
@@ -72,4 +57,37 @@ string[] getConsoleArgs() {
         args ~= argList[index].to!string();
 
     return args;
+}
+
+/// Check if it's time for an update since last update check time.
+bool shouldCheckUpdate(const Duration interval) {
+    const SysTime currentTime = Clock.currTime();
+    const SysTime lastCheck = lastUpdateCheck();
+
+    if (lastCheck + interval < currentTime) {
+        lastUpdateCheck(currentTime);
+        return true;
+    }
+
+    return false;
+}
+
+string[string] getUpdateInfo(const string currentVer) {
+    JSONValue releaseData = getLatestRelease("spikespaz", "search-deflector");
+
+    if (!compareVersions(releaseData["tag_name"].str, currentVer))
+        return null;
+
+    // dfmt off
+    string[string] updateData = [
+        "version": releaseData["tag_name"].str,
+        "branch": releaseData["target_commitish"].str,
+        "url": releaseData["html_url"].str];
+    // dfmt on
+
+    foreach (assetData; releaseData["assets"].array)
+        if (assetData["name"].str == UPDATE_FILE)
+            updateData["download"] = assetData["browser_download_url"].str;
+
+    return updateData;
 }
