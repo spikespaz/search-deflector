@@ -1,8 +1,8 @@
 #! /bin/sh
 
-# release="$(git describe --tags --abbrev=0)-$(git rev-parse --abbrev-ref HEAD)"
-release="0.0.0-$(git rev-parse --abbrev-ref HEAD)"
-echo "Creating the build path: $release"
+# release="0.0.0-$(git rev-parse --abbrev-ref HEAD)"
+release="$(git describe --tags --abbrev=0)-$(git rev-parse --abbrev-ref HEAD)"
+echo "Creating the build path: build/$release"
 mkdir -p "build/$release"
 
 echo "Compiling executable: build/$release/setup.exe"

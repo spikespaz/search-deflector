@@ -34,8 +34,10 @@ OutputDir=build
 Source: "build\{#AppVersion}-{#AppBranch}\*"; DestDir: "{app}\{#AppVersion}-{#AppBranch}"; Flags: recursesubdirs
 
 [Icons]
-Name: "{group}\Configure Search Deflector"; Filename: "{app}\{#AppVersion}-{#AppBranch}\setup.exe"
-Name: "{group}\Uninstall Search Deflector"; Filename: "{uninstallexe}"
+Name: "{group}\Configure"; Filename: "{app}\{#AppVersion}-{#AppBranch}\launcher.exe"; Parameters: "--setup"; Flags: excludefromshowinnewinstall preventpinning
+Name: "{group}\Force Update"; Filename: "{app}\{#AppVersion}-{#AppBranch}\launcher.exe"; Parameters: "--update"; Flags: excludefromshowinnewinstall preventpinning
+Name: "{group}\Uninstall"; Filename: "{uninstallexe}"; Flags: excludefromshowinnewinstall preventpinning
+Name: "{group}\Visit Website"; FileName: "https://github.com/spikespaz/search-deflector"
 
 [Run]
 Filename: "{app}\{#AppVersion}-{#AppBranch}\setup.exe"; Description: "Configure Search Deflector"; Flags: hidewizard
