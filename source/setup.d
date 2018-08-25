@@ -3,12 +3,12 @@ module setup;
 import std.windows.registry: Key, Registry, REGSAM, RegistryException;
 import std.string: toLower, strip, splitLines, indexOf, stripLeft;
 import common: createErrorDialog, getConsoleArgs, VERSION;
+import std.path: buildPath, dirName, isValidFilename;
+import std.file: thisExePath, readText, exists;
 import std.stdio: write, writeln, readln;
 import std.net.curl: get, CurlException;
-import std.file: thisExePath, readText;
 import std.conv: parse, ConvException;
 import std.datetime: Clock, SysTime;
-import std.path: buildPath, dirName;
 import std.algorithm.sorting: sort;
 import std.range: array, enumerate;
 import std.utf: toUTF16z;
@@ -162,7 +162,12 @@ string[string] getAvailableBrowsers() {
         string browserName = key.getValue("").value_SZ;
         string browserPath = key.getKey("shell\\open\\command").getValue("").value_SZ;
 
-        browserPath = getConsoleArgs(browserPath.toUTF16z())[0];
+        if (!isValidFilename(browserPath) && !exists(browserPath)) {
+            browserPath = getConsoleArgs(browserPath.toUTF16z())[0];
+
+            if (!isValidFilename(browserPath) && !exists(browserPath))
+                continue;
+        }
 
         availableBrowsers[browserName] = browserPath;
     }
