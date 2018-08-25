@@ -1,7 +1,7 @@
 module launcher;
 
-import common: VERSION, UPDATE_FILE, lastUpdateCheck, getLatestRelease, compareVersions, createErrorDialog;
-import core.sys.windows.windows: CommandLineToArgvW, GetCommandLine, ShellExecuteA, SW_HIDE, SW_SHOWNORMAL;
+import common: VERSION, UPDATE_FILE, getConsoleArgs, lastUpdateCheck, getLatestRelease, compareVersions, createErrorDialog;
+import core.sys.windows.windows: GetCommandLineW, ShellExecuteA, SW_HIDE, SW_SHOWNORMAL;
 import std.process: spawnProcess, escapeWindowsArgument, Config;
 import std.datetime: Clock, SysTime, Duration, days;
 import std.path: dirName, buildPath;
@@ -19,7 +19,7 @@ extern (Windows) int WinMain() {
     try {
         Runtime.initialize();
 
-        const string[] args = getConsoleArgs();
+        const string[] args = getConsoleArgs(GetCommandLineW());
         const string launchPath = buildPath(thisExePath().dirName(), "%s");
 
         // dfmt off
@@ -46,18 +46,6 @@ extern (Windows) int WinMain() {
     }
 
     return result;
-}
-
-/// Return a string array of arguments as if it were in the main function.
-string[] getConsoleArgs() {
-    int argCount;
-    wchar** argList = CommandLineToArgvW(GetCommandLine(), &argCount);
-    string[] args;
-
-    for (int index; index < argCount; index++)
-        args ~= argList[index].to!string();
-
-    return args;
 }
 
 /// Check if it's time for an update since last update check time.
