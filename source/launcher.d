@@ -1,7 +1,7 @@
 module launcher;
 
 import common: VERSION, UPDATE_FILE, lastUpdateCheck, getLatestRelease, compareVersions, createErrorDialog;
-import core.sys.windows.windows: CommandLineToArgvW, GetCommandLine, ShellExecuteA, SW_HIDE;
+import core.sys.windows.windows: CommandLineToArgvW, GetCommandLine, ShellExecuteA, SW_HIDE, SW_SHOWNORMAL;
 import std.process: spawnProcess, escapeWindowsArgument, Config;
 import std.datetime: Clock, SysTime, Duration, days;
 import std.path: dirName, buildPath;
@@ -23,19 +23,20 @@ extern (Windows) int WinMain() {
         const string launchPath = buildPath(thisExePath().dirName(), "%s");
 
         // dfmt off
-        if (args.length > 1)
+        if (args.length > 1 && args[1] != "--setup" && args[1] != "--update")
             spawnProcess(launchPath.format("deflector.exe") ~ args[1 .. $],
                 null, Config.suppressConsole | Config.detached);
         // dfmt on
 
-        if (shouldCheckUpdate(days(1))) {
+        if (args[1] == "--update" || shouldCheckUpdate(days(1))) {
             string[string] updateInfo = getUpdateInfo(VERSION.split('-')[0]);
 
             if (updateInfo)
                 ShellExecuteA(null, "runas".toStringz(), launchPath.format("updater.exe").toStringz(),
                         (escapeWindowsArgument(updateInfo["download"]) ~ ' ' ~ escapeWindowsArgument(
                             updateInfo["version"] ~ '-' ~ updateInfo["branch"])).toStringz(), null, SW_HIDE);
-        }
+        } else if (args[1] == "--setup")
+            ShellExecuteA(null, "runas".toStringz(), launchPath.format("setup.exe").toStringz(), null, null, SW_SHOWNORMAL);
 
         Runtime.terminate();
     } catch (Exception error) {
