@@ -41,3 +41,9 @@ Name: "{group}\Visit Website"; FileName: "https://github.com/spikespaz/search-de
 
 [Run]
 Filename: "{app}\{#AppVersion}-{#AppBranch}\setup.exe"; Description: "Configure Search Deflector"; Flags: hidewizard
+
+[Registry]
+Root: HKCU; Subkey: "Software\Clients\SearchDeflector"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\Clients\SearchDeflector"; Flags: uninsdeletekey
+Root: HKLM; SubKey: "Software\RegisteredApplications"; ValueName: "SearchDeflector"; Flags: uninsdeletevalue;
+Root: HKCR; Subkey: "SearchDeflector"; Flags: uninsdeletekey
