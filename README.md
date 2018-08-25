@@ -14,27 +14,25 @@ I will accept donations through PayPal.Me, Buy Me a Coffee, or Patreon.
 
 ## Setup
 
-Version [0.1.0](https://github.com/spikespaz/search-deflector/releases/tag/0.1.0) has a new way to set up the program. Eventually I will get to the making of a simple installer to make these steps less complicated.
-
-If you need the old instructions to install version before I added the automatic updater, look at the [`README.md` file in an old commit](https://github.com/spikespaz/search-deflector/blob/3a5dd058c675f59e9aede303d6b333a29d94306a/README.md).
-
 You must manually download and set up this new update, but after that, everything should be automatic.
 
 * **Please remember to delete the old directory that contains files from previous versions if you are manually updating.**
 
-1. Go to the [releases page](https://github.com/spikespaz/search-deflector/releases) and download the zip archive.
+1. Go to the [releases page](https://github.com/spikespaz/search-deflector/releases) and download the installer zip archive.
+   * The name of the zip archive containing the installer should be `SearchDeflector-Installer.zip`.
 
 2. Open the archive with your file manager of choice, Windows Explorer can do it just fine.
 
-3. Extract all of the files to `%PROGRAMFILES(X86)%/Search Deflector/<version>-<branch>`.
-   * The placeholder `<version>` is replaced by the three-digit semantic version that you have downloaded, and `<branch>` is replaced with the branch of the release, almost always `master`.
-   * **The full path should be something like `C:/Program Files (x86)/Search Deflector/0.1.0-master`.**
-   * That directory should contain `launcher.exe`, `deflector.exe`, and `updater.exe` *at a minumum*.
-   * There will be other files, such as `setup.exe`, and `libcurl.dll` included in the zip archive, along with an offline copy of `engines.txt`.
+3. Double click to ruun the executable inside.
+   * I didn't sign the executable, so you will get a warning saying "Windows protected your PC".
+   * If you trust me, click the small text that says "More info", then the button "Run anyway".
 
-4. Right click `setup.exe` in that directory, and click "Run as administrator".
+4. Follow the prompts that the installer gives you. Agree to the license, and read the information on the second page.
 
-5. Follow all the prompts that appear in the terminal. For a detailed guide, keep reading the sections below.
+5. Once you get to the part where a command prompt window pops up, follow the detailed instructions below.
+
+
+If you need the old instructions to install version before I added the automatic updater, look at the [`README.md` file in an old commit](https://github.com/spikespaz/search-deflector/blob/3a5dd058c675f59e9aede303d6b333a29d94306a/README.md).
 
 
 ### 1. Choosing a browser
