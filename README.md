@@ -14,11 +14,28 @@ I will accept donations through PayPal.Me, Buy Me a Coffee, or Patreon.
 
 ## Setup
 
-The setup is simple. Extract the zip file to a location where you can find it again, and follow the instructions below.
+Version [0.1.0](https://github.com/spikespaz/search-deflector/releases/tag/0.1.0) has a new way to set up the program. Eventually I will get to the making of a simple installer to make these steps less complicated.
 
-Some examples I would recommend are `C:/Program Files/Search Deflector/` or `C:/Utilities/`.
+If you need the old instructions to install version before I added the automatic updater, look at the [`README.md` file in an old commit](https://github.com/spikespaz/search-deflector/blob/3a5dd058c675f59e9aede303d6b333a29d94306a/README.md).
 
-Then, right click `SearchDeflector.exe` to open the context menu and choose "Run as administrator". A console window will open, and look something like below.
+You must manually download and set up this new update, but after that, everything should be automatic.
+
+* **Please remember to delete the old directory that contains files from previous versions if you are manually updating.**
+
+1. Go to the [releases page](https://github.com/spikespaz/search-deflector/releases) and download the zip archive.
+
+2. Open the archive with your file manager of choice, Windows Explorer can do it just fine.
+
+3. Extract all of the files to `%PROGRAMFILES(X86)%/Search Deflector/<version>-<branch>`.
+   * The placeholder `<version>` is replaced by the three-digit semantic version that you have downloaded, and `<branch>` is replaced with the branch of the release, almost always `master`.
+   * **The full path should be something like `C:/Program Files (x86)/Search Deflector/0.1.0-master`.**
+   * That directory should contain `launcher.exe`, `deflector.exe`, and `updater.exe` *at a minumum*.
+   * There will be other files, such as `setup.exe`, and `libcurl.dll` included in the zip archive, along with an offline copy of `engines.txt`.
+
+4. Right click `setup.exe` in that directory, and click "Run as administrator".
+
+5. Follow all the prompts that appear in the terminal. For a detailed guide, keep reading the sections below.
+
 
 ### 1. Choosing a browser
 
@@ -36,7 +53,7 @@ See [the next section](#3-using-a-custom-url) for details on the last option, "C
 
 ### 3. Using a custom URL
 
-If you chose the last option, "Custom URL", in the previous step, keep reading. Otherwise, skip to the next section.
+**If you chose the last option, "Custom URL", in the previous step, keep reading. Otherwise, skip to the next section.**
 
 Here, you can enter a custom URL to use as a search engine. It must include the string `{{query}}`, which will be replaced with your search URI component. Please do not enter the `https?://` protocol part of the URL, it will be ignored. See [`engines.txt`](https://github.com/spikespaz/search-deflector/blob/master/engines.txt) for examples on the format.
 
@@ -49,6 +66,10 @@ If you use this option, please create a [new issue](https://github.com/spikespaz
 ### 4. Finishing the setup
 
 The setup is complete. Make sure that the information listed is what you expected it to be. If it isn't, select all of the console output and paste it into a [new issue](https://github.com/spikespaz/search-deflector/issues/new) on GitHub. That is unintentional. If there was a crash before you get to this point, do the same.
+
+**As of version [0.1.0](https://github.com/spikespaz/releases/tag/0.1.0), if an error occurs you will recieve a message box that has a "Help" button. If you click it, it will redirect you to the GitHub issues page with all of the crash information filled out for you. You just need to set a title.**
+
+When reporting errors, include as much detail as you can. Tell me what happened before the crash, if you have any idea why the crash might have happened.
 
 ![Setup Screenshot 4](screenshots/setup-3.png)
 
