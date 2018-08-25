@@ -18,18 +18,15 @@ You must manually download and set up this new update, but after that, everythin
 
 * **Please remember to delete the old directory that contains files from previous versions if you are manually updating.**
 
-1. Go to the [releases page](https://github.com/spikespaz/search-deflector/releases) and download the installer zip archive.
-   * The name of the zip archive containing the installer should be `SearchDeflector-Installer.zip`.
+1. Go to the [releases page](https://github.com/spikespaz/search-deflector/releases) and download the installer executable.
 
-2. Open the archive with your file manager of choice, Windows Explorer can do it just fine.
-
-3. Double click to ruun the executable inside.
+2. Run the installer executable.
    * I didn't sign the executable, so you will get a warning saying "Windows protected your PC".
    * If you trust me, click the small text that says "More info", then the button "Run anyway".
 
-4. Follow the prompts that the installer gives you. Agree to the license, and read the information on the second page.
+3. Follow the prompts that the installer gives you. Agree to the license, and read the information on the second page.
 
-5. Once you get to the part where a command prompt window pops up, follow the detailed instructions below.
+4. Once you get to the part where a command prompt window pops up, follow the detailed instructions below.
 
 
 If you need the old instructions to install version before I added the automatic updater, look at the [`README.md` file in an old commit](https://github.com/spikespaz/search-deflector/blob/3a5dd058c675f59e9aede303d6b333a29d94306a/README.md).
