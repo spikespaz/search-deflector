@@ -7,16 +7,17 @@ mkdir -p "build/$release"
 
 echo "Compiling executable: build/$release/setup.exe"
 ldc2 "source/setup.d" "source/common.d" -of="build/$release/setup.exe" \
-    -O3 -ffast-math -release
+    -O3 -ffast-math -release -g
 echo "Compiling executable: build/$release/launcher.exe"
 ldc2 "source/launcher.d" "source/common.d" -of="build/$release/launcher.exe" \
-    -L/SUBSYSTEM:WINDOWS -O3 -ffast-math -release
+    -O3 -ffast-math -release -g
+    # -L/SUBSYSTEM:WINDOWS -O3 -ffast-math -release -g
 echo "Compiling executable: build/$release/updater.exe"
 ldc2 "source/updater.d" "source/common.d" -of="build/$release/updater.exe" \
-    -O3 -ffast-math -release
+    -O3 -ffast-math -release -g
 echo "Compiling executable: build/$release/deflector.exe"
 ldc2 "source/deflector.d" "source/common.d" -of="build/$release/deflector.exe" \
-    -O3 -ffast-math -release
+    -O3 -ffast-math -release -g
 
 echo "Removing residual object files."
 find "build/$release" -name "*.obj" -delete
