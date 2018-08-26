@@ -13,7 +13,7 @@ AppPublisherURL=https://spikespaz.com
 AppReadmeFile=https://github.com/spikespaz/search-deflector/blob/master/README.md
 AppSupportURL=https://github.com/spikespaz/search-deflector/issues
 AppUpdatesURL=https://github.com/spikespaz/search-deflector/releases
-AppVerName=Search Deflector v0.1.0
+AppVerName=Search Deflector {#AppVersion}
 AppVersion={#AppVersion}-{#AppBranch}
 ChangesEnvironment=yes
 Compression=lzma
@@ -26,6 +26,7 @@ OutputBaseFilename=SearchDeflector-Installer
 SetupIconFile=icons\icon.ico
 Uninstallable=yes
 UninstallDisplayName=Search Deflector
+UninstallDisplayIcon={app}\{#AppVersion}-{#AppBranch}\launcher.exe
 VersionInfoVersion={#AppVersion}
 WizardSmallImageFile=icons\icon.bmp
 OutputDir=build
@@ -45,5 +46,5 @@ Filename: "{app}\{#AppVersion}-{#AppBranch}\setup.exe"; Description: "Configure 
 [Registry]
 Root: HKCU; Subkey: "Software\Clients\SearchDeflector"; Flags: uninsdeletekey
 Root: HKLM; Subkey: "Software\Clients\SearchDeflector"; Flags: uninsdeletekey
-Root: HKLM; SubKey: "Software\RegisteredApplications"; ValueName: "SearchDeflector"; Flags: uninsdeletevalue;
+Root: HKLM; SubKey: "Software\RegisteredApplications"; ValueName: "SearchDeflector"; Flags: uninsdeletevalue
 Root: HKCR; Subkey: "SearchDeflector"; Flags: uninsdeletekey
