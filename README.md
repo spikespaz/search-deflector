@@ -2,16 +2,6 @@
 
 This is a small program that will redirect searches made with Cortana and the Start Menu to your preferred browser and search engine. While this software is extremely similar to Edge Deflector and Search With My Browser, it allows the user to use any search engine they want and select any installed browser--not just the system default.
 
-## Donations
-
-If you would like to show appreciation for my work, I would gladly accept a small donation!
-
-I will accept donations through PayPal.Me, Buy Me a Coffee, or Patreon.
-
-[![Buy Me a Coffee](https://i.imgur.com/fN422E7.png)](https://buymeacoffee.com/spikespaz)
-[![PayPal.Me](https://i.imgur.com/JWkunGi.png)](https://paypal.me/spikespaz)
-[![Patreon](https://i.imgur.com/K05b2RO.png)](https://patreon.com/spikespaz)
-
 ## Setup
 
 You must manually download and set up this new update, but after that, everything should be automatic.
@@ -73,3 +63,13 @@ When reporting errors, include as much detail as you can. Tell me what happened 
 You need a D compiler. I recommend [`LDC2`](https://github.com/ldc-developers/ldc/releases), if you have that you can just run `build.sh` with MinGW or Git Bash. Read the build script to figure out what needs to be done.
 
 You need `rcedit.exe` on your system `PATH` variable to add the icon to the executable. Get that from https://github.com/electron/rcedit.
+
+## Donations
+
+If you would like to show appreciation for my work, I would gladly accept a small donation!
+
+I will accept donations through PayPal.Me, Buy Me a Coffee, or Patreon.
+
+[![Buy Me a Coffee](https://i.imgur.com/fN422E7.png)](https://buymeacoffee.com/spikespaz)
+[![PayPal.Me](https://i.imgur.com/JWkunGi.png)](https://paypal.me/spikespaz)
+[![Patreon](https://i.imgur.com/K05b2RO.png)](https://patreon.com/spikespaz)
