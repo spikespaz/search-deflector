@@ -1,7 +1,7 @@
 module updater;
 
 import std.file: thisExePath, tempDir, exists, mkdirRecurse, read, write;
-import std.windows.registry: Key, Registry, REGSAM;
+import std.windows.registry: Key, Registry, RegistryException, REGSAM;
 import std.path: dirName, buildPath;
 import common: createErrorDialog;
 import std.net.curl: download;
@@ -40,7 +40,12 @@ void update(const string downloadUrl, const string updateVer) {
 
 /// Set the new file association.
 public void setShellCommand(const string filePath) {
-    Key shellCommandKey = Registry.classesRoot.getKey("SearchDeflector\\shell\\open\\command", REGSAM.KEY_WRITE);
+    Key shellCommandKey;
+
+    try
+        shellCommandKey = Registry.classesRoot.getKey("SearchDeflector\\shell\\open\\command", REGSAM.KEY_WRITE);
+    catch (RegistryException)
+        shellCommandKey = Registry.classesRoot.createKey("SearchDeflector\\shell\\open\\command", REGSAM.KEY_WRITE);
 
     shellCommandKey.setValue("", '"' ~ filePath ~ "\" \"%1\"");
 

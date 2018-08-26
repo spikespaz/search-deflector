@@ -18,9 +18,9 @@ import std.array: split;
 enum string enginesURL = "https://raw.githubusercontent.com/spikespaz/search-deflector/master/engines.txt";
 
 void main() {
-    try {
+    try
         setup(buildPath(thisExePath().dirName(), "launcher.exe"));
-    } catch (Exception error)
+    catch (Exception error)
         createErrorDialog(error);
 
     writeln("\nPress Enter to close the setup.");
@@ -74,47 +74,40 @@ void registerHandler(const string filePath, const string engineName, const strin
     Key urlAssociationsKey;
 
     // Try to open each one, if it doesn't exist, make it.
-    try {
+    try
         deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
-    } catch (RegistryException) {
+    catch (RegistryException)
         deflectorKey = Registry.currentUser.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
-    }
 
-    try {
+    try
         uriClassKey = Registry.classesRoot.getKey("SearchDeflector", REGSAM.KEY_WRITE);
-    } catch (RegistryException) {
+    catch (RegistryException)
         uriClassKey = Registry.classesRoot.createKey("SearchDeflector", REGSAM.KEY_WRITE);
-    }
 
-    try {
+    try
         iconKey = uriClassKey.getKey("DefaultIcon", REGSAM.KEY_WRITE);
-    } catch (RegistryException) {
+    catch (RegistryException)
         iconKey = uriClassKey.createKey("DefaultIcon", REGSAM.KEY_WRITE);
-    }
 
-    try {
+    try
         shellCommandKey = uriClassKey.getKey("shell\\open\\command", REGSAM.KEY_WRITE);
-    } catch (RegistryException) {
+    catch (RegistryException)
         shellCommandKey = uriClassKey.createKey("shell\\open\\command", REGSAM.KEY_WRITE);
-    }
 
-    try {
+    try
         softwareKey = Registry.localMachine.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
-    } catch (RegistryException) {
+    catch (RegistryException)
         softwareKey = Registry.localMachine.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
-    }
 
-    try {
+    try
         capabilityKey = softwareKey.getKey("Capabilities", REGSAM.KEY_WRITE);
-    } catch (RegistryException) {
+    catch (RegistryException)
         capabilityKey = softwareKey.createKey("Capabilities", REGSAM.KEY_WRITE);
-    }
 
-    try {
+    try
         urlAssociationsKey = capabilityKey.getKey("UrlAssociations", REGSAM.KEY_WRITE);
-    } catch (RegistryException) {
+    catch (RegistryException)
         urlAssociationsKey = capabilityKey.createKey("UrlAssociations", REGSAM.KEY_WRITE);
-    }
 
     Key registeredAppsKey = Registry.localMachine.getKey("SOFTWARE\\RegisteredApplications", REGSAM.KEY_WRITE);
 
@@ -179,11 +172,10 @@ string[string] getAvailableBrowsers() {
 string[string] getEnginePresets() {
     string enginesText;
 
-    try {
+    try
         enginesText = get(enginesURL).idup; // Get the string of the resource content.
-    } catch (CurlException) {
+    catch (CurlException)
         enginesText = readText("engines.txt");
-    }
 
     return parseConfig(enginesText);
 }
@@ -295,9 +287,8 @@ bool validateEngineUrl(const string url) {
             return true;
         else
             return false;
-    } catch (CurlException) {
+    } catch (CurlException)
         return false;
-    }
 }
 
 /// Get a config in the pattern of "^(?<key>[^:]+)\s*:\s*(?<value>.+)$" from a string.

@@ -28,19 +28,21 @@ extern (Windows) int WinMain() {
                 null, Config.suppressConsole | Config.detached);
         // dfmt on
 
-        if (args[1] == "--update" || shouldCheckUpdate(days(1))) {
+        if (args[1] == "--setup")
+            ShellExecuteA(null, "runas".toStringz(), launchPath.format("setup.exe").toStringz(), null, null, SW_SHOWNORMAL);
+        else if (args[1] == "--update" || shouldCheckUpdate(days(1))) {
             string[string] updateInfo = getUpdateInfo(VERSION.split('-')[0]);
 
             if (updateInfo)
                 ShellExecuteA(null, "runas".toStringz(), launchPath.format("updater.exe").toStringz(),
                         (escapeWindowsArgument(updateInfo["download"]) ~ ' ' ~ escapeWindowsArgument(
                             updateInfo["version"] ~ '-' ~ updateInfo["branch"])).toStringz(), null, SW_HIDE);
-        } else if (args[1] == "--setup")
-            ShellExecuteA(null, "runas".toStringz(), launchPath.format("setup.exe").toStringz(), null, null, SW_SHOWNORMAL);
+        }
 
         Runtime.terminate();
     } catch (Exception error) {
         createErrorDialog(error);
+        throw error;
 
         result = 1;
     }
@@ -51,9 +53,8 @@ extern (Windows) int WinMain() {
 /// Check if it's time for an update since last update check time.
 bool shouldCheckUpdate(const Duration interval) {
     const SysTime currentTime = Clock.currTime();
-    const SysTime lastCheck = lastUpdateCheck();
 
-    if (lastCheck + interval < currentTime) {
+    if (lastUpdateCheck() + interval < currentTime) {
         lastUpdateCheck(currentTime);
         return true;
     }

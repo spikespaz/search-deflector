@@ -1,12 +1,12 @@
 module common;
 
 import core.sys.windows.windows: CommandLineToArgvW, MessageBox, MB_ICONERROR, MB_YESNO, IDYES;
-import std.windows.registry: Registry, Key, REGSAM;
+import std.windows.registry: Registry, RegistryException, Key, REGSAM;
 import std.json: JSONValue, parseJSON;
 import std.string: split, toStringz;
 import std.uri: encodeComponent;
 import std.range: zip, popFront;
-import std.datetime: SysTime;
+import std.datetime: SysTime, DateTime;
 import std.algorithm: sort;
 import std.process: browse;
 import std.format: format;
@@ -108,14 +108,24 @@ public bool compareVersions(const string firstVer, const string secondVer) {
 
 /// Get the last recorded update check time.
 public SysTime lastUpdateCheck() {
-    Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
+    Key deflectorKey;
 
-    return SysTime.fromISOString(deflectorKey.getValue("LastUpdateCheck").value_SZ);
+    try {
+        deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
+
+        return SysTime.fromISOString(deflectorKey.getValue("LastUpdateCheck").value_SZ);
+    } catch (RegistryException)
+        return SysTime(DateTime(0, 1, 1));
 }
 
 /// Set the new last update check time.
 public void lastUpdateCheck(SysTime checkTime) {
-    Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
+    Key deflectorKey;
+
+    try
+        deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
+    catch (RegistryException)
+        deflectorKey = Registry.currentUser.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
 
     deflectorKey.setValue("LastUpdateCheck", checkTime.toISOString());
 
