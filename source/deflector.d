@@ -11,49 +11,34 @@ import std.conv: to;
 alias DeflectionError = Exception;
 
 /// Entry to call the deflection, or error out.
-int main(string[] args) {
+void main(string[] args) {
     if (args.length > 1) {
         try {
-            deflect(args[1]);
-
-            return 0;
-        } catch (Exception error) {
+            const string[string] registryInfo = getRegistryInfo();
+            openUri(registryInfo["BrowserPath"], rewriteUri(args[1], registryInfo["EngineURL"]));
+        } catch (Exception error)
             createErrorDialog(error);
-
-            return 1;
-        }
-    }
-
-    createErrorDialog(
-        new Exception("Expected one URI argument, recieved: \n" ~ args.to!string())
-    );
-
-    return 1;
-}
-
-/// Function to run after setup, actually deflected.
-void deflect(const string uri) {
-    const string[string] registryInfo = getRegistryInfo();
-
-    if (uri.toLower().startsWith("microsoft-edge:")) {
-        const string url = getQueryParams(uri)["url"].decodeComponent();
-
-        if (url.startsWith("https://www.bing.com")) {
-            const string searchQuery = getQueryParams(url)["pq"];
-            const string searchURL = "https://" ~ registryInfo["EngineURL"].replace("{{query}}", searchQuery);
-
-            openUri(registryInfo["BrowserPath"], searchURL);
-        } else if (checkHttpUri(url))
-            openUri(registryInfo["BrowserPath"], url);
-        else
-            throw new DeflectionError("Error deflecting:\n" ~ uri);
     } else
-        throw new DeflectionError("Error deflecting:\n" ~ uri);
+        createErrorDialog(new Exception("Expected one URI argument, recieved: \n" ~ args.to!string()));
 }
 
-/// Check if a URI is HTTP protocol.
-bool checkHttpUri(const string uri) {
-    return 0 < uri.toLower().startsWith("http://", "https://");
+/// Reqrites a "microsoft-edge" URI to something browsers can use.
+string rewriteUri(const string uri, const string engineUrl) {
+    if (uri.toLower().startsWith("microsoft-edge:")) {
+        const string[string] queryParams = getQueryParams(uri);
+
+        if ("url" in queryParams) {
+            const string url = queryParams["url"].decodeComponent();
+
+            if (url.startsWith("https://www.bing.com"))
+                return "https://" ~ engineUrl.replace("{{query}}", getQueryParams(url)["pq"]); // "pq" maintains casing.
+            else
+                return url;
+        } else // Didn't know what to do with the protocol URI, so just search the text same as Edge.
+            return engineUrl.replace("{{query}}", uri[15 .. $].encodeComponent());
+
+    } else
+        throw new DeflectionError("Not a 'microsoft-edge' URI: " ~ uri);
 }
 
 /// Get all of the configuration information from the registry.
