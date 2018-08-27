@@ -8,8 +8,6 @@ import common: createErrorDialog;
 import std.array: split;
 import std.conv: to;
 
-alias DeflectionError = Exception;
-
 /// Entry to call the deflection, or error out.
 void main(string[] args) {
     if (args.length > 1) {
@@ -27,7 +25,7 @@ string rewriteUri(const string uri, const string engineUrl) {
     if (uri.toLower().startsWith("microsoft-edge:")) {
         const string[string] queryParams = getQueryParams(uri);
 
-        if ("url" in queryParams) {
+        if (queryParams !is null && "url" in queryParams) {
             const string url = queryParams["url"].decodeComponent();
 
             if (url.startsWith("https://www.bing.com"))
@@ -36,9 +34,9 @@ string rewriteUri(const string uri, const string engineUrl) {
                 return url;
         } else // Didn't know what to do with the protocol URI, so just search the text same as Edge.
             return engineUrl.replace("{{query}}", uri[15 .. $].encodeComponent());
-
     } else
-        throw new DeflectionError("Not a 'microsoft-edge' URI: " ~ uri);
+        throw new Exception
+        ("Not a 'microsoft-edge' URI: " ~ uri);
 }
 
 /// Get all of the configuration information from the registry.
@@ -68,6 +66,10 @@ string[string] getQueryParams(const string uri) {
     string[string] queryParams;
 
     const size_t queryStart = uri.indexOf('?');
+
+    if (queryStart == -1)
+        return null;
+
     const string[] paramStrings = uri[queryStart + 1 .. $].split('&');
 
     foreach (param; paramStrings) {
