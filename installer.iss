@@ -46,5 +46,5 @@ Filename: "{app}\{#AppVersion}-{#AppBranch}\setup.exe"; Description: "Configure 
 [Registry]
 Root: HKCU; Subkey: "Software\Clients\SearchDeflector"; Flags: uninsdeletekey
 Root: HKLM; Subkey: "Software\Clients\SearchDeflector"; Flags: uninsdeletekey
-Root: HKLM; SubKey: "Software\RegisteredApplications"; ValueName: "SearchDeflector"; Flags: uninsdeletevalue
+Root: HKLM; Subkey: "Software\RegisteredApplications"; ValueName: "SearchDeflector"; Flags: uninsdeletevalue
 Root: HKCR; Subkey: "SearchDeflector"; Flags: uninsdeletekey
