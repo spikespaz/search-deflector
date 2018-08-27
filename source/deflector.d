@@ -60,7 +60,7 @@ void openUri(const string browserPath, const string url) {
     if (browserPath == "system_default")
         browse(url); // Automatically calls the system default browser.
     else
-        spawnProcess([browserPath, url], null, Config.newEnv); // Uses a specific executable.
+        spawnProcess([browserPath, url], null, Config.detached); // Uses a specific executable.
 }
 
 /// Parse the query parameters from a URI and return as an associative array.
