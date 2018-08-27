@@ -15,7 +15,7 @@ import std.utf: toUTF16z;
 import std.conv: to;
 
 /// Public version strings determined at compile time.
-enum string VERSION = "0.1.3-master";
+enum string VERSION = "0.1.4-master";
 enum string UPDATE_FILE = "SearchDeflector-x86.zip";
 enum string RELEASES_URL = "https://api.github.com/repos/%s/%s/releases";
 
