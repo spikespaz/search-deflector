@@ -4,6 +4,7 @@ import std.windows.registry: Key, Registry, REGSAM, RegistryException;
 import std.string: toLower, strip, splitLines, indexOf, stripLeft;
 import common: createErrorDialog, getConsoleArgs, VERSION;
 import std.path: buildPath, dirName, isValidFilename;
+import std.socket: getAddress, SocketOSException;
 import std.file: thisExePath, readText, exists;
 import std.stdio: write, writeln, readln;
 import std.net.curl: get, CurlException;
@@ -283,11 +284,15 @@ bool validateEngineUrl(const string url) {
         return false;
 
     try {
-        if (get(url))
-            return true;
+        const ptrdiff_t slashIndex = url.indexOf("/");
+
+        if (slashIndex == -1)
+            getAddress(url);
         else
-            return false;
-    } catch (CurlException)
+            getAddress(url[0 .. slashIndex]);
+
+        return true;
+    } catch (SocketOSException)
         return false;
 }
 
