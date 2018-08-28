@@ -287,8 +287,11 @@ bool validateEngineUrl(const string url) {
             return true;
         else
             return false;
-    } catch (CurlException)
+    } catch (CurlException) {
         return false;
+    } catch (EncodingException) {
+        return true;
+    }
 }
 
 /// Get a config in the pattern of "^(?<key>[^:]+)\s*:\s*(?<value>.+)$" from a string.
