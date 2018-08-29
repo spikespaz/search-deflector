@@ -7,10 +7,10 @@ import std.path: buildPath, dirName, isValidFilename;
 import std.socket: getAddress, SocketOSException;
 import std.file: thisExePath, readText, exists;
 import std.stdio: write, writeln, readln;
+import std.algorithm: sort, canFind, all;
 import std.net.curl: get, CurlException;
 import std.conv: parse, ConvException;
 import std.datetime: Clock, SysTime;
-import std.algorithm.sorting: sort;
 import std.range: array, enumerate;
 import std.utf: toUTF16z;
 import std.array: split;
@@ -18,14 +18,30 @@ import std.array: split;
 /// Online resource to the repository of the project containing a list of search engine choices.
 enum string enginesURL = "https://raw.githubusercontent.com/spikespaz/search-deflector/master/engines.txt";
 
-void main() {
-    try
-        setup(buildPath(thisExePath().dirName(), "launcher.exe"));
-    catch (Exception error)
-        createErrorDialog(error);
+void main(string[] args) {
+    if (!args.canFind("--update") || !checkConfigured()) {
+        try
+            setup(buildPath(thisExePath().dirName(), "launcher.exe"));
+        catch (Exception error)
+            createErrorDialog(error);
 
-    writeln("\nPress Enter to close the setup.");
-    readln();
+        writeln("\nPress Enter to close the setup.");
+        readln();
+    }
+}
+
+/// Checks if the required registry values already exist.
+bool checkConfigured() {
+    try {
+        Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector");
+
+        foreach (valueName; deflectorKey.valueNames)
+            if (!["", "BrowserName", "BrowserPath", "EngineName", "EngineURL", "LastUpdateCheck"].canFind(valueName))
+                return false;
+
+        return true;
+    } catch (RegistryException)
+        return false;
 }
 
 /// Function to run when setting up the deflector.
