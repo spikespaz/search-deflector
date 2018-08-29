@@ -29,14 +29,13 @@ string rewriteUri(const string uri, const string engineUrl) {
             const string url = queryParams["url"].decodeComponent();
 
             if (url.startsWith("https://www.bing.com"))
-                return "https://" ~ engineUrl.replace("{{query}}", getQueryParams(url)["pq"]); // "pq" maintains casing.
+                return "https://" ~ engineUrl.replace("{{query}}", getQueryParams(url)["q"]);
             else
                 return url;
         } else // Didn't know what to do with the protocol URI, so just search the text same as Edge.
             return engineUrl.replace("{{query}}", uri[15 .. $].encodeComponent());
     } else
-        throw new Exception
-        ("Not a 'microsoft-edge' URI: " ~ uri);
+        throw new Exception("Not a 'microsoft-edge' URI: " ~ uri);
 }
 
 /// Get all of the configuration information from the registry.
