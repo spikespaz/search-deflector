@@ -7,41 +7,25 @@ import std.path: buildPath, dirName, isValidFilename;
 import std.socket: getAddress, SocketOSException;
 import std.file: thisExePath, readText, exists;
 import std.stdio: write, writeln, readln;
-import std.algorithm: sort, canFind, all;
 import std.net.curl: get, CurlException;
 import std.conv: parse, ConvException;
 import std.datetime: Clock, SysTime;
 import std.range: array, enumerate;
+import std.algorithm: sort;
 import std.utf: toUTF16z;
 import std.array: split;
 
 /// Online resource to the repository of the project containing a list of search engine choices.
 enum string enginesURL = "https://raw.githubusercontent.com/spikespaz/search-deflector/master/engines.txt";
 
-void main(string[] args) {
-    if (!args.canFind("--update") || !checkConfigured()) {
-        try
-            setup(buildPath(thisExePath().dirName(), "launcher.exe"));
-        catch (Exception error)
-            createErrorDialog(error);
+void main() {
+    try
+        setup(buildPath(thisExePath().dirName(), "launcher.exe"));
+    catch (Exception error)
+        createErrorDialog(error);
 
-        writeln("\nPress Enter to close the setup.");
-        readln();
-    }
-}
-
-/// Checks if the required registry values already exist.
-bool checkConfigured() {
-    try {
-        Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector");
-
-        foreach (valueName; deflectorKey.valueNames)
-            if (!["", "BrowserName", "BrowserPath", "EngineName", "EngineURL", "LastUpdateCheck"].canFind(valueName))
-                return false;
-
-        return true;
-    } catch (RegistryException)
-        return false;
+    writeln("\nPress Enter to close the setup.");
+    readln();
 }
 
 /// Function to run when setting up the deflector.
@@ -59,12 +43,7 @@ void setup(const string filePath) {
     const string browserName = getBrowserChoice(browsers);
     const string engineName = getEngineChoice(engines);
     const string engineURL = engineName == "Custom URL" ? getCustomEngine() : engines[engineName];
-    // dfmt off
-    const string browserPath =
-        browserName == "System Default" ? "system_default" : browsers[browserName];
-        // browserName == "System Default" ? "system_default" :
-        // browserName == "Microsoft Edge" ? "microsoft_edge" : browsers[browserName];
-    // dfmt on
+    const string browserPath = browserName == "System Default" ? "system_default" : browsers[browserName];
 
     // dfmt off
     writeln("Search Deflector will be set up using the following variables.\n",
