@@ -2,6 +2,8 @@
 
 ### **Search Deflector** is a small tool that redirects searches made from the Windows Start Menu or Cortana to whatever browser and search engine you prefer. No more Microsoft Edge and Bing!
 
+Now you can search really fast by just tapping the Windows key, and type your search. Hit enter, or click one of the results in the right panel. This is faster than opening your browser (if it isn't), opening a new tab, and clicking the search bar. I've found it to be a good quality-of-life trick.
+
 **Please don't forget to star this repository** if you like what I've made!
 
 After a simple setup, you can use *any* browser (provided it is registered as a protocol handler) and *any* search engine. If you are having trouble getting either of these to work, send me an email at support@spikespaz.com or create an [issue](https://github.com/spikespaz/search-deflector/issues), and I will see what I can do to get your custom settings working.
