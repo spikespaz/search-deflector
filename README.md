@@ -24,6 +24,8 @@ If you don't think a new issue would be very helpful, or if you need help settin
 
 # Setup
 
+### 0. Using the installer
+
 * **Please remember to delete the old directory that contains files from previous versions if you are manually updating.**
 
 1. Go to the [releases page](https://github.com/spikespaz/search-deflector/releases) and download the installer executable.
