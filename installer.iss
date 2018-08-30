@@ -41,7 +41,7 @@ Name: "{group}\Uninstall"; Filename: "{uninstallexe}"; Flags: excludefromshowinn
 Name: "{group}\Visit Website"; FileName: "https://github.com/spikespaz/search-deflector"
 
 [Run]
-Filename: "{app}\{#AppVersion}-{#AppBranch}\setup.exe"; Description: "Configure Search Deflector"; Flags: hidewizard
+Filename: "{app}\{#AppVersion}-{#AppBranch}\updater.exe"; Flags: hidewizard
 
 [Registry]
 Root: HKCU; Subkey: "Software\Clients\SearchDeflector"; Flags: uninsdeletekey

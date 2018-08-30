@@ -16,7 +16,7 @@ import std.conv: to;
 
 /// Public version strings determined at compile time.
 enum string VERSION = "0.1.4-master";
-enum string UPDATE_FILE = "SearchDeflector-x86.zip";
+enum string UPDATE_FILE = "SearchDeflector-Installer.exe";
 enum string RELEASES_URL = "https://api.github.com/repos/%s/%s/releases";
 
 /// Creates a messabe box telling the user there was an error, and redirect to issues page.

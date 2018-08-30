@@ -22,11 +22,8 @@ extern (Windows) int WinMain() {
         const string[] args = getConsoleArgs(GetCommandLineW());
         const string launchPath = buildPath(thisExePath().dirName(), "%s");
 
-        // dfmt off
         if (args.length > 1 && args[1] != "--setup" && args[1] != "--update")
-            spawnProcess(launchPath.format("deflector.exe") ~ args[1 .. $],
-                null, Config.suppressConsole | Config.detached);
-        // dfmt on
+            spawnProcess(launchPath.format("deflector.exe") ~ args[1 .. $], null, Config.suppressConsole);
 
         if (args[1] == "--setup")
             ShellExecuteA(null, "runas".toStringz(), launchPath.format("setup.exe").toStringz(), null, null, SW_SHOWNORMAL);
@@ -34,9 +31,7 @@ extern (Windows) int WinMain() {
             string[string] updateInfo = getUpdateInfo(VERSION.split('-')[0]);
 
             if (updateInfo)
-                ShellExecuteA(null, "runas".toStringz(), launchPath.format("updater.exe").toStringz(),
-                        (escapeWindowsArgument(updateInfo["download"]) ~ ' ' ~ escapeWindowsArgument(
-                            updateInfo["version"] ~ '-' ~ updateInfo["branch"])).toStringz(), null, SW_HIDE);
+                spawnProcess([launchPath.format("updater.exe"), escapeWindowsArgument(updateInfo["download"])]);
         }
 
         Runtime.terminate();
