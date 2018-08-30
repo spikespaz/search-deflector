@@ -3,7 +3,7 @@ module launcher;
 import common: VERSION, UPDATE_FILE, getConsoleArgs, lastUpdateCheck, getLatestRelease, compareVersions, createErrorDialog;
 import core.sys.windows.windows: GetCommandLineW, ShellExecuteA, SW_HIDE, SW_SHOWNORMAL;
 import std.process: spawnProcess, escapeWindowsArgument, Config;
-import std.datetime: Clock, SysTime, Duration, days;
+import std.datetime: Clock, SysTime, Duration, hours;
 import std.path: dirName, buildPath;
 import std.string: toStringz, split;
 import core.runtime: Runtime;
@@ -11,6 +11,9 @@ import std.file: thisExePath;
 import std.json: JSONValue;
 import std.format: format;
 import std.conv: to;
+
+/// Every X hours to check for an update.
+enum Duration updateInterval = hours(12);
 
 /// Windows entry point.
 extern (Windows) int WinMain() {
@@ -27,7 +30,7 @@ extern (Windows) int WinMain() {
 
         if (args[1] == "--setup")
             ShellExecuteA(null, "runas".toStringz(), launchPath.format("setup.exe").toStringz(), null, null, SW_SHOWNORMAL);
-        else if (args[1] == "--update" || shouldCheckUpdate(days(1))) {
+        else if (args[1] == "--update" || shouldCheckUpdate(updateInterval)) {
             string[string] updateInfo = getUpdateInfo(VERSION.split('-')[0]);
 
             if (updateInfo)
