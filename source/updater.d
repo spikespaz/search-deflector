@@ -1,41 +1,35 @@
 module updater;
 
-import std.file: thisExePath, tempDir, exists, mkdirRecurse, read, write;
-import std.windows.registry: Key, Registry, RegistryException, REGSAM;
-import std.path: dirName, buildPath;
+import std.windows.registry: Key, Registry, REGSAM, RegistryException;
+import core.sys.windows.windows: ShellExecuteA, SW_SHOWNORMAL;
+import std.path: buildPath, dirName;
 import common: createErrorDialog;
+import std.process: wait, spawnProcess;
 import std.net.curl: download;
-import std.zip: ZipArchive;
-import std.conv: to;
+import std.string: toStringz;
+import std.file: thisExePath;
+import std.file: tempDir;
 
 void main(string[] args) {
-    if (args.length < 2)
-        createErrorDialog(new Exception("Incorrect number of arguments passed to updater.\nFound: " ~ args.to!string));
-
-    try
-        update(args[1], args[2]);
-    catch (Exception error)
+    try {
+        if (args.length == 1) {
+            if (checkConfigured())
+                setShellCommand(buildPath(thisExePath().dirName(), "launcher.exe"));
+            else // Assumes already runnig as admin.
+                spawnProcess(buildPath(thisExePath().dirName(), "setup.exe")).wait();
+        } else
+            update(args[1]);
+    } catch (Exception error)
         createErrorDialog(error);
 }
 
-/// Main update function that downloads and extracts the update archive.
-void update(const string downloadUrl, const string updateVer) {
-    import std.stdio: writeln;
+/// New update function to download and run the installer instead of unpacking the zip.
+void update(const string downloadUrl) {
+    const string downloadPath = buildPath(tempDir, "SearchDeflector-Installer.exe");
 
-    const string installDir = buildPath(thisExePath().dirName(), "..", updateVer);
-    const string archivePath = buildPath(tempDir, "update.zip");
+    download(downloadUrl, downloadPath);
 
-    if (!exists(installDir))
-        mkdirRecurse(installDir);
-
-    download(downloadUrl, archivePath);
-
-    ZipArchive archiveFile = new ZipArchive(read(archivePath));
-
-    foreach (member; archiveFile.directory)
-        write(buildPath(installDir, member.name), member.expandedData());
-
-    setShellCommand(buildPath(installDir, updateVer, "launcher.exe"));
+    ShellExecuteA(null, "runas".toStringz(), downloadPath.toStringz(), null, null, SW_SHOWNORMAL);
 }
 
 /// Set the new file association.
@@ -50,4 +44,20 @@ public void setShellCommand(const string filePath) {
     shellCommandKey.setValue("", '"' ~ filePath ~ "\" \"%1\"");
 
     shellCommandKey.flush();
+}
+
+/// Checks if the required registry values already exist.
+bool checkConfigured() {
+    try {
+        Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector");
+
+        deflectorKey.getValue("BrowserName");
+        deflectorKey.getValue("BrowserPath");
+        deflectorKey.getValue("EngineName");
+        deflectorKey.getValue("EngineURL");
+        deflectorKey.getValue("LastUpdateCheck");
+
+        return true;
+    } catch (RegistryException)
+        return false;
 }
