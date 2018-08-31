@@ -70,6 +70,13 @@ else
             deflector
             shift
         ;;
+        a|all)
+            setup
+            launcher
+            updater
+            deflector
+            shift
+        ;;
         c|clean)
             clean
             shift
