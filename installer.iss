@@ -1,4 +1,4 @@
-#define AppVersion "0.1.4"
+#define AppVersion "0.2.0"
 #define AppBranch "master"
 
 [Setup]
