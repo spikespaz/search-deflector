@@ -30,7 +30,9 @@ If you don't think a new issue would be very helpful, or if you need help settin
 
 * **Please remember to delete the old directory that contains files from previous versions if you are manually updating.**
 
-1. Go to the [releases page](https://github.com/spikespaz/search-deflector/releases) and download the installer executable.
+1. Go to the [releases page](https://github.com/spikespaz/search-deflector/releases) and download the installer executable named `SearchDeflector-Installer.exe`.
+   * Alternatively click [here](https://github.com/spikespaz/search-deflector/releases/download/0.2.0/SearchDeflector-Installer.exe) to download the installer
+   *(note that this may not be the most recent build because I may forget to update this link).*
 
 2. Run the installer executable.
    * I didn't sign the executable, so you will get a warning saying "Windows protected your PC".
@@ -59,7 +61,7 @@ See [the next section](#3-using-a-custom-url) for details on the last option, "C
 
 **If you chose the last option, "Custom URL", in the previous step, keep reading. Otherwise, skip to the next section.**
 
-Here, you can enter a custom URL to use as a search engine. It must include the string `{{query}}`, which will be replaced with your search URI component. Please do not enter the `https?://` protocol part of the URL, it will be ignored. See [`engines.txt`](https://github.com/spikespaz/search-deflector/blob/master/engines.txt) for examples on the format.
+Here, you can enter a custom URL to use as a search engine. It must include the string `{{query}}`, which will be replaced with your search URI component. Please do not enter the `https://` protocol part of the URL, it will be ignored. See [`engines.txt`](https://github.com/spikespaz/search-deflector/blob/master/engines.txt) for examples on the format.
 
 The program will then check the validity of your input by sending a GET request to the URL. If it succeeds and returns 200, you can move forward.
 
@@ -79,14 +81,18 @@ When reporting errors, include as much detail as you can. Tell me what happened 
 
 You need a D compiler. I recommend [`LDC2`](https://github.com/ldc-developers/ldc/releases), if you have that you can just run `build.sh` with MinGW or Git Bash. Read the build script to figure out what needs to be done. You also need the [Microsoft Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads/#vs-2017).
 
-The build script can also compile one module at a time, but only one.
+To compile with debug information, just run `./build.sh`.
 
-*(If anyone is good at Bash scripting, please submit a PR with a revised build script so I can select multiple modules to compile!)*
+The build script can also compile one module at a time, but only one.
 
 - `./build.sh setup`
 - `./build.sh launcher`
 - `./build.sh updater`
 - `./build.sh deflector`
+
+To compile for release, add `all` and `clean`.
+
+- `./build.sh all clean`
 
 You need `rcedit.exe` on your system `PATH` variable to add the icon to the executable. Get that from https://github.com/electron/rcedit.
 
@@ -96,7 +102,7 @@ If you would like to show appreciation for my work, I would gladly accept a smal
 
 I am the sole author of this project, and if you appreciate my work or any of my other projects, you can donate a small amount to help me out.
 
-Even if you don't want to donate, I would hugely appreciate a star on the repository so the visibility goes up and I get that nice dopamine. Seeing people use the software I've worked hard on makes me happy.
+Even if you don't want to donate, I would hugely appreciate a star on the repository so the visibility goes up and I get that dopamine rush. Seeing people use the software I've worked hard on makes me happy.
 
 I will accept donations through PayPal.Me, Buy Me a Coffee, or Patreon.
 
