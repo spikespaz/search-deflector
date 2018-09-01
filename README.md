@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="icons/banner.png" alt="Search Deflector"/>
+  <img src="icons/title.png" alt="Search Deflector"/>
 </h1>
 
 ### **Search Deflector** is a small tool that redirects searches made from the Windows Start Menu or Cortana to whatever browser and search engine you prefer. No more Microsoft Edge and Bing!
