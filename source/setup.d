@@ -3,9 +3,9 @@ module setup;
 import std.windows.registry: Key, Registry, REGSAM, RegistryException;
 import std.string: toLower, strip, splitLines, indexOf, stripLeft;
 import common: createErrorDialog, getConsoleArgs, VERSION;
+import std.file: thisExePath, readText, isFile, exists;
 import std.path: buildPath, dirName, isValidFilename;
 import std.socket: getAddress, SocketOSException;
-import std.file: thisExePath, readText, exists;
 import std.stdio: write, writeln, readln;
 import std.net.curl: get, CurlException;
 import std.conv: parse, ConvException;
@@ -34,16 +34,37 @@ void setup(const string filePath) {
     writeln("Welcome to Search Deflector setup.\n",
             "Just answer the prompts in this terminal to set your preferences, and you should be good to go.\n",
             "If you have any questions, please email me at 'support@spikespaz.com',\n",
-            "or create an Issue on the GitHub repository (https://github.com/spikespaz/search-deflector/issues).\n");
+            "or create an Issue on the GitHub repository (https://github.com/spikespaz/search-deflector/issues).\n\n",
+            "Don't forget to star the repository on GitHub so people see it!\n");
     // dfmt on
 
     const string[string] browsers = getAvailableBrowsers();
     const string[string] engines = getEnginePresets();
 
     const string browserName = getBrowserChoice(browsers);
+    string browserPath;
+
+    switch (browserName) {
+        case "System Default":
+            browserPath = "system_default";
+            break;
+        case "Custom Path":
+            browserPath = getCustomBrowser();
+            break;
+        default:
+            browserPath = browsers[browserName];
+    }
+
     const string engineName = getEngineChoice(engines);
-    const string engineURL = engineName == "Custom URL" ? getCustomEngine() : engines[engineName];
-    const string browserPath = browserName == "System Default" ? "system_default" : browsers[browserName];
+    string engineURL;
+
+    switch (engineName) {
+        case "Custom URL":
+            engineURL = getCustomEngine;
+            break;
+        default:
+            engineURL = engines[engineName];
+    }
 
     // dfmt off
     writeln("Search Deflector will be set up using the following variables.\n",
@@ -210,8 +231,7 @@ string getBrowserChoice(const string[string] browsers) {
     foreach (index, choice; choices.enumerate())
         choices[index] = choice ~ " ~ " ~ browsers[choice];
 
-    choices ~= ["System Default"]; // Each of these strings, if returned, need special handling.
-    // choices ~= ["Microsoft Edge", "System Default"];
+    choices ~= ["System Default", "Custom Path"]; // Each of these strings, if returned, need special handling.
 
     writeln("Please make a selection of one of the browsers below.\n");
 
@@ -270,6 +290,29 @@ string getCustomEngine() {
     } else {
         writeln();
         return getCustomEngine();
+    }
+}
+
+/// Ask the user for a custom browser path and validate it.
+string getCustomBrowser() {
+    writeln("Please enter a custom browser path.");
+    write("\nPath: ");
+
+    string path = readln().strip();
+
+    while (!path || !exists(path) || !isFile(path)) {
+        write("Please enter a valid path: ");
+        path = readln().strip();
+    }
+
+    write("\nYou entered '" ~ path ~ "'.\nIs this correct? (Y/n): ");
+
+    if (readln().strip().toLower() == "y") {
+        writeln();
+        return path;
+    } else {
+        writeln();
+        return getCustomBrowser();
     }
 }
 
