@@ -9,3 +9,4 @@ Wikipedia:     wikipedia.org/wiki/Special:Search?search={{query}}
 GitHub:        github.com/search?q={{query}}
 Wolfram Alpha: wolframalpha.com/input/?i={{query}}
 Ask:           ask.com/web?q={{query}}
+Ecosia:        ecosia.org/search?q={{query}}
