@@ -1,13 +1,15 @@
 // This file is parsed by each client using Search Deflector.
 // It serves as a way to always provide an updated list of search engines,
 // so the user doesn't have to update the executable to get the latest engine changes.
-Google:        google.com/search?q={{query}}
-DuckDuckGo:    duckduckgo.com/?q={{query}}
-Bing:          bing.com/search?q={{query}}
-Yahoo:         search.yahoo.com/search?p={{query}}
-Wikipedia:     wikipedia.org/wiki/Special:Search?search={{query}}
-Dictionary:    dictionary.com/search?q={{query}}
-GitHub:        github.com/search?q={{query}}
-Wolfram Alpha: wolframalpha.com/input/?i={{query}}
-Ask:           ask.com/web?q={{query}}
-Ecosia:        ecosia.org/search?q={{query}}
+Google:          google.com/search?q={{query}}
+DuckDuckGo:      duckduckgo.com/?q={{query}}
+Bing:            bing.com/search?q={{query}}
+Yahoo:           search.yahoo.com/search?p={{query}}
+Wikipedia:       wikipedia.org/wiki/Special:Search?search={{query}}
+Dictionary.com:  dictionary.com/search?q={{query}}
+Thesaurus.com:   thesaurus.com/browse/{{query}}
+GitHub:          github.com/search?q={{query}}
+Wolfram Alpha:   wolframalpha.com/input/?i={{query}}
+Stack Overflow:  stackoverflow.com/search?q={{query}}
+Ask:             ask.com/web?q={{query}}
+Ecosia:          ecosia.org/search?q={{query}}
