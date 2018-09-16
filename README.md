@@ -20,7 +20,9 @@ SearchWithMyBrowser has the same problems as EdgeDeflector.
 
 # How do I set it up?
 
-Take a look at the [Wiki page](https://github.com/spikespaz/search-deflector/wiki/Setup-&-Installing) for that.
+Download the latest installer executable by clicking [here](https://spikespaz.com/tools/repo-dl/?user=spikespaz&repo=search-deflector&file=SearchDeflector-Installer.exe) and follow the prompts.
+
+Take a look at the [Wiki page](https://github.com/spikespaz/search-deflector/wiki/Setup-&-Installing) if you're having trouble or need more information.
 
 # I found a bug / it doesn't work!
 
