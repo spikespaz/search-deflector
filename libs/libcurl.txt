@@ -1,0 +1,10 @@
+License info for libcurl
+
+The libcurl.dll library was provided by Cygwin.
+
+The download link can be found on the curl website.
+The curl license permits binary redistribution with attribution.
+
+https://www.cygwin.com/
+https://curl.haxx.se/download.html
+https://curl.haxx.se/docs/copyright.html
