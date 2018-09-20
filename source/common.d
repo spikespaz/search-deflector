@@ -16,8 +16,8 @@ import std.conv: to;
 
 /// Public version strings determined at compile time.
 enum string VERSION = "0.2.1-master";
-enum string UPDATE_FILE = "SearchDeflector-Installer.exe";
-enum string RELEASES_URL = "https://api.github.com/repos/%s/%s/releases";
+enum string UPDATE_FILE = "SearchDeflector-Installer.exe"; /// ditto
+enum string RELEASES_URL = "https://api.github.com/repos/%s/%s/releases"; /// ditto
 
 /// Creates a messabe box telling the user there was an error, and redirect to issues page.
 public void createErrorDialog(const Exception error) {
@@ -62,8 +62,7 @@ public JSONValue getReleases(const string author, const string repository) {
 
 /// Return a JSONValue array sorted by the `tag_name` as semantic versions.
 public JSONValue[] getSortedReleases(const string author, const string repository) {
-    JSONValue jsonData = getReleases(author, repository);
-    JSONValue[] releasesArray = jsonData.array;
+    JSONValue[] releasesArray = getReleases(author, repository).array;
 
     // dfmt off
     releasesArray.sort!(
