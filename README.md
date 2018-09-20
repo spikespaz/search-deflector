@@ -47,11 +47,13 @@ I will accept donations through PayPal.Me, Buy Me a Coffee, or Patreon.
 | Name | Link |
 | ---- | ---- |
 | Wiki     | https://github.com/spikespaz/search-deflector/wiki                        |
-| Download | https://github.com/spikespaz/search-deflector/releases                    |
+| Download | https://spikespaz.com/tools/repo-dl/?user=spikespaz&repo=search-deflector&file=SearchDeflector-Installer.exe |
+| Releases | https://github.com/spikespaz/search-deflector/releases                    |
 | Issues   | https://github.com/spikespaz/search-deflector/issues                      |
 | License  | https://github.com/spikespaz/search-deflector/blob/master/LICENSE         |
 | Readme   | https://github.com/spikespaz/search-deflector/blob/master/README.md       |
-| DEV Post | https://dev.to/spikespaz/start-menu-search-on-windows-10-with-google-46ie |
+| DEV      | https://dev.to/spikespaz/start-menu-search-on-windows-10-with-google-46ie |
+| Kinja    | https://spikespaz.kinja.com/how-to-use-any-search-engine-and-browser-with-windows-1-1828842888 |
 | Email    | support@spikespaz.com                                                     |
 
 # Special thanks
