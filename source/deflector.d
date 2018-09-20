@@ -1,8 +1,9 @@
 module deflector;
 
+import core.sys.windows.windows: MessageBox, MB_ICONWARNING, MB_YESNO, IDYES;
+import std.process: browse, spawnProcess, Config, ProcessException;
 import std.string: replace, indexOf, toLower, startsWith;
 import std.windows.registry: Registry, Key, REGSAM;
-import std.process: browse, spawnProcess, Config;
 import std.uri: decodeComponent, encodeComponent;
 import common: createErrorDialog;
 import std.array: split;
@@ -57,7 +58,17 @@ void openUri(const string browserPath, const string url) {
     if (browserPath == "system_default")
         browse(url); // Automatically calls the system default browser.
     else
-        spawnProcess([browserPath, url], null, Config.detached); // Uses a specific executable.
+        try
+            spawnProcess([browserPath, url], null, Config.detached); // Uses a specific executable.
+        catch (ProcessException error) {
+            const uint messageId = MessageBox(null, "Search Deflector could not deflect the URI to your browser." ~
+                    "\nMake sure that the browser is still installed and that the executable still exists." ~
+                    "\n\nWould you like to see the full error message online?",
+                    "Search Deflector", MB_ICONWARNING | MB_YESNO);
+
+            if (messageId == IDYES)
+                createErrorDialog(error);
+        }
 }
 
 /// Parse the query parameters from a URI and return as an associative array.
