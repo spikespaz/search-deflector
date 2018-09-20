@@ -93,5 +93,5 @@ echo "Copying libcurl library: build/$release/libcurl.dll"
 cp "libs/libcurl.dll" "build/$release"
 echo "Copying license files: build/$release/LICENSE"
 cp "LICENSE" "build/$release"
-echo -e "\n\n$(cat "libs/libcurl.txt")" >> "build/$release/LICENSE"
-# echo "$(cat "libs/libcurl.dll")" >> "build/$release/LICENSE"
+echo -e "\nhttps://github.com/spikespaz/search-deflector/blob/master/LICENSE \
+    \n\n$(cat "libs/libcurl.txt")" >> "build/$release/LICENSE"
