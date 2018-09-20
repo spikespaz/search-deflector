@@ -16,7 +16,7 @@ import std.conv: to;
 enum Duration updateInterval = hours(12);
 
 /// Windows entry point.
-extern (Windows) int WinMain() {
+extern (Windows) int WinMain(void*, void*, void*, int) {
     int result;
 
     try {

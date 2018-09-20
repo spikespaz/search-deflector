@@ -10,7 +10,7 @@ mkdir -p "build/$release"
 function setup {
     echo "Compiling executable: build/$release/setup.exe"
     ldc2 "source/setup.d" "source/common.d" -of="build/$release/setup.exe" \
-        -O3 -ffast-math -release -g
+        -m32 -O3 -ffast-math -release -g
 
     echo "Adding icon to executable: build/$release/setup.exe"
     [ -e "build/$release/setup.exe" ] && \
@@ -20,7 +20,7 @@ function setup {
 function launcher {
     echo "Compiling executable: build/$release/launcher.exe"
     ldc2 "source/launcher.d" "source/common.d" -of="build/$release/launcher.exe" \
-        -O3 -ffast-math -release -g
+        -m32 -O3 -ffast-math -release -g
 
     echo "Adding icon to executable: build/$release/launcher.exe"
     [ -e "build/$release/launcher.exe" ] && \
@@ -30,13 +30,13 @@ function launcher {
 function updater {
     echo "Compiling executable: build/$release/updater.exe"
     ldc2 "source/updater.d" "source/common.d" -of="build/$release/updater.exe" \
-        -O3 -ffast-math -release -g
+        -m32 -O3 -ffast-math -release -g
 }
 
 function deflector {
     echo "Compiling executable: build/$release/deflector.exe"
     ldc2 "source/deflector.d" "source/common.d" -of="build/$release/deflector.exe" \
-        -O3 -ffast-math -release -g
+        -m32 -O3 -ffast-math -release -g
 }
 
 function clean {
