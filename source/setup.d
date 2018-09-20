@@ -6,6 +6,7 @@ import common: createErrorDialog, getConsoleArgs, VERSION;
 import std.file: thisExePath, readText, isFile, exists;
 import std.path: buildPath, dirName, isValidFilename;
 import std.socket: getAddress, SocketOSException;
+import std.regex: Regex, regex, matchFirst;
 import std.stdio: write, writeln, readln;
 import std.net.curl: get, CurlException;
 import std.conv: parse, ConvException;
@@ -45,25 +46,25 @@ void setup(const string filePath) {
     string browserPath;
 
     switch (browserName) {
-        case "System Default":
-            browserPath = "system_default";
-            break;
-        case "Custom Path":
-            browserPath = getCustomBrowser();
-            break;
-        default:
-            browserPath = browsers[browserName];
+    case "System Default":
+        browserPath = "system_default";
+        break;
+    case "Custom Path":
+        browserPath = getCustomBrowser();
+        break;
+    default:
+        browserPath = browsers[browserName];
     }
 
     const string engineName = getEngineChoice(engines);
     string engineURL;
 
     switch (engineName) {
-        case "Custom URL":
-            engineURL = getCustomEngine;
-            break;
-        default:
-            engineURL = engines[engineName];
+    case "Custom URL":
+        engineURL = getCustomEngine;
+        break;
+    default:
+        engineURL = engines[engineName];
     }
 
     // dfmt off
@@ -295,14 +296,16 @@ string getCustomEngine() {
 
 /// Ask the user for a custom browser path and validate it.
 string getCustomBrowser() {
+    const Regex!char pathRegex = regex(`^\s*(["']|)\s*(.+?)\s*(\1)\s*$`);
+
     writeln("Please enter a custom browser path.");
     write("\nPath: ");
 
-    string path = readln().strip();
+    string path = readln().matchFirst(pathRegex)[2];
 
     while (!path || !exists(path) || !isFile(path)) {
         write("Please enter a valid path: ");
-        path = readln().strip();
+        path = readln().matchFirst(pathRegex)[2];
     }
 
     write("\nYou entered '" ~ path ~ "'.\nIs this correct? (Y/n): ");
