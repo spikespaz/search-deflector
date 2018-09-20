@@ -33,11 +33,15 @@ WizardSmallImageFile=icons\icon.bmp
 OutputDir=build
 
 [Files]
-Source: "build\{#AppVersion}-{#AppBranch}\*"; DestDir: "{app}\{#AppVersion}-{#AppBranch}"; Flags: recursesubdirs
+Source: "build\{#AppVersion}-{#AppBranch}\*"; Excludes: "LICENSE"; \
+    DestDir: "{app}\{#AppVersion}-{#AppBranch}"; Flags: recursesubdirs
+Source: "build\{#AppVersion}-{#AppBranch}\LICENSE"; DestDir: "{app}"
 
 [Icons]
-Name: "{group}\Configure"; Filename: "{app}\{#AppVersion}-{#AppBranch}\launcher.exe"; Parameters: "--setup"; Flags: excludefromshowinnewinstall preventpinning
-Name: "{group}\Force Update"; Filename: "{app}\{#AppVersion}-{#AppBranch}\launcher.exe"; Parameters: "--update"; Flags: excludefromshowinnewinstall preventpinning
+Name: "{group}\Configure"; Filename: "{app}\{#AppVersion}-{#AppBranch}\launcher.exe"; \
+    Parameters: "--setup"; Flags: excludefromshowinnewinstall preventpinning
+Name: "{group}\Force Update"; Filename: "{app}\{#AppVersion}-{#AppBranch}\launcher.exe"; \
+    Parameters: "--update"; Flags: excludefromshowinnewinstall preventpinning
 Name: "{group}\Uninstall"; Filename: "{uninstallexe}"; Flags: excludefromshowinnewinstall preventpinning
 Name: "{group}\Visit Website"; FileName: "https://github.com/spikespaz/search-deflector"
 
