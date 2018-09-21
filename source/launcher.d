@@ -34,7 +34,7 @@ extern (Windows) int WinMain(void*, void*, void*, int) {
             string[string] updateInfo = getUpdateInfo(VERSION.split('-')[0]);
 
             if (updateInfo)
-                spawnProcess([launchPath.format("updater.exe"), escapeWindowsArgument(updateInfo["download"])]);
+                spawnProcess([launchPath.format("updater.exe"), escapeWindowsArgument(updateInfo["download"])], null, Config.suppressConsole);
         }
 
         Runtime.terminate();
