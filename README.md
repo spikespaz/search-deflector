@@ -62,6 +62,7 @@ All of the very first users of this project deserve callouts for putting up with
 
 Even though I've basically usurped their projects, @da2x and @sylveon for the inspiration.
 
+ - @elliottedward327
  - @maxloh
  - @Thomas-QM
  - @loganran
