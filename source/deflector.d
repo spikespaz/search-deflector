@@ -45,9 +45,7 @@ string[string] getRegistryInfo() {
 
     // dfmt off
     return [
-        "BrowserName": deflectorKey.getValue("BrowserName").value_SZ,
         "BrowserPath": deflectorKey.getValue("BrowserPath").value_SZ,
-        "EngineName": deflectorKey.getValue("EngineName").value_SZ,
         "EngineURL": deflectorKey.getValue("EngineURL").value_SZ
     ];
     // dfmt on
