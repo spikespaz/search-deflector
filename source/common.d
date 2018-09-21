@@ -22,7 +22,7 @@ enum string RELEASES_URL = "https://api.github.com/repos/%s/%s/releases"; /// di
 /// Creates a messabe box telling the user there was an error, and redirect to issues page.
 public void createErrorDialog(const Exception error) {
     const uint messageId = MessageBox(null,
-            "Search Deflector launch failed. " ~ "Would you like to open the issues page to submit a bug report?" ~
+            "Search Deflector launch failed. Would you like to open the issues page to submit a bug report?" ~
             "\nThe important information will be filled out for you." ~
             "\n\nIf you do not wish to create a bug report, click 'No' to exit.",
             "Search Deflector", MB_ICONERROR | MB_YESNO);

@@ -40,8 +40,25 @@ function deflector {
 }
 
 function clean {
+    echo "Removing object files."
+    find "build/$release" -name "*.obj" -delete
+
     echo "Removing debug files."
     find "build/$release" -name "*.pdb" -delete
+}
+
+function copy {
+    echo "Copying engines list: build/$release/engines.txt"
+    cp "engines.txt" "build/$release"
+
+    echo "Copying libcurl library: build/$release/libcurl.dll"
+    cp "libs/libcurl.dll" "build/$release"
+
+    echo "Copying license files: build/$release/LICENSE"
+    cp "LICENSE" "build/$release"
+
+    echo -e "\nhttps://github.com/spikespaz/search-deflector/blob/master/LICENSE \
+        \n\n$(cat "libs/libcurl.txt")" >> "build/$release/LICENSE"
 }
 
 if [ "$#" -eq 0 ]; then
@@ -49,6 +66,7 @@ if [ "$#" -eq 0 ]; then
     launcher
     updater
     deflector
+    copy
 else
     while [ "$#" -gt 0 ]; do
     param="$1"
@@ -75,23 +93,20 @@ else
             launcher
             updater
             deflector
+            copy
+            shift
+        ;;
+        cp|copy)
+            copy
             shift
         ;;
         c|clean)
             clean
             shift
+        ;;
+        *)
+            echo "Unknown operation: $param"
+            shift
     esac
     done
 fi
-
-echo "Removing residual object files."
-find "build/$release" -name "*.obj" -delete
-
-echo "Copying engines file: build/$release/engines.txt"
-cp "engines.txt" "build/$release"
-echo "Copying libcurl library: build/$release/libcurl.dll"
-cp "libs/libcurl.dll" "build/$release"
-echo "Copying license files: build/$release/LICENSE"
-cp "LICENSE" "build/$release"
-echo -e "\nhttps://github.com/spikespaz/search-deflector/blob/master/LICENSE \
-    \n\n$(cat "libs/libcurl.txt")" >> "build/$release/LICENSE"
