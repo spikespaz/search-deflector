@@ -42,7 +42,6 @@ Name: "{group}\Configure"; Filename: "{app}\{#AppVersion}-{#AppBranch}\launcher.
     Parameters: "--setup"; Flags: excludefromshowinnewinstall preventpinning
 Name: "{group}\Force Update"; Filename: "{app}\{#AppVersion}-{#AppBranch}\launcher.exe"; \
     Parameters: "--update"; Flags: excludefromshowinnewinstall preventpinning
-Name: "{group}\Uninstall"; Filename: "{uninstallexe}"; Flags: excludefromshowinnewinstall preventpinning
 Name: "{group}\Visit Website"; FileName: "https://github.com/spikespaz/search-deflector"
 
 [Run]
