@@ -193,7 +193,7 @@ string[string] getEnginePresets() {
     try
         enginesText = get(enginesURL).idup; // Get the string of the resource content.
     catch (CurlException)
-        enginesText = readText("engines.txt");
+        enginesText = readText(buildPath(thisExePath().dirName(), "engines.txt"));
 
     return parseConfig(enginesText);
 }
