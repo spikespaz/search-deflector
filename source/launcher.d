@@ -1,6 +1,7 @@
 module launcher;
 
-import common: VERSION, UPDATE_FILE, getConsoleArgs, lastUpdateCheck, getLatestRelease, compareVersions, createErrorDialog;
+import common: VERSION, UPDATE_FILE, getConsoleArgs, lastUpdateCheck, getLatestRelease,
+    compareVersions, createErrorDialog;
 import core.sys.windows.windows: GetCommandLineW, ShellExecuteA, SW_HIDE, SW_SHOWNORMAL;
 import std.process: spawnProcess, escapeWindowsArgument, Config;
 import std.datetime: Clock, SysTime, Duration, hours;
@@ -29,12 +30,14 @@ extern (Windows) int WinMain(void*, void*, void*, int) {
             spawnProcess(launchPath.format("deflector.exe") ~ args[1 .. $], null, Config.suppressConsole);
 
         if (args[1] == "--setup")
-            ShellExecuteA(null, "runas".toStringz(), launchPath.format("setup.exe").toStringz(), null, null, SW_SHOWNORMAL);
+            ShellExecuteA(null, "runas".toStringz(), launchPath.format("setup.exe").toStringz(),
+                    null, null, SW_SHOWNORMAL);
         else if (args[1] == "--update" || shouldCheckUpdate(updateInterval)) {
             string[string] updateInfo = getUpdateInfo(VERSION.split('-')[0]);
 
             if (updateInfo)
-                spawnProcess([launchPath.format("updater.exe"), escapeWindowsArgument(updateInfo["download"])], null, Config.suppressConsole);
+                spawnProcess([launchPath.format("updater.exe"),
+                        escapeWindowsArgument(updateInfo["download"])], null, Config.suppressConsole);
         }
 
         Runtime.terminate();

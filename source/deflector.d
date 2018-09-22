@@ -61,8 +61,8 @@ void openUri(const string browserPath, const string url) {
         catch (ProcessException error) {
             const uint messageId = MessageBox(null, "Search Deflector could not deflect the URI to your browser." ~
                     "\nMake sure that the browser is still installed and that the executable still exists." ~
-                    "\n\nWould you like to see the full error message online?",
-                    "Search Deflector", MB_ICONWARNING | MB_YESNO);
+                    "\n\nWould you like to see the full error message online?", "Search Deflector",
+                    MB_ICONWARNING | MB_YESNO);
 
             if (messageId == IDYES)
                 createErrorDialog(error);

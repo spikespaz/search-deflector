@@ -80,8 +80,8 @@ void setup(const string filePath) {
 }
 
 /// Make necessary registry modifications to register the application as a handler for the Edge protocol.
-void registerHandler(const string filePath, const string engineName, const string engineURL, const string browserName,
-        const string browserPath) {
+void registerHandler(const string filePath, const string engineName, const string engineURL,
+        const string browserName, const string browserPath) {
     // Declare all of the Key variables I will need.
     Key deflectorKey;
     Key uriClassKey;
