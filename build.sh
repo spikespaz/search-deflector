@@ -98,6 +98,17 @@ else
             copy
             shift
         ;;
+        r|release)
+            echo "Clearing the build path: build/$release"
+            rm -f build/$release/*
+            setup
+            launcher
+            updater
+            deflector
+            clean
+            copy
+            shift
+        ;;
         cp|copy)
             copy
             shift
