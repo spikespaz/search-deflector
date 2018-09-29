@@ -2,6 +2,11 @@
   <img src="icons/title.png" alt="Search Deflector"/>
 </h1>
 
+[![Latest Version](https://img.shields.io/github/release/spikespaz/search-deflector/all.svg?style=for-the-badge)](https://github.com/spikespaz/search-deflector/releases/latest)
+[![Project License](https://img.shields.io/github/license/spikespaz/search-deflector.svg?style=for-the-badge)](https://github.com/spikespaz/search-deflector/blob/master/LICENSE)
+[![Total Downloads](https://img.shields.io/github/downloads/spikespaz/search-deflector/total.svg?style=for-the-badge)](https://spikespaz.com/tools/repo-dl/?user=spikespaz&repo=search-deflector&file=SearchDeflector-Installer.exe)
+[![Project Stars](https://img.shields.io/github/stars/spikespaz/search-deflector.svg?style=for-the-badge)](https://github.com/spikespaz/search-deflector/stargazers)
+
 ### **Search Deflector** is a small tool that redirects searches made from the Windows Start Menu or Cortana to whatever browser and search engine you prefer. No more Microsoft Edge and Bing!
 
 Now you can search faster by just tapping the Windows key, and typing your search. Hit enter, or click one of the results in the right panel. This is faster than opening your browser (if it isn't already), opening a new tab, and clicking the search bar. I've found it to be a good quality-of-life trick.
