@@ -82,52 +82,15 @@ void setup(const string filePath) {
 /// Make necessary registry modifications to register the application as a handler for the Edge protocol.
 void registerHandler(const string filePath, const string engineName, const string engineURL,
         const string browserName, const string browserPath) {
-    // Declare all of the Key variables I will need.
-    Key deflectorKey;
-    Key uriClassKey;
-    Key iconKey;
-    Key shellCommandKey;
-    Key softwareKey;
-    Key capabilityKey;
-    Key urlAssociationsKey;
-
     // Try to open each one, if it doesn't exist, make it.
-    try
-        deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
-    catch (RegistryException)
-        deflectorKey = Registry.currentUser.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
-
-    try
-        uriClassKey = Registry.classesRoot.getKey("SearchDeflector", REGSAM.KEY_WRITE);
-    catch (RegistryException)
-        uriClassKey = Registry.classesRoot.createKey("SearchDeflector", REGSAM.KEY_WRITE);
-
-    try
-        iconKey = uriClassKey.getKey("DefaultIcon", REGSAM.KEY_WRITE);
-    catch (RegistryException)
-        iconKey = uriClassKey.createKey("DefaultIcon", REGSAM.KEY_WRITE);
-
-    try
-        shellCommandKey = uriClassKey.getKey("shell\\open\\command", REGSAM.KEY_WRITE);
-    catch (RegistryException)
-        shellCommandKey = uriClassKey.createKey("shell\\open\\command", REGSAM.KEY_WRITE);
-
-    try
-        softwareKey = Registry.localMachine.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
-    catch (RegistryException)
-        softwareKey = Registry.localMachine.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
-
-    try
-        capabilityKey = softwareKey.getKey("Capabilities", REGSAM.KEY_WRITE);
-    catch (RegistryException)
-        capabilityKey = softwareKey.createKey("Capabilities", REGSAM.KEY_WRITE);
-
-    try
-        urlAssociationsKey = capabilityKey.getKey("UrlAssociations", REGSAM.KEY_WRITE);
-    catch (RegistryException)
-        urlAssociationsKey = capabilityKey.createKey("UrlAssociations", REGSAM.KEY_WRITE);
-
-    Key registeredAppsKey = Registry.localMachine.getKey("SOFTWARE\\RegisteredApplications", REGSAM.KEY_WRITE);
+    Key deflectorKey = Registry.currentUser.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
+    Key uriClassKey = Registry.classesRoot.createKey("SearchDeflector", REGSAM.KEY_WRITE);
+    Key iconKey = uriClassKey.createKey("DefaultIcon", REGSAM.KEY_WRITE);
+    Key shellCommandKey = uriClassKey.createKey("shell\\open\\command", REGSAM.KEY_WRITE);
+    Key softwareKey = Registry.localMachine.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
+    Key capabilityKey = softwareKey.createKey("Capabilities", REGSAM.KEY_WRITE);
+    Key urlAssociationsKey = capabilityKey.createKey("UrlAssociations", REGSAM.KEY_WRITE);
+    Key registeredAppsKey = Registry.localMachine.createKey("SOFTWARE\\RegisteredApplications", REGSAM.KEY_WRITE);
 
     // Write necessary changes.
     deflectorKey.setValue("EngineName", engineName);
