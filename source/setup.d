@@ -20,6 +20,8 @@ import std.array: split;
 enum string enginesURL = "https://raw.githubusercontent.com/spikespaz/search-deflector/master/engines.txt";
 
 void main() {
+    writeln("Version: " ~ VERSION);
+
     try
         setup(buildPath(thisExePath().dirName(), "launcher.exe"));
     catch (Exception error)
