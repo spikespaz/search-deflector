@@ -15,37 +15,37 @@ AppSupportURL=https://github.com/spikespaz/search-deflector/issues
 AppUpdatesURL=https://github.com/spikespaz/search-deflector/releases
 AppVerName=Search Deflector {#AppVersion}
 AppVersion={#AppVersion}-{#AppBranch}
-AppModifyPath="{app}\{#AppVersion}-{#AppBranch}\setup.exe"
+AppModifyPath="{app}\{#AppVersion}\setup.exe"
 ChangesEnvironment=yes
 Compression=lzma
 DefaultDirName={pf32}\Search Deflector
 DefaultGroupName="Search Deflector"
 InfoBeforeFile=installer.txt
-LicenseFile="build\{#AppVersion}-{#AppBranch}\LICENSE"
+LicenseFile="build\LICENSE"
 MinVersion=10.0.10240
 OutputBaseFilename=SearchDeflector-Installer
 SetupIconFile=icons\icon.ico
 Uninstallable=yes
 UninstallDisplayName=Search Deflector
-UninstallDisplayIcon={app}\{#AppVersion}-{#AppBranch}\launcher.exe
+UninstallDisplayIcon={app}\{#AppVersion}\launcher.exe
 VersionInfoVersion={#AppVersion}
 WizardSmallImageFile=icons\icon.bmp
 OutputDir=build
 
 [Files]
 Source: "build\{#AppVersion}-{#AppBranch}\*"; Excludes: "LICENSE"; \
-    DestDir: "{app}\{#AppVersion}-{#AppBranch}"; Flags: recursesubdirs
-Source: "build\{#AppVersion}-{#AppBranch}\LICENSE"; DestDir: "{app}"
+    DestDir: "{app}\{#AppVersion}"; Flags: recursesubdirs
+Source: "build\LICENSE"; DestDir: "{app}"
 
 [Icons]
-Name: "{group}\Configure"; Filename: "{app}\{#AppVersion}-{#AppBranch}\launcher.exe"; \
+Name: "{group}\Configure"; Filename: "{app}\{#AppVersion}\launcher.exe"; \
     Parameters: "--setup"; Flags: excludefromshowinnewinstall preventpinning
-Name: "{group}\Force Update"; Filename: "{app}\{#AppVersion}-{#AppBranch}\launcher.exe"; \
+Name: "{group}\Force Update"; Filename: "{app}\{#AppVersion}\launcher.exe"; \
     Parameters: "--update"; Flags: excludefromshowinnewinstall preventpinning
 Name: "{group}\Visit Website"; FileName: "https://github.com/spikespaz/search-deflector"
 
 [Run]
-Filename: "{app}\{#AppVersion}-{#AppBranch}\updater.exe"; Flags: hidewizard
+Filename: "{app}\{#AppVersion}\updater.exe"; Flags: hidewizard
 
 [Registry]
 Root: HKCU; Subkey: "Software\Clients\SearchDeflector"; Flags: uninsdeletekey
