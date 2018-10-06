@@ -6,6 +6,7 @@ import std.string: replace, indexOf, toLower, startsWith;
 import std.windows.registry: Registry, Key, REGSAM;
 import std.uri: decodeComponent, encodeComponent;
 import common: createErrorDialog;
+import std.regex: matchFirst;
 import std.array: split;
 import std.conv: to;
 
@@ -29,7 +30,7 @@ string rewriteUri(const string uri, const string engineUrl) {
         if (queryParams !is null && "url" in queryParams) {
             const string url = queryParams["url"].decodeComponent();
 
-            if (url.startsWith("https://www.bing.com"))
+            if (url.matchFirst(`^https:\/\/.+\.bing.com`))
                 return "https://" ~ engineUrl.replace("{{query}}", getQueryParams(url)["q"]);
             else
                 return url;
