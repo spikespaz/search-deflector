@@ -51,9 +51,7 @@ bool checkConfigured() {
     try {
         Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector");
 
-        deflectorKey.getValue("BrowserName");
         deflectorKey.getValue("BrowserPath");
-        deflectorKey.getValue("EngineName");
         deflectorKey.getValue("EngineURL");
         deflectorKey.getValue("LastUpdateCheck");
 

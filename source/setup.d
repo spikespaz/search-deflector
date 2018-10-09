@@ -72,10 +72,8 @@ void setup(const string filePath) {
     // dfmt off
     writeln("Search Deflector will be set up using the following variables.\n",
             "If these are incorrect, run this executable again without any arguments passed to restart the setup.\n",
-            "\nSearch Engine: ", engineName,
-            "\nSearch Engine URL: ", engineURL,
-            "\nBrowser Name: ", browserName,
-            "\nBrowser Path: ", browserPath);
+            "\nSearch Engine: ", engineURL,
+            "\nBrowser: ", browserPath);
     // dfmt on
 
     registerHandler(filePath, engineName, engineURL, browserName, browserPath);
@@ -95,9 +93,7 @@ void registerHandler(const string filePath, const string engineName, const strin
     Key registeredAppsKey = Registry.localMachine.createKey("SOFTWARE\\RegisteredApplications", REGSAM.KEY_WRITE);
 
     // Write necessary changes.
-    deflectorKey.setValue("EngineName", engineName);
     deflectorKey.setValue("EngineURL", engineURL);
-    deflectorKey.setValue("BrowserName", browserName);
     deflectorKey.setValue("BrowserPath", browserPath);
     deflectorKey.setValue("LastUpdateCheck", Clock.currTime.toISOString());
 
