@@ -2,14 +2,14 @@ module updater;
 
 import common: SETUP_FILENAME, PROJECT_AUTHOR, PROJECT_NAME, PROJECT_VERSION;
 import std.json: JSONValue, JSONType, parseJSON;
-import std.process: spawnProcess, wait;
 import std.file: tempDir, thisExePath;
 import std.path: buildNormalizedPath;
 import std.net.curl: get, download;
+import std.process: spawnProcess;
 import std.stdio: writeln;
 import std.string: split;
 
-/*
+/* NOTE:
     I was going to use the Windows API to hide and show the console window
     based on a "-silent" flag, but that quickly got too complicated and the
     implimentation was fragile. This comment is here as a reminder to myself
@@ -20,6 +20,7 @@ import std.string: split;
     It also needs to be run with highest privileges, not sure if the user
     being set to "SYSTEM" will take care of that for me.
 */
+
 void main() {
     writeln("Search Deflector " ~ PROJECT_VERSION);
 
@@ -48,9 +49,7 @@ void main() {
     // Download the installer to the temporary path created above.
     download(releaseAsset["browser_download_url"].str, installerFile);
     // This executable should already be running as admin so no verb should be necessary.
-    spawnProcess([installerFile, "/VERYSILENT", "/DIR", "'" ~ buildNormalizedPath(thisExePath, "..", "..") ~ "'"]).wait();
-
-    writeln("/DIR='" ~ buildNormalizedPath(thisExePath, "..", "..") ~ "'");
+    spawnProcess([installerFile, "/VERYSILENT", "/DIR", "'" ~ buildNormalizedPath(thisExePath, "..", "..") ~ "'"]);
 }
 
 /// Iterate through a release's assets and return the one that matches the filename given.
