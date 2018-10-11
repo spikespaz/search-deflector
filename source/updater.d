@@ -1,12 +1,13 @@
 module updater;
 
-import std.common: SETUP_FILENAME, PROJECT_AUTHOR, PROJECT_NAME, PROJECT_VERSION;
+import common: SETUP_FILENAME, PROJECT_AUTHOR, PROJECT_NAME, PROJECT_VERSION;
 import std.process: spawnProcess, escapeShellFileName;
 import std.json: JSONValue, JSONType, parseJSON;
 import std.path: buildPath, absolutePath;
 import std.file: tempDir, thisExePath;
 import std.net.curl: get, download;
 import std.stdio: writeln;
+import std.string: split;
 
 /*
     I was going to use the Windows API to hide and show the console window
@@ -25,7 +26,7 @@ void main() {
     const JSONValue releaseJson = getLatestRelease(PROJECT_AUTHOR, PROJECT_NAME);
     const JSONValue releaseAsset = getReleaseAsset(releaseJson, SETUP_FILENAME);
 
-    if (!compareVersions(releaseJson["tag_name"].str, PROJECT_VERSION))
+    if (!compareVersions(releaseJson["tag_name"].str, PROJECT_VERSION.split('-')[0]))
         return;
 
     // dfmt off

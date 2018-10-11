@@ -14,6 +14,15 @@ import std.net.curl: get;
 import std.utf: toUTF16z;
 import std.conv: to;
 
+/// File name of the executable to download and run to install an update.
+enum string SETUP_FILENAME = "SearchDeflector-Installer.exe";
+/// Repository path information for Search Deflector, https://github.com/spikespaz/search-deflector.
+enum string PROJECT_AUTHOR = "spikespaz";
+enum string PROJECT_NAME = "search-deflector"; /// ditto
+/// Current version of the Search Deflector binaries.
+enum string PROJECT_VERSION = import("version.txt");
+
+// Old constants. Will be removed when other executables are updated.
 /// Public version strings determined at compile time.
 enum string VERSION = import("version.txt");
 enum string UPDATE_FILE = "SearchDeflector-Installer.exe"; /// ditto
