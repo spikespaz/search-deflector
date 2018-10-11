@@ -1,10 +1,10 @@
 module updater;
 
 import common: SETUP_FILENAME, PROJECT_AUTHOR, PROJECT_NAME, PROJECT_VERSION;
-import std.process: spawnProcess, escapeShellFileName;
 import std.json: JSONValue, JSONType, parseJSON;
-import std.path: buildPath, absolutePath;
+import std.process: spawnProcess, wait;
 import std.file: tempDir, thisExePath;
+import std.path: buildNormalizedPath;
 import std.net.curl: get, download;
 import std.stdio: writeln;
 import std.string: split;
@@ -31,7 +31,8 @@ void main() {
 
     // dfmt off
     writeln(
-        "\nNew update information:\n=======================",
+        "\nNew update information:",
+        "\n=======================",
         "\nName: " ~ releaseJson["name"].str,
         "\nTag name: " ~ releaseJson["tag_name"].str,
         "\nAuthor: " ~ releaseJson["author"]["login"].str,
@@ -42,13 +43,14 @@ void main() {
     );
     // dfmt on
 
-    const string installerFile = buildPath(tempDir(), SETUP_FILENAME);
+    const string installerFile = buildNormalizedPath(tempDir(), SETUP_FILENAME);
 
     // Download the installer to the temporary path created above.
     download(releaseAsset["browser_download_url"].str, installerFile);
     // This executable should already be running as admin so no verb should be necessary.
-    spawnProcess([installerFile, "/VERYSILENT", "/DIR=" ~ buildPath(thisExePath, "..", "..")
-            .absolutePath().escapeShellFileName()]);
+    spawnProcess([installerFile, "/VERYSILENT", "/DIR", "'" ~ buildNormalizedPath(thisExePath, "..", "..") ~ "'"]).wait();
+
+    writeln("/DIR='" ~ buildNormalizedPath(thisExePath, "..", "..") ~ "'");
 }
 
 /// Iterate through a release's assets and return the one that matches the filename given.
