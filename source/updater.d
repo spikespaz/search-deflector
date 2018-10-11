@@ -1,13 +1,60 @@
 module updater;
 
-import std.json: JSONValue, parseJSON;
+import std.process: spawnProcess, escapeShellFileName;
+import std.json: JSONValue, JSONType, parseJSON;
+import std.path: buildPath, absolutePath;
+import std.file: tempDir, thisExePath;
 import std.net.curl: get, download;
 import std.stdio: writeln;
 
-void main(const string[] args) {
-    const JSONValue releaseJson = getLatestRelease("spikespaz", "search-deflector");
+/// File name of the executable to download and run to install an update.
+enum string SETUP_FILENAME = "SearchDeflector-Installer.exe";
+/// Repository path information for Search Deflector, https://github.com/spikespaz/search-deflector.
+enum string PROJECT_AUTHOR = "spikespaz";
+enum string PROJECT_NAME = "search-deflector"; /// Ditto.
+/// Current version of the Search Deflector binaries.
+enum string PROJECT_VERSION = "0.0.0";
 
-    writeln(releaseJson);
+void main(const string[] args) {
+    writeln("Search Deflector " ~ PROJECT_VERSION);
+
+    const JSONValue releaseJson = getLatestRelease(PROJECT_AUTHOR, PROJECT_NAME);
+    const JSONValue releaseAsset = getReleaseAsset(releaseJson, SETUP_FILENAME);
+
+    if (!compareVersions(releaseJson["tag_name"].str, PROJECT_VERSION))
+        return;
+
+    // dfmt off
+    writeln(
+        "\nNew update information:\n=======================",
+        "\nName: " ~ releaseJson["name"].str,
+        "\nTag name: " ~ releaseJson["tag_name"].str,
+        "\nAuthor: " ~ releaseJson["author"]["login"].str,
+        "\nPrerelease: " ~ (releaseJson["prerelease"].type is JSONType.TRUE ? "Yes" : "No"),
+        "\nPublish date: " ~ releaseJson["published_at"].str,
+        "\nPatch notes: " ~ releaseJson["html_url"].str,
+        "\nInstaller URL: " ~ releaseAsset["browser_download_url"].str
+    );
+    // dfmt on
+
+    const string installerFile = buildPath(tempDir(), SETUP_FILENAME);
+
+    // Download the installer to the temporary path created above.
+    download(releaseAsset["browser_download_url"].str, installerFile);
+    // This executable should already be running as admin so no verb should be necessary.
+    spawnProcess([installerFile, "/VERYSILENT", "/DIR=" ~ buildPath(thisExePath, "..", "..")
+            .absolutePath().escapeShellFileName()]);
+}
+
+/// Iterate through a release's assets and return the one that matches the filename given.
+JSONValue getReleaseAsset(const JSONValue release, const string filename) {
+    import std.json: JSONValue;
+
+    foreach (asset; release["assets"].array)
+        if (asset["name"].str == filename)
+            return asset;
+
+    assert(false);
 }
 
 /// Return the latest release according to semantic versioning.
