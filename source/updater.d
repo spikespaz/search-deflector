@@ -1,5 +1,6 @@
 module updater;
 
+import std.common: SETUP_FILENAME, PROJECT_AUTHOR, PROJECT_NAME, PROJECT_VERSION;
 import std.process: spawnProcess, escapeShellFileName;
 import std.json: JSONValue, JSONType, parseJSON;
 import std.path: buildPath, absolutePath;
@@ -7,20 +8,18 @@ import std.file: tempDir, thisExePath;
 import std.net.curl: get, download;
 import std.stdio: writeln;
 
-/* TODO:
-    These variables should be somewhat dynamic, and used as compile-time
-    constants in variables.d somewhat like common.d currently is.
+/*
+    I was going to use the Windows API to hide and show the console window
+    based on a "-silent" flag, but that quickly got too complicated and the
+    implimentation was fragile. This comment is here as a reminder to myself
+    to either finish that in the most correct way, or (since this will be run
+    by the Task Scheduler) set the user running the process to "SYSTEM".
+    I found this on Stack Overflow, and it seems to be the best option.
+    https://stackoverflow.com/a/6568823/2512078
+    It also needs to be run with highest privileges, not sure if the user
+    being set to "SYSTEM" will take care of that for me.
 */
-
-/// File name of the executable to download and run to install an update.
-enum string SETUP_FILENAME = "SearchDeflector-Installer.exe";
-/// Repository path information for Search Deflector, https://github.com/spikespaz/search-deflector.
-enum string PROJECT_AUTHOR = "spikespaz";
-enum string PROJECT_NAME = "search-deflector"; /// Ditto.
-/// Current version of the Search Deflector binaries.
-enum string PROJECT_VERSION = "0.0.0";
-
-void main(const string[] args) {
+void main() {
     writeln("Search Deflector " ~ PROJECT_VERSION);
 
     const JSONValue releaseJson = getLatestRelease(PROJECT_AUTHOR, PROJECT_NAME);
