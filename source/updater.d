@@ -35,7 +35,7 @@ void main(const string[] args) {
         "\nName: " ~ releaseJson["name"].str,
         "\nTag name: " ~ releaseJson["tag_name"].str,
         "\nAuthor: " ~ releaseJson["author"]["login"].str,
-        "\nPrerelease: " ~ (releaseJson["prerelease"].type is JSONType.TRUE ? "Yes" : "No"),
+        "\nPrerelease: " ~ (releaseJson["prerelease"].type == JSONType.TRUE ? "Yes" : "No"),
         "\nPublish date: " ~ releaseJson["published_at"].str,
         "\nPatch notes: " ~ releaseJson["html_url"].str,
         "\nInstaller URL: " ~ releaseAsset["browser_download_url"].str
