@@ -22,6 +22,9 @@ enum string PROJECT_NAME = "search-deflector"; /// ditto
 /// Current version of the Search Deflector binaries.
 enum string PROJECT_VERSION = import("version.txt");
 
+/// String of search engine templates.
+enum string ENGINE_TEMPLATES = import("engines.txt");
+
 // Old constants. Will be removed when other executables are updated.
 /// Public version strings determined at compile time.
 enum string VERSION = import("version.txt");

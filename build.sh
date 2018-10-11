@@ -1,13 +1,10 @@
 #! /bin/sh -e
 
-# release="0.0.0-$(git rev-parse --abbrev-ref HEAD)"
-release="$(git describe --tags --abbrev=0)-$(git rev-parse --abbrev-ref HEAD)"
+release="0.0.0-$(git rev-parse --abbrev-ref HEAD)"
+# release="$(git describe --tags --abbrev=0)-$(git rev-parse --abbrev-ref HEAD)"
 
 echo "Creating the build path: build/$release"
 mkdir -p "build/$release"
-
-echo "Creating version info file: build/version.txt"
-echo $release > "build/version.txt"
 
 function setup {
     echo "Compiling executable: build/$release/setup.exe"
@@ -50,8 +47,11 @@ function clean {
 }
 
 function copy {
-    echo "Copying engines list: build/$release/engines.txt"
-    cp "engines.txt" "build/$release"
+    echo "Creating version info file: build/version.txt"
+    echo $release > "build/version.txt"
+
+    echo "Copying engines list: build/engines.txt"
+    cp "engines.txt" "build/"
 
     echo "Copying libcurl library: build/$release/libcurl.dll"
     cp "libs/libcurl.dll" "build/$release"
