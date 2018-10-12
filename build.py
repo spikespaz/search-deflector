@@ -1,11 +1,6 @@
 #! py -3
 
-# from glob import glob
-# from os.path import join
-# from os import remove, makedirs
-# from shutil import copyfile, rmtree
 from argparse import ArgumentParser
-# from subprocess import check_output, call
 
 PARSER = ArgumentParser(description="Search Deflector Build Script")
 ARGUMENTS = {
@@ -70,7 +65,7 @@ ARGUMENTS = {
     },
     "verbose": {
         "flags": ("-v", "-verbose"),
-        "action": "store_false",
+        "action": "store_true",
         "help": "show log output"
     }
 }
@@ -80,6 +75,7 @@ def assemble_args(parser, arguments):
     for dest, kwargs in arguments.items():
         flags = kwargs["flags"]
         kwargs.pop("flags", None)
+
         if isinstance(flags, str):
             parser.add_argument(flags, dest=dest, **kwargs)
         else:
@@ -110,6 +106,24 @@ def reform_args(args):
     return args
 
 
+def copy_files(libs, out):
+    pass
+
+
+def clean_files(out):
+    from glob import glob
+    from os import remove
+    from os.path import join
+
+    for file in glob(join(out, "*.pdb")):
+        print("Removing debug file: " + file)
+        remove(file)
+
+    for file in glob(join(out, "*.obj")):
+        print("Removing object file: " + file)
+        remove(file)
+
+
 def build_setup(source, libs, out):
     pass
 
@@ -126,20 +140,24 @@ def build_installer(out):
     pass
 
 
-def copy_files(libs, out):
-    pass
-
-
-def clean_files(out):
-    pass
-
-
 if __name__ == "__main__":
+    from os.path import join
+    from shutil import rmtree
+
     assemble_args(PARSER, ARGUMENTS)
+
     ARGS = reform_args(PARSER.parse_args())
 
-    if ARGS.verbose:
-        pass
+    BIN_PATH = join(ARGS.out, "bin")
+    VARS_PATH = join(ARGS.out, "vars")
+    DIST_PATH = join(ARGS.out, "dist")
+
+    if not ARGS.verbose:
+        print = lambda *_, **__: None
+
+    if ARGS.mode in ("release", "store"):
+        print("Removing build path: " + ARGS.out)
+        rmtree(ARGS.out, ignore_errors=True)
 
     if ARGS.setup:
         build_setup(ARGS.source, ARGS.libs, ARGS.out)
@@ -157,4 +175,4 @@ if __name__ == "__main__":
         copy_files(ARGS.libs, ARGS.out)
 
     if ARGS.clean:
-        clean_files(ARGS.out)
+        clean_files(BIN_PATH)
