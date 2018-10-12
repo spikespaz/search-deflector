@@ -1,18 +1,32 @@
 #! py -3
 
+from glob import glob
 from os.path import join
-from shutil import copyfile
 from os import remove, makedirs
+from shutil import copyfile, rmtree
 from argparse import ArgumentParser
-from subprocess import check_output
+from subprocess import check_output, call
 
 parser = ArgumentParser(description="Search Deflector Build Script")
 
-parser.add_argument("-a", "-all", action="store_true", dest="all", help="build all binaries")
-parser.add_argument("-s", "-setup", action="store_true", dest="setup", help="build setup binary")
-parser.add_argument("-u", "-updater", action="store_true", dest="updater", help="build updater binary")
-parser.add_argument("-d", "-deflector", action="store_true", dest="deflector", help="build deflector binary")
-parser.add_argument("-i", "-installer", action="store_true", dest="installer", help="build installer executable")
+parser.add_argument(
+    "-a", "-all", action="store_true", dest="all", help="build all binaries")
+parser.add_argument(
+    "-s", "-setup", action="store_true", dest="setup", help="build setup binary")
+parser.add_argument(
+    "-u", "-updater", action="store_true", dest="updater", help="build updater binary")
+parser.add_argument(
+    "-d",
+    "-deflector",
+    action="store_true",
+    dest="deflector",
+    help="build deflector binary")
+parser.add_argument(
+    "-i",
+    "-installer",
+    action="store_true",
+    dest="installer",
+    help="build installer executable")
 parser.add_argument("-c", "-clean", action="store_true", dest="clean")
 parser.add_argument(
     "-m",
@@ -20,10 +34,21 @@ parser.add_argument(
     choices=["r", "release", "s", "store", "d", "debug"],
     default="release",
     dest="mode",
-    help="enable optimization or enable debug files")
-parser.add_argument("-source", default="source", dest="source", metavar="<path>", help="path of the source code")
-parser.add_argument("-libs", default="libs", dest="libs", metavar="<path>", help="path of the libraries")
-parser.add_argument("-out", default="build", dest="out", metavar="<path>", help="path of the output binaries")
+    help="build classic installer, store edition, or debug mode")
+parser.add_argument(
+    "-source",
+    default="source",
+    dest="source",
+    metavar="<path>",
+    help="path of the source code")
+parser.add_argument(
+    "-libs", default="libs", dest="libs", metavar="<path>", help="path of the libraries")
+parser.add_argument(
+    "-out",
+    default="build",
+    dest="out",
+    metavar="<path>",
+    help="path of the output binaries")
 
 args = parser.parse_args()
 
@@ -40,13 +65,12 @@ version_file = join(vars_path, "version.txt")
 license_file = join(vars_path, "license.txt")
 engines_file = join(vars_path, "engines.txt")
 
-libcurl_lib = join(args.out, "libcurl.dll")
-
 bins_path = join(args.out, "bin")
 
 setup_bin = join(bins_path, "setup.exe")
 updater_bin = join(bins_path, "updater.exe")
 deflector_bin = join(bins_path, "deflector.exe")
+libcurl_lib = join(bins_path, "libcurl.dll")
 
 
 def get_version():
@@ -104,26 +128,12 @@ def copy_files():
     _copied_files = True
 
 
-def clean_files():
-    # version.txt
-    print("Removing version file: " + version_file)
-    remove(version_file)
-
-    # license.txt
-    print("Removing license file: " + license_file)
-    remove(version_file)
-
-    # engines.txt
-    print("Removing engine templates file: " + engines_file)
-    remove(engines_file)
-
-
-def build_setup():
-    print("Compiling setup binary: " + setup_bin)
+def build_executable(*source_files, out_file):
+    print("Compiling binary: " + out_file)
 
     command = [
-        "ldc2", "\"" + join(args.source, "setup.d") + "\"", "-I", "\"" + args.source + "\"", "-J",
-        "\"" + vars_path + "\"", "-of", "\"" + setup_bin + "\"", "-m32"
+        "ldc2", *(join(args.source, file) for file in source_files), "-J", vars_path,
+        "-of", out_file, "-m32"
     ]
 
     if args.mode != "debug":
@@ -131,11 +141,37 @@ def build_setup():
     else:
         command.append("-g")
 
-    print("> " + " ".join(command))
+    print(">", *command)
+
+    call(command)
 
 
-make_paths()
+def main():
+    if args.mode != "debug":
+        rmtree(args.out)
 
-if args.setup:
-    copy_files()
-    build_setup()
+    make_paths()
+
+    if args.setup:
+        copy_files()
+        build_executable("setup.d", "common.d", out_file=setup_bin)
+
+    if args.updater:
+        copy_files()
+        build_executable("updater.d", "common.d", out_file=updater_bin)
+
+    if args.deflector:
+        copy_files()
+        build_executable("deflector.d", "common.d", out_file=deflector_bin)
+
+    if args.clean or args.mode != "debug":
+        for file in glob(join(bins_path, "*.obj")):
+            print("Removing object file: " + file)
+            remove(file)
+
+        for file in glob(join(bins_path, "*.obj")):
+            print("Removing debug file: " + file)
+            remove(file)
+
+
+main()
