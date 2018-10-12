@@ -1,5 +1,4 @@
 #define AppVersion "0.2.3"
-#define AppBranch "master"
 
 [Setup]
 AllowNetworkDrive=no
@@ -33,6 +32,7 @@ VersionInfoVersion={#AppVersion}
 VersionInfoDescription=Search Deflector {#AppVersion} Installer
 WizardSmallImageFile=icons\icon.bmp
 OutputDir=build
+SourceDir=..
 
 [Files]
 Source: "build\{#AppVersion}-master\*"; \
