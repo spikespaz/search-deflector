@@ -12,7 +12,7 @@ ARGUMENTS = {
     "all": {
         "flags": ("-a", "-all"),
         "action": "store_true",
-        "help": "build all binaries"
+        "help": "build setup, updater, and deflector binaries"
     },
     "setup": {
         "flags": ("-s", "-setup"),
@@ -70,7 +70,7 @@ ARGUMENTS = {
     },
     "verbose": {
         "flags": ("-v", "-verbose"),
-        "action": "store_true",
+        "action": "store_false",
         "help": "show log output"
     }
 }
@@ -87,18 +87,6 @@ def assemble_args(parser, arguments):
 
 
 def reform_args(args):
-    if args.mode == "debug":
-        args.installer = False
-    elif args.mode == "release":
-        args.all = True
-    elif args.mode == "store":
-        args.all = True
-
-    if args.all:
-        args.setup = True
-        args.updater = True
-        args.deflector = True
-
     if args.mode == "r":
         args.mode = "release"
     elif args.mode == "s":
@@ -106,36 +94,43 @@ def reform_args(args):
     elif args.mode == "d":
         args.mode = "debug"
 
-    if args.mode == "release":
+    if args.mode == "debug":
+        args.installer = False
+        args.clean = False
+    elif args.mode in ("release", "store"):
+        args.all = True
         args.installer = True
         args.clean = True
-    elif args.mode == "store":
-        args.clean = True
+
+    if args.all:
+        args.setup = True
+        args.updater = True
+        args.deflector = True
 
     return args
 
 
-def build_setup():
+def build_setup(source, libs, out):
     pass
 
 
-def build_updater():
+def build_updater(source, libs, out):
     pass
 
 
-def build_deflector():
+def build_deflector(source, libs, out):
     pass
 
 
-def build_installer():
+def build_installer(out):
     pass
 
 
-def copy_files():
+def copy_files(libs, out):
     pass
 
 
-def clean_files():
+def clean_files(out):
     pass
 
 
@@ -143,20 +138,23 @@ if __name__ == "__main__":
     assemble_args(PARSER, ARGUMENTS)
     ARGS = reform_args(PARSER.parse_args())
 
+    if ARGS.verbose:
+        pass
+
     if ARGS.setup:
-        build_setup()
+        build_setup(ARGS.source, ARGS.libs, ARGS.out)
 
     if ARGS.updater:
-        build_updater()
+        build_updater(ARGS.source, ARGS.libs, ARGS.out)
 
     if ARGS.deflector:
-        build_deflector()
+        build_deflector(ARGS.source, ARGS.libs, ARGS.out)
 
     if ARGS.installer:
-        build_installer()
+        build_installer(ARGS.out)
 
     if ARGS.copy:
-        copy_files()
+        copy_files(ARGS.libs, ARGS.out)
 
     if ARGS.clean:
-        clean_files()
+        clean_files(ARGS.out)
