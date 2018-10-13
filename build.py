@@ -2,6 +2,7 @@
 
 from argparse import ArgumentParser
 
+
 PARSER = ArgumentParser(description="Search Deflector Build Script")
 ARGUMENTS = {
     "all": {
@@ -86,8 +87,7 @@ def log_print(*args, **kwargs):
 
 def assemble_args(parser, arguments):
     for dest, kwargs in arguments.items():
-        flags = kwargs["flags"]
-        kwargs.pop("flags", None)
+        flags = kwargs.pop("flags")
 
         if isinstance(flags, str):
             parser.add_argument(flags, dest=dest, **kwargs)
@@ -105,7 +105,6 @@ def reform_args(args):
 
     if args.mode == "debug":
         args.installer = False
-        args.clean = False
     elif args.mode in ("release", "store"):
         args.all = True
         args.installer = True
@@ -134,7 +133,7 @@ def get_version(debug=True):
 def compile_file(src_file, src_path, vars_path, out_file, debug=True):
     from subprocess import call
 
-    command = ["ldc2", src_file, "-i", src_path, "-J", vars_path, "-of", out_file, "-m32"]
+    command = ["ldc2", src_file, "-i", "-I", src_path, "-J", vars_path, "-of", out_file, "-m32"]
 
     if debug:
         command.append("-g")
