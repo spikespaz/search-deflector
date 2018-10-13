@@ -106,22 +106,13 @@ def reform_args(args):
     return args
 
 
-def copy_files(libs, out):
-    pass
+def get_version(debug=True):
+    from subprocess import check_output
 
-
-def clean_files(out):
-    from glob import glob
-    from os import remove
-    from os.path import join
-
-    for file in glob(join(out, "*.pdb")):
-        print("Removing debug file: " + join(out, file))
-        remove(file)
-
-    for file in glob(join(out, "*.obj")):
-        print("Removing object file: " + join(out, file))
-        remove(file)
+    if debug:
+        return "0.0.0"
+    else:
+        return check_output("git describe --tags --abrev=0", shell=True).strip()
 
 
 def compile_file(src_file, src_path, vars_path, out_file, debug=True):
@@ -139,15 +130,52 @@ def compile_file(src_file, src_path, vars_path, out_file, debug=True):
     call(command)
 
 
-def build_installer(out, version):
+def build_installer(out_path, version):
     pass
+
+
+def clean_files(out_path):
+    from glob import glob
+    from os import remove
+    from os.path import join
+
+    for file in glob(join(out_path, "*.pdb")):
+        print("Removing debug file: " + join(out_path, file))
+        remove(file)
+
+    for file in glob(join(out_path, "*.obj")):
+        print("Removing object file: " + join(out_path, file))
+        remove(file)
+
+
+def copy_files(bin_path, vars_path, from_path, version_str):
+    print("Making binaries path: " + bin_path)
+    makedirs(bin_path, exist_ok=True)
+
+    print("Making variables path: " + vars_path)
+    makedirs(vars_path, exist_ok=True)
+
+    version_file = join(vars_path, "version.txt")
+
+    print("Creating version file: " + version_file)
+    with open(version_file, "w") as out_file:
+        out_file.write(version_str)
+
+    engines_file = join(vars_path, "engines.txt")
+
+    print("Copying engine templates file: " + engines_file)
+    copyfile("engines.txt", engines_file)
+
+    libcurl_lib = join(bin_path, "libcurl.dll")
+
+    print("Copying libcurl library: " + libcurl_lib)
+    copyfile(join(from_path, "libcurl.dll"), libcurl_lib)
 
 
 if __name__ == "__main__":
     from os import makedirs
     from os.path import join
     from shutil import rmtree, copyfile
-    from subprocess import check_output
 
     assemble_args(PARSER, ARGUMENTS)
 
@@ -157,7 +185,7 @@ if __name__ == "__main__":
     VARS_PATH = join(ARGS.out, "vars")
     DIST_PATH = join(ARGS.out, "dist")
 
-    VERSION_STR = check_output("git describe --tags --abrev=0").strip()
+    VERSION_STR = get_version(ARGS.mode == "debug")
 
     if not ARGS.verbose:
         print = lambda *_, **__: None
@@ -167,39 +195,31 @@ if __name__ == "__main__":
         rmtree(ARGS.out, ignore_errors=True)
 
     if ARGS.setup or ARGS.updater or ARGS.deflector or ARGS.installer:
-        print("Making binaries path: " + BIN_PATH)
-        makedirs(BIN_PATH, exist_ok=True)
-
-        print("Making variables path: " + VARS_PATH)
-        makedirs(VARS_PATH, exist_ok=True)
-
-        version_file = join(ARGS.libs, "version.txt")
-
-        print("Creating version file: " + version_file)
-        with open(version_file, "w") as out_file:
-            out_file.write(VERSION_STR)
-
-        libcurl_lib = join(BIN_PATH, "libcurl.dll")
-
-        print("Copying libcurl library: " + libcurl_lib)
-        copyfile(join(ARGS.libs, "libcurl.dll"), libcurl_lib)
+        copy_files(BIN_PATH, VARS_PATH, ARGS.libs, VERSION_STR)
 
     if ARGS.setup:
-        engines_file = join(VARS_PATH, "engines.txt")
-
-        print("Copying engine templates file: " + engines_file)
-        copyfile("engines.txt", engines_file)
-
         setup_bin = join(BIN_PATH, "setup.exe")
 
         print("Building setup binary: " + setup_bin)
-        compile_file(join(ARGS.source, "setup.d"), ARGS.source, VARS_PATH, ARGS.out, ARGS.mode == "debug")
+        compile_file(
+            join(ARGS.source, "setup.d"), ARGS.source, VARS_PATH, ARGS.out,
+            ARGS.mode == "debug")
 
     if ARGS.updater:
-        build_updater(ARGS.source, ARGS.libs, ARGS.out)
+        setup_bin = join(BIN_PATH, "updater.exe")
+
+        print("Building updater binary: " + setup_bin)
+        compile_file(
+            join(ARGS.source, "updater.d"), ARGS.source, VARS_PATH, ARGS.out,
+            ARGS.mode == "debug")
 
     if ARGS.deflector:
-        build_deflector(ARGS.source, ARGS.libs, ARGS.out)
+        setup_bin = join(BIN_PATH, "deflector.exe")
+
+        print("Building deflector binary: " + setup_bin)
+        compile_file(
+            join(ARGS.source, "deflector.d"), ARGS.source, VARS_PATH, ARGS.out,
+            ARGS.mode == "debug")
 
     if ARGS.installer:
         license_file = join(BIN_PATH, "license.txt")
@@ -220,7 +240,7 @@ if __name__ == "__main__":
         build_installer(ARGS.out, VERSION_STR)
 
     if ARGS.copy:
-        copy_files(ARGS.libs, ARGS.out)
+        copy_files(BIN_PATH, VARS_PATH, ARGS.libs, VERSION_STR)
 
     if ARGS.clean:
         clean_files(BIN_PATH)
