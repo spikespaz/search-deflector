@@ -45,6 +45,12 @@ ARGUMENTS = {
         "default": "debug",
         "help": "build classic installer, store edition, or debug mode"
     },
+    "engines": {
+        "flags": ("-e", "-engines"),
+        "default": "engines.txt",
+        "metavar": "<path>",
+        "help": "path of the engine templates file"
+    },
     "source": {
         "flags": "-source",
         "default": "source",
@@ -110,6 +116,9 @@ def reform_args(args):
         args.updater = True
         args.deflector = True
 
+    if args.setup or args.updater or args.deflector or args.installer:
+        args.copy = True
+
     return args
 
 
@@ -155,7 +164,7 @@ def clean_files(out_path):
         remove(file)
 
 
-def copy_files(bin_path, vars_path, from_path, version_str):
+def copy_files(bin_path, vars_path, from_path, engines_path, version_str):
     log_print("Making binaries path: " + bin_path)
     makedirs(bin_path, exist_ok=True)
 
@@ -171,7 +180,7 @@ def copy_files(bin_path, vars_path, from_path, version_str):
     engines_file = join(vars_path, "engines.txt")
 
     log_print("Copying engine templates file: " + engines_file)
-    copyfile("engines.txt", engines_file)
+    copyfile(engines_path, engines_file)
 
     libcurl_lib = join(bin_path, "libcurl.dll")
 
@@ -200,8 +209,8 @@ if __name__ == "__main__":
         log_print("Removing build path: " + ARGS.out)
         rmtree(ARGS.out, ignore_errors=True)
 
-    if ARGS.setup or ARGS.updater or ARGS.deflector or ARGS.installer:
-        copy_files(BIN_PATH, VARS_PATH, ARGS.libs, VERSION_STR)
+    if ARGS.copy:
+        copy_files(BIN_PATH, VARS_PATH, ARGS.libs, ARGS.engines, VERSION_STR)
 
     if ARGS.setup:
         setup_bin = join(BIN_PATH, "setup.exe")
@@ -244,9 +253,6 @@ if __name__ == "__main__":
         makedirs(DIST_PATH, exist_ok=True)
 
         build_installer(ARGS.out, VERSION_STR)
-
-    if ARGS.copy:
-        copy_files(BIN_PATH, VARS_PATH, ARGS.libs, VERSION_STR)
 
     if ARGS.clean:
         clean_files(BIN_PATH)
