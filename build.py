@@ -42,7 +42,7 @@ ARGUMENTS = {
     "mode": {
         "flags": ("-m", "-mode"),
         "choices": ("r", "release", "s", "store", "d", "debug"),
-        "default": "release",
+        "default": "debug",
         "help": "build classic installer, store edition, or debug mode"
     },
     "source": {
@@ -116,33 +116,38 @@ def clean_files(out):
     from os.path import join
 
     for file in glob(join(out, "*.pdb")):
-        print("Removing debug file: " + file)
+        print("Removing debug file: " + join(out, file))
         remove(file)
 
     for file in glob(join(out, "*.obj")):
-        print("Removing object file: " + file)
+        print("Removing object file: " + join(out, file))
         remove(file)
 
 
-def build_setup(source, libs, out):
-    pass
+def compile_file(src_file, src_path, vars_path, out_file, debug=True):
+    from subprocess import call
+
+    command = ["ldc2", src_file, "-i", src_path, "-J", vars_path, "-of", out_file, "-m32"]
+
+    if debug:
+        command.append("-g")
+    else:
+        command.extend(["-O3", "-ffast-math", "-release"])
+
+    print(">", *command)
+
+    call(command)
 
 
-def build_updater(source, libs, out):
-    pass
-
-
-def build_deflector(source, libs, out):
-    pass
-
-
-def build_installer(out):
+def build_installer(out, version):
     pass
 
 
 if __name__ == "__main__":
+    from os import makedirs
     from os.path import join
-    from shutil import rmtree
+    from shutil import rmtree, copyfile
+    from subprocess import check_output
 
     assemble_args(PARSER, ARGUMENTS)
 
@@ -152,6 +157,8 @@ if __name__ == "__main__":
     VARS_PATH = join(ARGS.out, "vars")
     DIST_PATH = join(ARGS.out, "dist")
 
+    VERSION_STR = check_output("git describe --tags --abrev=0").strip()
+
     if not ARGS.verbose:
         print = lambda *_, **__: None
 
@@ -159,8 +166,34 @@ if __name__ == "__main__":
         print("Removing build path: " + ARGS.out)
         rmtree(ARGS.out, ignore_errors=True)
 
+    if ARGS.setup or ARGS.updater or ARGS.deflector or ARGS.installer:
+        print("Making binaries path: " + BIN_PATH)
+        makedirs(BIN_PATH, exist_ok=True)
+
+        print("Making variables path: " + VARS_PATH)
+        makedirs(VARS_PATH, exist_ok=True)
+
+        version_file = join(ARGS.libs, "version.txt")
+
+        print("Creating version file: " + version_file)
+        with open(version_file, "w") as out_file:
+            out_file.write(VERSION_STR)
+
+        libcurl_lib = join(BIN_PATH, "libcurl.dll")
+
+        print("Copying libcurl library: " + libcurl_lib)
+        copyfile(join(ARGS.libs, "libcurl.dll"), libcurl_lib)
+
     if ARGS.setup:
-        build_setup(ARGS.source, ARGS.libs, ARGS.out)
+        engines_file = join(VARS_PATH, "engines.txt")
+
+        print("Copying engine templates file: " + engines_file)
+        copyfile("engines.txt", engines_file)
+
+        setup_bin = join(BIN_PATH, "setup.exe")
+
+        print("Building setup binary: " + setup_bin)
+        compile_file(join(ARGS.source, "setup.d"), ARGS.source, VARS_PATH, ARGS.out, ARGS.mode == "debug")
 
     if ARGS.updater:
         build_updater(ARGS.source, ARGS.libs, ARGS.out)
@@ -169,7 +202,22 @@ if __name__ == "__main__":
         build_deflector(ARGS.source, ARGS.libs, ARGS.out)
 
     if ARGS.installer:
-        build_installer(ARGS.out)
+        license_file = join(BIN_PATH, "license.txt")
+
+        print("Creating license file: " + license_file)
+        with open(license_file, "w") as out_file:
+            with open("LICENSE") as in_file:
+                out_file.write(in_file.read())
+
+            out_file.write("\n\n")
+
+            with open(join(ARGS.libs, "libcurl.txt")) as in_file:
+                out_file.write(in_file.read())
+
+        print("Making distribution path: " + DIST_PATH)
+        makedirs(DIST_PATH, exist_ok=True)
+
+        build_installer(ARGS.out, VERSION_STR)
 
     if ARGS.copy:
         copy_files(ARGS.libs, ARGS.out)
