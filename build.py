@@ -202,23 +202,23 @@ if __name__ == "__main__":
 
         print("Building setup binary: " + setup_bin)
         compile_file(
-            join(ARGS.source, "setup.d"), ARGS.source, VARS_PATH, ARGS.out,
+            join(ARGS.source, "setup.d"), ARGS.source, VARS_PATH, setup_bin,
             ARGS.mode == "debug")
 
     if ARGS.updater:
-        setup_bin = join(BIN_PATH, "updater.exe")
+        updater_bin = join(BIN_PATH, "updater.exe")
 
-        print("Building updater binary: " + setup_bin)
+        print("Building updater binary: " + updater_bin)
         compile_file(
-            join(ARGS.source, "updater.d"), ARGS.source, VARS_PATH, ARGS.out,
+            join(ARGS.source, "updater.d"), ARGS.source, VARS_PATH, updater_bin,
             ARGS.mode == "debug")
 
     if ARGS.deflector:
-        setup_bin = join(BIN_PATH, "deflector.exe")
+        deflector_bin = join(BIN_PATH, "deflector.exe")
 
-        print("Building deflector binary: " + setup_bin)
+        print("Building deflector binary: " + deflector_bin)
         compile_file(
-            join(ARGS.source, "deflector.d"), ARGS.source, VARS_PATH, ARGS.out,
+            join(ARGS.source, "deflector.d"), ARGS.source, VARS_PATH, deflector_bin,
             ARGS.mode == "debug")
 
     if ARGS.installer:
