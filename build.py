@@ -1,6 +1,11 @@
 #! py -3
 
+from subprocess import call, check_output
 from argparse import ArgumentParser
+from shutil import rmtree, copyfile
+from os import remove, makedirs
+from os.path import join
+from glob import glob
 
 
 PARSER = ArgumentParser(description="Search Deflector Build Script")
@@ -122,8 +127,6 @@ def reform_args(args):
 
 
 def get_version(debug=True):
-    from subprocess import check_output
-
     if debug:
         return "0.0.0"
     else:
@@ -131,8 +134,6 @@ def get_version(debug=True):
 
 
 def compile_file(src_file, src_path, vars_path, out_file, debug=True):
-    from subprocess import call
-
     command = ["ldc2", src_file, "-i", "-I", src_path, "-J", vars_path, "-of", out_file, "-m32"]
 
     if debug:
@@ -150,10 +151,6 @@ def build_installer(out_path, version):
 
 
 def clean_files(out_path):
-    from glob import glob
-    from os import remove
-    from os.path import join
-
     for file in glob(join(out_path, "*.pdb")):
         log_print("Removing debug file: " + join(out_path, file))
         remove(file)
@@ -188,10 +185,6 @@ def copy_files(bin_path, vars_path, from_path, engines_path, version_str):
 
 
 if __name__ == "__main__":
-    from os import makedirs
-    from os.path import join
-    from shutil import rmtree, copyfile
-
     assemble_args(PARSER, ARGUMENTS)
 
     ARGS = reform_args(PARSER.parse_args())
