@@ -70,6 +70,13 @@ ARGUMENTS = {
     }
 }
 
+LOG_VERBOSE = False
+
+
+def log_print(*args, **kwargs):
+    if LOG_VERBOSE:
+        print(*args, **kwargs)
+
 
 def assemble_args(parser, arguments):
     for dest, kwargs in arguments.items():
@@ -125,7 +132,7 @@ def compile_file(src_file, src_path, vars_path, out_file, debug=True):
     else:
         command.extend(["-O3", "-ffast-math", "-release"])
 
-    print(">", *command)
+    log_print(">", *command)
 
     call(command)
 
@@ -140,35 +147,35 @@ def clean_files(out_path):
     from os.path import join
 
     for file in glob(join(out_path, "*.pdb")):
-        print("Removing debug file: " + join(out_path, file))
+        log_print("Removing debug file: " + join(out_path, file))
         remove(file)
 
     for file in glob(join(out_path, "*.obj")):
-        print("Removing object file: " + join(out_path, file))
+        log_print("Removing object file: " + join(out_path, file))
         remove(file)
 
 
 def copy_files(bin_path, vars_path, from_path, version_str):
-    print("Making binaries path: " + bin_path)
+    log_print("Making binaries path: " + bin_path)
     makedirs(bin_path, exist_ok=True)
 
-    print("Making variables path: " + vars_path)
+    log_print("Making variables path: " + vars_path)
     makedirs(vars_path, exist_ok=True)
 
     version_file = join(vars_path, "version.txt")
 
-    print("Creating version file: " + version_file)
+    log_print("Creating version file: " + version_file)
     with open(version_file, "w") as out_file:
         out_file.write(version_str)
 
     engines_file = join(vars_path, "engines.txt")
 
-    print("Copying engine templates file: " + engines_file)
+    log_print("Copying engine templates file: " + engines_file)
     copyfile("engines.txt", engines_file)
 
     libcurl_lib = join(bin_path, "libcurl.dll")
 
-    print("Copying libcurl library: " + libcurl_lib)
+    log_print("Copying libcurl library: " + libcurl_lib)
     copyfile(join(from_path, "libcurl.dll"), libcurl_lib)
 
 
@@ -187,11 +194,10 @@ if __name__ == "__main__":
 
     VERSION_STR = get_version(ARGS.mode == "debug")
 
-    if not ARGS.verbose:
-        print = lambda *_, **__: None
+    LOG_VERBOSE = ARGS.verbose
 
     if ARGS.mode in ("release", "store"):
-        print("Removing build path: " + ARGS.out)
+        log_print("Removing build path: " + ARGS.out)
         rmtree(ARGS.out, ignore_errors=True)
 
     if ARGS.setup or ARGS.updater or ARGS.deflector or ARGS.installer:
@@ -200,7 +206,7 @@ if __name__ == "__main__":
     if ARGS.setup:
         setup_bin = join(BIN_PATH, "setup.exe")
 
-        print("Building setup binary: " + setup_bin)
+        log_print("Building setup binary: " + setup_bin)
         compile_file(
             join(ARGS.source, "setup.d"), ARGS.source, VARS_PATH, setup_bin,
             ARGS.mode == "debug")
@@ -208,7 +214,7 @@ if __name__ == "__main__":
     if ARGS.updater:
         updater_bin = join(BIN_PATH, "updater.exe")
 
-        print("Building updater binary: " + updater_bin)
+        log_print("Building updater binary: " + updater_bin)
         compile_file(
             join(ARGS.source, "updater.d"), ARGS.source, VARS_PATH, updater_bin,
             ARGS.mode == "debug")
@@ -216,7 +222,7 @@ if __name__ == "__main__":
     if ARGS.deflector:
         deflector_bin = join(BIN_PATH, "deflector.exe")
 
-        print("Building deflector binary: " + deflector_bin)
+        log_print("Building deflector binary: " + deflector_bin)
         compile_file(
             join(ARGS.source, "deflector.d"), ARGS.source, VARS_PATH, deflector_bin,
             ARGS.mode == "debug")
@@ -224,7 +230,7 @@ if __name__ == "__main__":
     if ARGS.installer:
         license_file = join(BIN_PATH, "license.txt")
 
-        print("Creating license file: " + license_file)
+        log_print("Creating license file: " + license_file)
         with open(license_file, "w") as out_file:
             with open("LICENSE") as in_file:
                 out_file.write(in_file.read())
@@ -234,7 +240,7 @@ if __name__ == "__main__":
             with open(join(ARGS.libs, "libcurl.txt")) as in_file:
                 out_file.write(in_file.read())
 
-        print("Making distribution path: " + DIST_PATH)
+        log_print("Making distribution path: " + DIST_PATH)
         makedirs(DIST_PATH, exist_ok=True)
 
         build_installer(ARGS.out, VERSION_STR)
