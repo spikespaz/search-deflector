@@ -108,9 +108,7 @@ def reform_args(args):
     elif args.mode == "d":
         args.mode = "debug"
 
-    if args.mode == "debug":
-        args.installer = False
-    elif args.mode in ("release", "store"):
+    if args.mode in ("release", "store"):
         args.all = True
         args.installer = True
         args.clean = True
@@ -130,7 +128,7 @@ def get_version(debug=True):
     if debug:
         return "0.0.0"
     else:
-        return check_output("git describe --tags --abrev=0", shell=True).strip()
+        return check_output("git describe --tags --abbrev=0", shell=True).decode().strip()
 
 
 def compile_file(src_file, src_path, vars_path, out_file, debug=True):
@@ -229,7 +227,7 @@ if __name__ == "__main__":
             ARGS.mode == "debug")
 
     if ARGS.installer:
-        license_file = join(BIN_PATH, "license.txt")
+        license_file = join(VARS_PATH, "license.txt")
 
         log_print("Creating license file: " + license_file)
         with open(license_file, "w") as out_file:
