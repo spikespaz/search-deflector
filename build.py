@@ -164,7 +164,7 @@ def build_installer(src_file, out_path, version_str):
     command = "iscc \"/O{}\" /Q \"/DAppVersion={}\" \"{}\"".format(out_path, version_str, src_file)
 
     log_print("> " + command)
-    call(command, shell=True)
+    call(command)
 
 
 def clean_files(out_path):
@@ -252,6 +252,11 @@ if __name__ == "__main__":
 
     if ARGS.clean:
         clean_files(BIN_PATH)
+
+    if ARGS.mode != "debug":
+        for binary in glob(join(BIN_PATH, "*.exe")):
+            log_print("Adding icon to executable: " + binary)
+            call(["rcedit", binary, "--set-icon", ARGS.sources["icon.ico"]])
 
     if ARGS.installer:
         license_file = join(VARS_PATH, "license.txt")
