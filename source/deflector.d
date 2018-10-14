@@ -2,9 +2,9 @@ module deflector;
 
 import core.sys.windows.windows: MessageBox, MB_ICONWARNING, MB_YESNO, IDYES;
 import std.process: browse, spawnProcess, Config, ProcessException;
+import common: createErrorDialog, readSettings, DeflectorSettings;
 import std.string: replace, indexOf, toLower, startsWith;
 import std.uri: decodeComponent, encodeComponent;
-import common: createErrorDialog, readSettings, DeflectorSettings;
 import std.regex: matchFirst;
 import std.array: split;
 import std.conv: to;

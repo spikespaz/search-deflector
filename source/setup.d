@@ -1,21 +1,18 @@
 module setup;
 
-import common: createErrorDialog, getConsoleArgs, DeflectorSettings, writeSettings, PROJECT_VERSION,
-    ENGINE_TEMPLATES;
-import std.windows.registry: Key, Registry, REGSAM, RegistryException;
-import std.string: toLower, strip, splitLines, indexOf, stripLeft;
-import std.file: thisExePath, readText, isFile, exists;
-import std.path: buildPath, dirName, isValidFilename;
-import std.socket: getAddress, SocketOSException;
+import common: DeflectorSettings, parseConfig, writeSettings, createErrorDialog, getConsoleArgs,
+    PROJECT_VERSION, ENGINE_TEMPLATES;
+import std.windows.registry: Registry, Key;
+import std.string: strip, split, indexOf, toLower;
+import std.socket: SocketException, getAddress;
 import std.regex: Regex, regex, matchFirst;
 import std.stdio: write, writeln, readln;
-import std.net.curl: get, CurlException;
-import std.conv: parse, ConvException;
-import std.datetime: Clock, SysTime;
+import std.conv: ConvException, parse;
 import std.range: array, enumerate;
+import std.path: isValidFilename;
+import std.file: exists, isFile;
 import std.algorithm: sort;
 import std.utf: toUTF16z;
-import std.array: split;
 
 void main() {
     writeln("Version: " ~ PROJECT_VERSION);
@@ -237,25 +234,6 @@ bool validateEngineUrl(const string url) {
             getAddress(url[0 .. slashIndex]);
 
         return true;
-    } catch (SocketOSException)
+    } catch (SocketException)
         return false;
-}
-
-/// Get a config in the pattern of "^(?<key>[^:]+)\s*:\s*(?<value>.+)$" from a string.
-string[string] parseConfig(const string config) {
-    string[string] data;
-
-    foreach (line; config.splitLines()) {
-        if (line.stripLeft()[0 .. 2] == "//") // Ignore comments.
-            continue;
-
-        const size_t sepIndex = line.indexOf(":");
-
-        const string key = line[0 .. sepIndex].strip();
-        const string value = line[sepIndex + 1 .. $].strip();
-
-        data[key] = value;
-    }
-
-    return data;
 }

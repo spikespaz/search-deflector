@@ -1,10 +1,10 @@
 module common;
 
 import core.sys.windows.windows: CommandLineToArgvW, MessageBox, MB_ICONERROR, MB_YESNO, IDYES;
+import std.string: split, toStringz, strip, splitLines, indexOf, stripLeft;
 import std.windows.registry: Registry, RegistryException, Key, REGSAM;
 import std.datetime: SysTime, DateTime;
 import std.json: JSONValue, parseJSON;
-import std.string: split, toStringz, strip;
 import std.uri: encodeComponent;
 import std.range: zip, popFront;
 import std.algorithm: sort;
@@ -81,4 +81,23 @@ void writeSettings(const DeflectorSettings settings) {
     deflectorKey.setValue("BrowserPath", settings.browserPath);
 
     deflectorKey.flush();
+}
+
+/// Get a config in the pattern of "^(?<key>[^:]+)\s*:\s*(?<value>.+)$" from a string.
+string[string] parseConfig(const string config) {
+    string[string] data;
+
+    foreach (line; config.splitLines()) {
+        if (line.stripLeft()[0 .. 2] == "//") // Ignore comments.
+            continue;
+
+        const size_t sepIndex = line.indexOf(":");
+
+        const string key = line[0 .. sepIndex].strip();
+        const string value = line[sepIndex + 1 .. $].strip();
+
+        data[key] = value;
+    }
+
+    return data;
 }

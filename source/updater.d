@@ -2,12 +2,15 @@ module updater;
 
 import common: SETUP_FILENAME, PROJECT_AUTHOR, PROJECT_NAME, PROJECT_VERSION;
 import std.json: JSONValue, JSONType, parseJSON;
-import std.process: Config, spawnShell;
-import std.file: tempDir, thisExePath, rmdirRecurse;
 import std.path: buildNormalizedPath, dirName;
+import std.process: Config, spawnShell;
+import std.file: tempDir, thisExePath;
 import std.net.curl: get, download;
 import std.string: split, replace;
+import std.range: zip, popFront;
+import std.algorithm: sort;
 import std.stdio: writeln;
+import std.conv: to;
 
 /* NOTE:
     I was going to use the Windows API to hide and show the console window
@@ -60,8 +63,6 @@ void main() {
 
 /// Iterate through a release's assets and return the one that matches the filename given.
 JSONValue getReleaseAsset(const JSONValue release, const string filename) {
-    import std.json: JSONValue;
-
     foreach (asset; release["assets"].array)
         if (asset["name"].str == filename)
             return asset;
@@ -71,10 +72,6 @@ JSONValue getReleaseAsset(const JSONValue release, const string filename) {
 
 /// Return the latest release according to semantic versioning.
 JSONValue getLatestRelease(const string author, const string repository) {
-    import std.json: JSONValue, parseJSON;
-    import std.algorithm: sort;
-    import std.net.curl: get;
-
     const string apiReleases = "https://api.github.com/repos/" ~ author ~ "/" ~ repository ~ "/releases";
 
     JSONValue releasesJson = get(apiReleases).parseJSON();
@@ -96,10 +93,6 @@ string formatString(const string input, const string[string] replacements) {
 
 /// Compare two semantic versions, returning true if the first version is newer, false otherwise.
 public bool compareVersions(const string firstVer, const string secondVer) {
-    import std.range: zip, popFront;
-    import std.string: split;
-    import std.conv: to;
-
     ushort[] firstVerParts = firstVer.split('.').to!(ushort[]);
     ushort[] secondVerParts = secondVer.split('.').to!(ushort[]);
 
