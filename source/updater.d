@@ -2,12 +2,12 @@ module updater;
 
 import common: SETUP_FILENAME, PROJECT_AUTHOR, PROJECT_NAME, PROJECT_VERSION;
 import std.json: JSONValue, JSONType, parseJSON;
-import std.file: tempDir, thisExePath;
-import std.path: buildNormalizedPath;
+import std.process: Config, spawnShell;
+import std.file: tempDir, thisExePath, rmdirRecurse;
+import std.path: buildNormalizedPath, dirName;
 import std.net.curl: get, download;
-import std.process: spawnProcess;
+import std.string: split, replace;
 import std.stdio: writeln;
-import std.string: split;
 
 /* NOTE:
     I was going to use the Windows API to hide and show the console window
@@ -48,8 +48,14 @@ void main() {
 
     // Download the installer to the temporary path created above.
     download(releaseAsset["browser_download_url"].str, installerFile);
+
     // This executable should already be running as admin so no verb should be necessary.
-    spawnProcess([installerFile, "/VERYSILENT", "/DIR", "'" ~ buildNormalizedPath(thisExePath, "..", "..") ~ "'"]);
+    // dfmt off
+    spawnShell(`"{{installerFile}}" /VERYSILENT /DIR="{{installPath}}"`.formatString([
+        "installerFile": installerFile,
+        "installPath": thisExePath().dirName()
+    ]), null, Config.detached);
+    // dfmt on
 }
 
 /// Iterate through a release's assets and return the one that matches the filename given.
@@ -76,6 +82,16 @@ JSONValue getLatestRelease(const string author, const string repository) {
     releasesJson.array.sort!((a, b) => compareVersions(a["tag_name"].str, b["tag_name"].str))();
 
     return releasesJson.array[0];
+}
+
+/// Format a string by replacing each key with a value in replacements.
+string formatString(const string input, const string[string] replacements) {
+    string output = input;
+
+    foreach (variable; replacements.byKeyValue())
+        output = output.replace("{{" ~ variable.key ~ "}}", variable.value);
+
+    return output;
 }
 
 /// Compare two semantic versions, returning true if the first version is newer, false otherwise.
