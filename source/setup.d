@@ -1,8 +1,9 @@
 module setup;
 
+import common: createErrorDialog, getConsoleArgs, DeflectorSettings, writeSettings, PROJECT_VERSION,
+    ENGINE_TEMPLATES;
 import std.windows.registry: Key, Registry, REGSAM, RegistryException;
 import std.string: toLower, strip, splitLines, indexOf, stripLeft;
-import common: createErrorDialog, getConsoleArgs, VERSION;
 import std.file: thisExePath, readText, isFile, exists;
 import std.path: buildPath, dirName, isValidFilename;
 import std.socket: getAddress, SocketOSException;
@@ -16,14 +17,16 @@ import std.algorithm: sort;
 import std.utf: toUTF16z;
 import std.array: split;
 
-/// Online resource to the repository of the project containing a list of search engine choices.
-enum string enginesURL = "https://raw.githubusercontent.com/spikespaz/search-deflector/master/engines.txt";
-
 void main() {
-    writeln("Version: " ~ VERSION);
+    writeln("Version: " ~ PROJECT_VERSION);
 
     try {
-        setup(buildPath(thisExePath().dirName(), "launcher.exe"));
+        const string[string] browsers = getAvailableBrowsers();
+        const string[string] engines = parseConfig(ENGINE_TEMPLATES);
+
+        DeflectorSettings settings = promptSettings(browsers, engines);
+
+        writeSettings(settings);
     } catch (Exception error) {
         createErrorDialog(error);
     }
@@ -33,75 +36,47 @@ void main() {
 }
 
 /// Function to run when setting up the deflector.
-void setup() {
+DeflectorSettings promptSettings(const string[string] browsers, const string[string] engines) {
     // dfmt off
-    writeln("Welcome to Search Deflector setup.\n",
+    writeln("Welcome to the Search Deflector setup.\n",
             "Just answer the prompts in this terminal to set your preferences, and you should be good to go.\n",
             "If you have any questions, please email me at 'support@spikespaz.com',\n",
             "or create an Issue on the GitHub repository (https://github.com/spikespaz/search-deflector/issues).\n\n",
             "Don't forget to star the repository on GitHub so people see it!\n");
     // dfmt on
 
-    const string[string] browsers = getAvailableBrowsers();
-    const string[string] engines = getEnginePresets();
+    const string browserName = promptBrowserChoice(browsers);
+    const string engineName = promptEngineChoice(engines);
 
-    const string browserName = getBrowserChoice(browsers);
-    string browserPath;
+    DeflectorSettings settings;
 
     switch (browserName) {
     case "System Default":
-        browserPath = "system_default";
+        settings.browserPath = "system_default";
         break;
     case "Custom Path":
-        browserPath = getCustomBrowser();
+        settings.browserPath = promptBrowserPath();
         break;
     default:
-        browserPath = browsers[browserName];
+        settings.browserPath = browsers[browserName];
     }
-
-    const string engineName = getEngineChoice(engines);
-    string engineURL;
 
     switch (engineName) {
     case "Custom URL":
-        engineURL = getCustomEngine;
+        settings.engineURL = promptCustomEngine();
         break;
     default:
-        engineURL = engines[engineName];
+        settings.engineURL = engines[engineName];
     }
 
     // dfmt off
     writeln("Search Deflector will be set up using the following variables.\n",
             "If these are incorrect, run this executable again without any arguments passed to restart the setup.\n",
-            "\nSearch Engine: ", engineURL,
-            "\nBrowser: ", browserPath);
+            "\nSearch Engine: \"", settings.engineURL, "\"",
+            "\nBrowser: \"", settings.browserPath, "\"");
     // dfmt on
 
-    writeSettings(engineURL, browserPath);
-}
-
-// Struct representing the settings to use for deflection.
-struct DeflectorSettings {
-    string engineURL;
-    string browserPath;
-}
-
-// Read the settings from the registry.
-DeflectorSettings readSettings() {
-    Key deflectorKey = registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
-
-    return DeflectorSettings(deflectorKey.getValue("EngineURL").value_SZ, deflectorKey.getValue("BrowserPath").value_SZ);
-}
-
-/// Write settings to registry.
-void writeSettings(const DeflectorSettings settings) {
-    Key deflectorKey = Registry.currentUser.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
-
-    // Write necessary changes.
-    deflectorKey.setValue("EngineURL", settings.engineURL);
-    deflectorKey.setValue("BrowserPath", settings.browserPath);
-
-    deflectorKey.flush();
+    return settings;
 }
 
 /// Fetch a list of available browsers from the Windows registry along with their paths.
@@ -127,20 +102,8 @@ string[string] getAvailableBrowsers() {
     return availableBrowsers;
 }
 
-/// Try to fetch the engine presets from the repository, if it fails, read from local.
-string[string] getEnginePresets() {
-    string enginesText;
-
-    try
-        enginesText = get(enginesURL).idup; // Get the string of the resource content.
-    catch (CurlException)
-        enginesText = readText(buildPath(thisExePath().dirName(), "engines.txt"));
-
-    return parseConfig(enginesText);
-}
-
 /// Helper function to ask the user to pick one of the strings passed in as choices.
-string getChoice(const string[] choices) {
+string promptChoice(const string[] choices) {
     foreach (index, choice; choices.enumerate(1))
         writeln("[", index, "]: ", choice);
 
@@ -161,13 +124,13 @@ string getChoice(const string[] choices) {
         return choice;
     } else {
         writeln();
-        return getChoice(choices);
+        return promptChoice(choices);
     }
 }
 
 /// Ask the user which browser they want to use from the available options found in registry.
 /// Optional extras for Edge and the system default browser, requires custom handling.
-string getBrowserChoice(const string[string] browsers) {
+string promptBrowserChoice(const string[string] browsers) {
     string[] choices = browsers.keys.sort().array;
 
     foreach (index, choice; choices.enumerate())
@@ -177,20 +140,20 @@ string getBrowserChoice(const string[string] browsers) {
 
     writeln("Please make a selection of one of the browsers below.\n");
 
-    string choice = getChoice(choices).split(" ~ ")[0];
+    string choice = promptChoice(choices).split(" ~ ")[0];
     return choice;
 }
 
 /// Similar to getBrowserChoice(), this function asks the user which search engine they prefer.
 /// If the user chooses the "Custom URL" option, the return value must be handled specially,
 /// asking for further input (their own search URL).
-string getEngineChoice(const string[string] engines) {
+string promptEngineChoice(const string[string] engines) {
     string[] choices = engines.keys.sort().array;
     choices ~= "Custom URL"; // This string needs custom handling if returned.
 
     writeln("Please make a selection of one of the search engines below.\n");
 
-    string choice = getChoice(choices);
+    string choice = promptChoice(choices);
     return choice;
 }
 
@@ -209,7 +172,7 @@ int getValidatedInput(const string input, const size_t maxValue) {
 }
 
 /// Ask the user for a custom engine URL and validate the input.
-string getCustomEngine() {
+string promptCustomEngine() {
     // dfmt off
     writeln("Please enter a custom search engine URL.\n",
             "Include the string '{{query}}' which will be replaced with the search component.\n",
@@ -231,12 +194,12 @@ string getCustomEngine() {
         return url;
     } else {
         writeln();
-        return getCustomEngine();
+        return promptCustomEngine();
     }
 }
 
 /// Ask the user for a custom browser path and validate it.
-string getCustomBrowser() {
+string promptBrowserPath() {
     const Regex!char pathRegex = regex(`^\s*(["']|)\s*(.+?)\s*(\1)\s*$`);
 
     writeln("Please enter a custom browser path.");
@@ -256,7 +219,7 @@ string getCustomBrowser() {
         return path;
     } else {
         writeln();
-        return getCustomBrowser();
+        return promptBrowserPath();
     }
 }
 
