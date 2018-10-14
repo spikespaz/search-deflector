@@ -154,3 +154,27 @@ string[] getConsoleArgs(const wchar* commandLine) {
 
     return args;
 }
+
+/// Struct representing the settings to use for deflection.
+struct DeflectorSettings {
+    string engineURL; /// ditto
+    string browserPath; /// ditto
+}
+
+/// Read the settings from the registry.
+DeflectorSettings readSettings() {
+    Key deflectorKey = registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
+
+    return DeflectorSettings(deflectorKey.getValue("EngineURL").value_SZ, deflectorKey.getValue("BrowserPath").value_SZ);
+}
+
+/// Write settings to registry.
+void writeSettings(const DeflectorSettings settings) {
+    Key deflectorKey = Registry.currentUser.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
+
+    // Write necessary changes.
+    deflectorKey.setValue("EngineURL", settings.engineURL);
+    deflectorKey.setValue("BrowserPath", settings.browserPath);
+
+    deflectorKey.flush();
+}
