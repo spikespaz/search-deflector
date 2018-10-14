@@ -7,7 +7,6 @@ from os import remove, makedirs
 from os.path import join
 from glob import glob
 
-
 PARSER = ArgumentParser(description="Search Deflector Build Script")
 ARGUMENTS = {
     "all": {
@@ -102,17 +101,29 @@ def reform_args(args):
     elif args.mode == "d":
         args.mode = "debug"
 
-    if args.mode in ("release", "store"):
+    if not any((
+            args.setup,
+            args.updater,
+            args.deflector,
+            args.installer,
+    )):
         args.all = True
-        args.installer = True
-        args.clean = True
+
+        if args.mode in ("release", "store"):
+            args.installer = True
+            args.clean = True
 
     if args.all:
         args.setup = True
         args.updater = True
         args.deflector = True
 
-    if args.setup or args.updater or args.deflector or args.installer:
+    if any((
+            args.setup,
+            args.updater,
+            args.deflector,
+            args.installer,
+    )):
         args.copy = True
 
     return args
@@ -202,8 +213,7 @@ if __name__ == "__main__":
 
         log_print("Building setup binary: " + setup_bin)
         compile_file(
-            join(ARGS.source, "setup.d"), ARGS.source, VARS_PATH, setup_bin,
-            ARGS.mode == "debug")
+            join(ARGS.source, "setup.d"), ARGS.source, VARS_PATH, setup_bin, ARGS.mode == "debug")
 
     if ARGS.updater:
         updater_bin = join(BIN_PATH, "updater.exe")
