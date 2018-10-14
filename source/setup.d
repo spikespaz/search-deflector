@@ -22,17 +22,18 @@ enum string enginesURL = "https://raw.githubusercontent.com/spikespaz/search-def
 void main() {
     writeln("Version: " ~ VERSION);
 
-    try
+    try {
         setup(buildPath(thisExePath().dirName(), "launcher.exe"));
-    catch (Exception error)
+    } catch (Exception error) {
         createErrorDialog(error);
+    }
 
     writeln("\nPress Enter to close the setup.");
     readln();
 }
 
 /// Function to run when setting up the deflector.
-void setup(const string filePath) {
+void setup() {
     // dfmt off
     writeln("Welcome to Search Deflector setup.\n",
             "Just answer the prompts in this terminal to set your preferences, and you should be good to go.\n",
@@ -76,52 +77,31 @@ void setup(const string filePath) {
             "\nBrowser: ", browserPath);
     // dfmt on
 
-    registerHandler(filePath, engineName, engineURL, browserName, browserPath);
+    writeSettings(engineURL, browserPath);
 }
 
-/// Make necessary registry modifications to register the application as a handler for the Edge protocol.
-void registerHandler(const string filePath, const string engineName, const string engineURL,
-        const string browserName, const string browserPath) {
-    // Try to open each one, if it doesn't exist, make it.
+// Struct representing the settings to use for deflection.
+struct DeflectorSettings {
+    string engineURL;
+    string browserPath;
+}
+
+// Read the settings from the registry.
+DeflectorSettings readSettings() {
+    Key deflectorKey = registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
+
+    return DeflectorSettings(deflectorKey.getValue("EngineURL").value_SZ, deflectorKey.getValue("BrowserPath").value_SZ);
+}
+
+/// Write settings to registry.
+void writeSettings(const DeflectorSettings settings) {
     Key deflectorKey = Registry.currentUser.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
-    Key uriClassKey = Registry.classesRoot.createKey("SearchDeflector", REGSAM.KEY_WRITE);
-    Key iconKey = uriClassKey.createKey("DefaultIcon", REGSAM.KEY_WRITE);
-    Key shellCommandKey = uriClassKey.createKey("shell\\open\\command", REGSAM.KEY_WRITE);
-    Key softwareKey = Registry.localMachine.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
-    Key capabilityKey = softwareKey.createKey("Capabilities", REGSAM.KEY_WRITE);
-    Key urlAssociationsKey = capabilityKey.createKey("UrlAssociations", REGSAM.KEY_WRITE);
-    Key registeredAppsKey = Registry.localMachine.createKey("SOFTWARE\\RegisteredApplications", REGSAM.KEY_WRITE);
 
     // Write necessary changes.
-    deflectorKey.setValue("EngineURL", engineURL);
-    deflectorKey.setValue("BrowserPath", browserPath);
-    deflectorKey.setValue("LastUpdateCheck", Clock.currTime.toISOString());
+    deflectorKey.setValue("EngineURL", settings.engineURL);
+    deflectorKey.setValue("BrowserPath", settings.browserPath);
 
-    uriClassKey.setValue("", "Search Deflector");
-    uriClassKey.setValue("URL Protocol", "");
-
-    iconKey.setValue("", filePath ~ ",0");
-
-    shellCommandKey.setValue("", '"' ~ filePath ~ "\" \"%1\"");
-
-    capabilityKey.setValue("ApplicationName", "Search Deflector");
-    // dfmt off
-    capabilityKey.setValue("ApplicationDescription",
-        "Force web links for MS Edge to be opened with your preferred browser and search engine.");
-    // dfmt on
-
-    urlAssociationsKey.setValue("microsoft-edge", "SearchDeflector");
-    registeredAppsKey.setValue("SearchDeflector", "SOFTWARE\\Clients\\SearchDeflector\\Capabilities");
-
-    // Flush all of the keys and write changes.
     deflectorKey.flush();
-    uriClassKey.flush();
-    iconKey.flush();
-    shellCommandKey.flush();
-    softwareKey.flush();
-    capabilityKey.flush();
-    urlAssociationsKey.flush();
-    registeredAppsKey.flush();
 }
 
 /// Fetch a list of available browsers from the Windows registry along with their paths.
