@@ -4,7 +4,7 @@ import core.sys.windows.windows: CommandLineToArgvW, MessageBox, MB_ICONERROR, M
 import std.windows.registry: Registry, RegistryException, Key, REGSAM;
 import std.datetime: SysTime, DateTime;
 import std.json: JSONValue, parseJSON;
-import std.string: split, toStringz;
+import std.string: split, toStringz, strip;
 import std.uri: encodeComponent;
 import std.range: zip, popFront;
 import std.algorithm: sort;
@@ -24,9 +24,11 @@ enum string PROJECT_VERSION = import("version.txt");
 
 /// String of search engine templates.
 enum string ENGINE_TEMPLATES = import("engines.txt");
+/// String of the GitHub issue template.
+enum string ISSUE_TEMPLATE = import("issue.txt");
 
 /// Creates a message box telling the user there was an error, and redirect to issues page.
-public void createErrorDialog(const Exception error) {
+void createErrorDialog(const Exception error) {
     const uint messageId = MessageBox(null,
             "Search Deflector launch failed. Would you like to open the issues page to submit a bug report?" ~
             "\nThe important information will be filled out for you." ~
@@ -41,24 +43,8 @@ public void createErrorDialog(const Exception error) {
 }
 
 /// Creates a GitHub issue body with the data from an Exception.
-public string createIssueMessage(const Exception error) {
-    return "I have encountered an error launching Search Deflector.
-The error information follows below.
-
-**File:** `%s`
-
-**Line:** %s
-
-**Message:**
-```
-%s
-```
-
-**Stack Trace:**
-```
-%s
-```
-".format(error.file, error.line, error.msg, error.info);
+string createIssueMessage(const Exception error) {
+    return ISSUE_TEMPLATE.strip().format(error.file, error.line, error.msg, error.info);
 }
 
 /// Return a string array of arguments that are parsed in ArgV style from a string.

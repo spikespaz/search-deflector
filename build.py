@@ -182,6 +182,11 @@ def copy_files(from_path, bin_path, vars_path, version_str):
     log_print("Copying engine templates file: " + engines_file)
     copyfile(join(from_path, "engines.txt"), engines_file)
 
+    issue_file = join(vars_path, "issue.txt")
+
+    log_print("Copying issue template file: " + issue_file)
+    copyfile(join(from_path, "issue.txt"), issue_file)
+
     libcurl_lib = join(bin_path, "libcurl.dll")
 
     log_print("Copying libcurl library: " + libcurl_lib)
