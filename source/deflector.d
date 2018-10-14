@@ -3,9 +3,8 @@ module deflector;
 import core.sys.windows.windows: MessageBox, MB_ICONWARNING, MB_YESNO, IDYES;
 import std.process: browse, spawnProcess, Config, ProcessException;
 import std.string: replace, indexOf, toLower, startsWith;
-import std.windows.registry: Registry, Key, REGSAM;
 import std.uri: decodeComponent, encodeComponent;
-import common: createErrorDialog;
+import common: createErrorDialog, readSettings, DeflectorSettings;
 import std.regex: matchFirst;
 import std.array: split;
 import std.conv: to;
@@ -14,8 +13,9 @@ import std.conv: to;
 void main(string[] args) {
     if (args.length > 1) {
         try {
-            const string[string] registryInfo = getRegistryInfo();
-            openUri(registryInfo["BrowserPath"], rewriteUri(args[1], registryInfo["EngineURL"]));
+            const DeflectorSettings settings = readSettings();
+
+            openUri(settings.browserPath, rewriteUri(args[1], settings.engineURL));
         } catch (Exception error)
             createErrorDialog(error);
     } else
@@ -38,18 +38,6 @@ string rewriteUri(const string uri, const string engineUrl) {
             return engineUrl.replace("{{query}}", uri[15 .. $].encodeComponent());
     } else
         throw new Exception("Not a 'microsoft-edge' URI: " ~ uri);
-}
-
-/// Get all of the configuration information from the registry.
-string[string] getRegistryInfo() {
-    Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
-
-    // dfmt off
-    return [
-        "BrowserPath": deflectorKey.getValue("BrowserPath").value_SZ,
-        "EngineURL": deflectorKey.getValue("EngineURL").value_SZ
-    ];
-    // dfmt on
 }
 
 /// Open a URL by spawning a shell process to the browser executable, or system default.
