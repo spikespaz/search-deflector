@@ -1,10 +1,10 @@
 #! py -3
 
+from os.path import join, dirname, basename, isfile
 from subprocess import call, check_output
 from argparse import ArgumentParser
 from shutil import rmtree, copyfile
 from os import remove, makedirs
-from os.path import join
 from glob import glob
 
 PARSER = ArgumentParser(description="Search Deflector Build Script")
@@ -50,23 +50,24 @@ ARGUMENTS = {
         "default": "debug",
         "help": "build classic installer, store edition, or debug mode"
     },
-    "source": {
-        "flags": "-source",
+    "sources": {
+        "flags": "-sources",
+        "nargs": "*",
+        "default": ("icons", "installer", "source", "libs"),
+        "metavar": "<path>",
+        "help": "paths of the source files"
+    },
+    "imports": {
+        "flags": "-imports",
         "default": "source",
         "metavar": "<path>",
-        "help": "path of the source code"
-    },
-    "libs": {
-        "flags": "-libs",
-        "default": "libs",
-        "metavar": "<path>",
-        "help": "path of the libraries"
+        "help": "path of modules imported by the source code"
     },
     "out": {
         "flags": "-out",
         "default": "build",
         "metavar": "<path>",
-        "help": "path of the output binaries"
+        "help": "path of the output files"
     },
     "verbose": {
         "flags": ("-v", "-verbose"),
@@ -105,7 +106,7 @@ def reform_args(args):
             args.setup,
             args.updater,
             args.deflector,
-            args.installer,
+            args.installer
     )):
         args.all = True
 
@@ -122,9 +123,18 @@ def reform_args(args):
             args.setup,
             args.updater,
             args.deflector,
-            args.installer,
+            args.installer
     )):
         args.copy = True
+
+    source_files = {}
+
+    for directory in args.sources:
+        for file in glob(join(directory, "*.*")):
+            if isfile(file):
+                source_files[basename(file)] = file
+
+    args.sources = source_files
 
     return args
 
@@ -136,8 +146,8 @@ def get_version(debug=True):
         return check_output("git describe --tags --abbrev=0", shell=True).decode().strip()
 
 
-def compile_file(src_file, src_path, vars_path, out_file, debug=True):
-    command = ["ldc2", src_file, "-i", "-I", src_path, "-J", vars_path, "-of", out_file, "-m32"]
+def compile_file(src_file, vars_path, out_file, debug=True):
+    command = ["ldc2", src_file, "-i", "-I", dirname(src_file), "-J", vars_path, "-of", out_file, "-m32"]
 
     if debug:
         command.append("-g")
@@ -149,8 +159,12 @@ def compile_file(src_file, src_path, vars_path, out_file, debug=True):
     call(command)
 
 
-def build_installer(out_path, version):
-    pass
+def build_installer(src_file, out_path, version_str):
+    log_print("Compiling installer: " + out_path)
+    command = "iscc \"/O{}\" /Q \"/DAppVersion={}\" \"{}\"".format(out_path, version_str, src_file)
+
+    log_print("> " + command)
+    call(command, shell=True)
 
 
 def clean_files(out_path):
@@ -163,7 +177,7 @@ def clean_files(out_path):
         remove(file)
 
 
-def copy_files(from_path, bin_path, vars_path, version_str):
+def copy_files(source, bin_path, vars_path, version_str):
     log_print("Making binaries path: " + bin_path)
     makedirs(bin_path, exist_ok=True)
 
@@ -180,17 +194,17 @@ def copy_files(from_path, bin_path, vars_path, version_str):
     engines_file = join(vars_path, "engines.txt")
 
     log_print("Copying engine templates file: " + engines_file)
-    copyfile(join(from_path, "engines.txt"), engines_file)
+    copyfile(source["engines.txt"], engines_file)
 
     issue_file = join(vars_path, "issue.txt")
 
     log_print("Copying issue template file: " + issue_file)
-    copyfile(join(from_path, "issue.txt"), issue_file)
+    copyfile(source["issue.txt"], issue_file)
 
     libcurl_lib = join(bin_path, "libcurl.dll")
 
     log_print("Copying libcurl library: " + libcurl_lib)
-    copyfile(join(from_path, "libcurl.dll"), libcurl_lib)
+    copyfile(source["libcurl.dll"], libcurl_lib)
 
 
 if __name__ == "__main__":
@@ -211,21 +225,21 @@ if __name__ == "__main__":
         rmtree(ARGS.out, ignore_errors=True)
 
     if ARGS.copy:
-        copy_files(ARGS.libs, BIN_PATH, VARS_PATH, VERSION_STR)
+        copy_files(ARGS.sources, BIN_PATH, VARS_PATH, VERSION_STR)
 
     if ARGS.setup:
         setup_bin = join(BIN_PATH, "setup.exe")
 
         log_print("Building setup binary: " + setup_bin)
         compile_file(
-            join(ARGS.source, "setup.d"), ARGS.source, VARS_PATH, setup_bin, ARGS.mode == "debug")
+            join(ARGS.sources["setup.d"]), VARS_PATH, setup_bin, ARGS.mode == "debug")
 
     if ARGS.updater:
         updater_bin = join(BIN_PATH, "updater.exe")
 
         log_print("Building updater binary: " + updater_bin)
         compile_file(
-            join(ARGS.source, "updater.d"), ARGS.source, VARS_PATH, updater_bin,
+            join(ARGS.sources["updater.d"]), VARS_PATH, updater_bin,
             ARGS.mode == "debug")
 
     if ARGS.deflector:
@@ -233,7 +247,7 @@ if __name__ == "__main__":
 
         log_print("Building deflector binary: " + deflector_bin)
         compile_file(
-            join(ARGS.source, "deflector.d"), ARGS.source, VARS_PATH, deflector_bin,
+            join(ARGS.sources["deflector.d"]), VARS_PATH, deflector_bin,
             ARGS.mode == "debug")
 
     if ARGS.clean:
@@ -249,13 +263,13 @@ if __name__ == "__main__":
 
             out_file.write("\n\n")
 
-            with open(join(ARGS.libs, "libcurl.txt")) as in_file:
+            with open(ARGS.sources["libcurl.txt"]) as in_file:
                 out_file.write(in_file.read())
 
         log_print("Making distribution path: " + DIST_PATH)
         makedirs(DIST_PATH, exist_ok=True)
 
-        build_installer(ARGS.out, VERSION_STR)
+        build_installer(ARGS.sources["installer.iss"], DIST_PATH, VERSION_STR)
 
     if ARGS.mode == "store":
         pass
