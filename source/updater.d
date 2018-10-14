@@ -54,7 +54,7 @@ void main() {
 
     // This executable should already be running as admin so no verb should be necessary.
     // dfmt off
-    spawnShell(`"{{installerFile}}" /VERYSILENT /DIR="{{installPath}}"`.formatString([
+    spawnShell(`"{{installerFile}}" /VERYSILENT /COMPONENTS="main, updater" /DIR="{{installPath}}"`.formatString([
         "installerFile": installerFile,
         "installPath": thisExePath().dirName()
     ]), null, Config.detached);
