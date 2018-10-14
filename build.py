@@ -221,6 +221,9 @@ if __name__ == "__main__":
             join(ARGS.source, "deflector.d"), ARGS.source, VARS_PATH, deflector_bin,
             ARGS.mode == "debug")
 
+    if ARGS.clean:
+        clean_files(BIN_PATH)
+
     if ARGS.installer:
         license_file = join(VARS_PATH, "license.txt")
 
@@ -239,5 +242,5 @@ if __name__ == "__main__":
 
         build_installer(ARGS.out, VERSION_STR)
 
-    if ARGS.clean:
-        clean_files(BIN_PATH)
+    if ARGS.mode == "store":
+        pass
