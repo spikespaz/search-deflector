@@ -54,7 +54,7 @@ Name: "{group}\Visit Website"; \
 
 [Run]
 Filename: "{app}\setup.exe"; \
-    Flags: hidewizard
+    Flags: hidewizard skipifsilent
 Filename: "schtasks"; \
     Parameters: "/CREATE /F /TN ""Search Deflector Updater"" /XML ""{tmp}\updatetask.xml"""; \
     Flags: runhidden
