@@ -1,10 +1,8 @@
-#define AppVersion "0.2.3"
-
 [Setup]
 AllowNetworkDrive=no
 AllowUNCPath=no
 AppContact=support@spikespaz.com
-AppCopyright=Copyright (c) 2018 Jacob Birkett
+AppCopyright=Copyright (C) 2018 Jacob Birkett
 AppId=spikespaz-search-deflector
 AppName=Search Deflector
 AppPublisher=spikespaz
@@ -20,8 +18,8 @@ Compression=lzma
 DefaultDirName={pf32}\Search Deflector
 DefaultGroupName=Search Deflector
 DisableWelcomePage=no
-InfoBeforeFile=installer.txt
-LicenseFile=build\LICENSE
+InfoBeforeFile=installer\message.txt
+LicenseFile=build\vars\license.txt
 MinVersion=10.0
 OutputBaseFilename=SearchDeflector-Installer
 SetupIconFile=icons\icon.ico
@@ -31,17 +29,17 @@ UninstallDisplayIcon={app}\setup.exe
 VersionInfoVersion={#AppVersion}
 VersionInfoDescription=Search Deflector {#AppVersion} Installer
 WizardSmallImageFile=icons\icon.bmp
-OutputDir=build
+OutputDir=build\dist
 SourceDir=..
 
 [Files]
-Source: "build\{#AppVersion}-master\*"; \
-    Excludes: "LICENSE"; \
+Source: "build\bin\*"; \
+    Excludes: "*.pdb, *.obj"; \
     DestDir: "{app}"; \
     Flags: recursesubdirs
-Source: "build\LICENSE"; \
+Source: "build\vars\license.txt"; \
     DestDir: "{app}"
-Source: "updatetask.xml"; \
+Source: "installer\updatetask.xml"; \
     DestDir: "{tmp}"
 
 [Icons]
@@ -52,7 +50,7 @@ Name: "{group}\Force Update"; \
     Filename: "{app}\updater.exe"; \
     Flags: excludefromshowinnewinstall preventpinning
 Name: "{group}\Visit Website"; \
-    Filename: "https://github.com/spikespaz/search-deflector"
+    Filename: "https://spikespaz.com/search-deflector"
 
 [Run]
 Filename: "{app}\setup.exe"; \
@@ -104,4 +102,3 @@ Root: HKLM; \
     ValueData: "Software\SearchDeflector\Capabilities"; \
     ValueType: string; \
     Flags: uninsdeletevalue
-
