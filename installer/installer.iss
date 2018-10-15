@@ -112,12 +112,14 @@ Filename: "schtasks"; \
     Components: updater
 
 [UninstallRun]
+
 Filename: "schtasks"; \
     Parameters: "/DELETE /F /TN ""Search Deflector Updater"""; \
     Flags: runhidden; \
     Components: updater
 
 [Registry]
+
 Root: HKLM; \
     Subkey: "Software\Classes\SearchDeflector"; \
     Flags: uninsdeletekey; \
