@@ -229,7 +229,7 @@ Root: HKCU; \
 Root: HKCU; \
     Subkey: "Software\Clients\SearchDeflector"; \
     ValueName: "EngineURL"; \
-    ValueData: "google.com/search?q={{query}}"; \
+    ValueData: "google.com/search?q={{{{query}}"; \
     ValueType: string;
 Root: HKCU; \
     Subkey: "Software\Clients\SearchDeflector"; \
