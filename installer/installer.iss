@@ -220,3 +220,19 @@ Root: HKCU; \
     Flags: uninsdeletevalue; \
     Components: main; \
     Tasks: not localmachine
+
+
+Root: HKCU; \
+    Subkey: "Software\Clients\SearchDeflector"; \
+    Flags: uninsdeletekey; \
+    Components: main
+Root: HKCU; \
+    Subkey: "Software\Clients\SearchDeflector"; \
+    ValueName: "EngineURL"; \
+    ValueData: "google.com/search?q={{query}}"; \
+    ValueType: string;
+Root: HKCU; \
+    Subkey: "Software\Clients\SearchDeflector"; \
+    ValueName: "BrowserPath"; \
+    ValueData: "system_default"; \
+    ValueType: string;
