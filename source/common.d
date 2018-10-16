@@ -67,9 +67,13 @@ struct DeflectorSettings {
 
 /// Read the settings from the registry.
 DeflectorSettings readSettings() {
-    Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
+    try {
+        Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
 
-    return DeflectorSettings(deflectorKey.getValue("EngineURL").value_SZ, deflectorKey.getValue("BrowserPath").value_SZ);
+        return DeflectorSettings(deflectorKey.getValue("EngineURL").value_SZ,
+                deflectorKey.getValue("BrowserPath").value_SZ);
+    } catch (RegistryException)
+        return DeflectorSettings("google.com/search?q={{query}}", "system_default");
 }
 
 /// Write settings to registry.
