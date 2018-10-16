@@ -13,3 +13,4 @@ Wolfram Alpha:   wolframalpha.com/input/?i={{query}}
 Stack Overflow:  stackoverflow.com/search?q={{query}}
 Ask:             ask.com/web?q={{query}}
 Ecosia:          ecosia.org/search?q={{query}}
+Startpage:       startpage.com/do/search?q={{query}}
