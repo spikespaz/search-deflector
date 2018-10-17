@@ -58,7 +58,7 @@ ARGUMENTS = {
     "sources": {
         "flags": "-sources",
         "nargs": "*",
-        "default": ("assets", "distribution", "source", "libs"),
+        "default": ("assets", "pack", "source", "libs"),
         "metavar": "<path>",
         "help": "paths of the source files"
     },
