@@ -19,17 +19,17 @@ Compression=lzma
 DefaultDirName={pf32}\Search Deflector
 DefaultGroupName=Search Deflector
 DisableWelcomePage=no
-InfoBeforeFile=installer\message.txt
+InfoBeforeFile=pack\message.txt
 LicenseFile=build\vars\license.txt
 MinVersion=10.0
 OutputBaseFilename=SearchDeflector-Installer
-SetupIconFile=icons\icon.ico
+SetupIconFile=assets\logo.ico
 Uninstallable=yes
 UninstallDisplayName=Search Deflector
 UninstallDisplayIcon={app}\setup.exe
 VersionInfoVersion={#AppVersion}
 VersionInfoDescription=Search Deflector {#AppVersion} Installer
-WizardSmallImageFile=icons\icon.bmp
+WizardSmallImageFile=assets\logo.bmp
 OutputDir=build\dist
 SourceDir=..
 
@@ -76,7 +76,7 @@ Source: "build\bin\libcurl.dll"; \
 Source: "build\bin\updater.exe"; \
     DestDir: "{app}"; \
     Components: updater
-Source: "installer\updatetask.xml"; \
+Source: "pack\updatetask.xml"; \
     DestDir: "{tmp}"; \
     Components: updater
 
