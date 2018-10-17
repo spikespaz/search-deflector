@@ -34,6 +34,11 @@ ARGUMENTS = {
         "action": "store_true",
         "help": "build installer executable"
     },
+    "package": {
+        "flags": ("-p", "-package"),
+        "action": "store_true",
+        "help": "build app package"
+    },
     "clean": {
         "flags": ("-c", "-clean"),
         "action": "store_true",
@@ -53,7 +58,7 @@ ARGUMENTS = {
     "sources": {
         "flags": "-sources",
         "nargs": "*",
-        "default": ("icons", "installer", "source", "libs"),
+        "default": ("assets", "distribution", "source", "libs"),
         "metavar": "<path>",
         "help": "paths of the source files"
     },
@@ -106,13 +111,17 @@ def reform_args(args):
             args.setup,
             args.updater,
             args.deflector,
-            args.installer
+            args.installer,
+            args.package
     )):
         args.all = True
 
-        if args.mode in ("release", "store"):
+        if args.mode == "release":
             args.installer = True
             args.clean = True
+        elif args.mode == "store":
+            args.clean = True
+            args.package = True
 
     if args.all:
         args.setup = True
@@ -123,7 +132,8 @@ def reform_args(args):
             args.setup,
             args.updater,
             args.deflector,
-            args.installer
+            args.installer,
+            args.package
     )):
         args.copy = True
 
@@ -256,12 +266,13 @@ if __name__ == "__main__":
     if ARGS.mode != "debug":
         for binary in glob(join(BIN_PATH, "*.exe")):
             log_print("Adding icon to executable: " + binary)
-            call(["rcedit", binary, "--set-icon", ARGS.sources["icon.ico"]])
+            call(["rcedit", binary, "--set-icon", ARGS.sources["logo.ico"]])
 
     if ARGS.installer:
         license_file = join(VARS_PATH, "license.txt")
 
         log_print("Creating license file: " + license_file)
+
         with open(license_file, "w") as out_file:
             with open("LICENSE") as in_file:
                 out_file.write(in_file.read())
@@ -276,5 +287,56 @@ if __name__ == "__main__":
 
         build_installer(ARGS.sources["installer.iss"], DIST_PATH, VERSION_STR)
 
-    if ARGS.mode == "store":
-        pass
+    if ARGS.package:
+        appx_file = join(DIST_PATH, "SearchDeflector-Package.appx")
+
+        store_path = join(ARGS.out, "store")
+
+        log_print("Making distribution path: " + DIST_PATH)
+        makedirs(DIST_PATH, exist_ok=True)
+
+        log_print("Making app package path: " + store_path)
+        makedirs(store_path, exist_ok=True)
+
+        assets_path = join(store_path, "Assets")
+
+        log_print("Making assets path: " + assets_path)
+        makedirs(assets_path, exist_ok=True)
+
+        manifest_file = join(store_path, "AppxManifest.xml")
+
+        log_print("Creating app package manifest file: " + manifest_file)
+
+        with open(manifest_file, "w") as out_file:
+            with open(ARGS.sources["appxmanifest.xml"]) as in_file:
+                out_file.write(in_file.read().replace("{{version}}", VERSION_STR + ".0"))
+
+        setup_bin = join(store_path, "setup.exe")
+
+        log_print("Copying setup binary: " + setup_bin)
+        copyfile(join(BIN_PATH, "setup.exe"), setup_bin)
+
+        deflector_bin = join(store_path, "deflector.exe")
+
+        log_print("Copying deflector binary: " + deflector_bin)
+        copyfile(join(BIN_PATH, "deflector.exe"), deflector_bin)
+
+        logo_store_file = join(assets_path, "Logo-Store.png")
+
+        log_print("Copying store logo: " + logo_store_file)
+        copyfile(ARGS.sources["logo.png"], logo_store_file)
+
+        logo_44_file = join(assets_path, "Logo-44.png")
+
+        log_print("Copying tile logo: " + logo_44_file)
+        copyfile(ARGS.sources["logo_44.png"], logo_44_file)
+
+        logo_150_file = join(assets_path, "Logo-150.png")
+
+        log_print("Copying tile logo: " + logo_150_file)
+        copyfile(ARGS.sources["logo_150.png"], logo_150_file)
+
+        log_print("Building app package: " + appx_file)
+        command = "MakeAppx pack /d \"{}\" /p \"{}\" /o".format(store_path, appx_file)
+        log_print("> " + command)
+        call(command)
