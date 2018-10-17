@@ -1,4 +1,4 @@
-# ![Search Deflector](icons/title.png)
+# ![Search Deflector](assets/title.png)
 
 [![Latest Version](https://img.shields.io/github/release/spikespaz/search-deflector/all.svg?style=for-the-badge)](https://github.com/spikespaz/search-deflector/releases/latest)
 [![Project License](https://img.shields.io/github/license/spikespaz/search-deflector.svg?style=for-the-badge)](https://github.com/spikespaz/search-deflector/blob/master/LICENSE)
