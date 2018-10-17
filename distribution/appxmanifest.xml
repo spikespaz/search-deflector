@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" 
+    xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" 
+    xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3" 
+    xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities" 
+    xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10">
+    <Identity Name="3945spikespaz.SearchDeflector" 
+        ProcessorArchitecture="x86" 
+        Publisher="CN=69331A0A-1F10-4A10-8A28-3627A09E25FD" 
+        Version="{{version}}" />
+    <Properties>
+        <DisplayName>Search Deflector</DisplayName>
+        <PublisherDisplayName>spikespaz</PublisherDisplayName>
+        <Description>A small program that forwards searches from Cortana to your preferred browser and search engine.</Description>
+        <Logo>Assets\Logo-Store.png</Logo>
+    </Properties>
+    <Resources>
+        <Resource Language="en-us" />
+    </Resources>
+    <Dependencies>
+        <TargetDeviceFamily Name="Windows.Desktop" 
+            MinVersion="10.0.14393.0" 
+            MaxVersionTested="10.0.16299.15" />
+    </Dependencies>
+    <Capabilities>
+        <rescap:Capability Name="runFullTrust" />
+    </Capabilities>
+    <Applications>
+        <Application Id="SearchDeflector" 
+            Executable="setup.exe" 
+            EntryPoint="Windows.FullTrustApplication">
+            <uap:VisualElements DisplayName="Search Deflector" 
+                Description="A small program that forwards searches from Cortana to your preferred browser and search engine." 
+                BackgroundColor="transparent" 
+                Square150x150Logo="Assets\Logo-150.png" 
+                Square44x44Logo="Assets\Logo-44.png">
+                <uap:DefaultTile>
+                    <uap:ShowNameOnTiles>
+                        <uap:ShowOn Tile="square150x150Logo" />
+                    </uap:ShowNameOnTiles>
+                </uap:DefaultTile>
+            </uap:VisualElements>
+            <Extensions>
+                <uap3:Extension Category="windows.protocol" 
+                    Executable="deflector.exe" 
+                    EntryPoint="Windows.FullTrustApplication">
+                    <uap3:Protocol Name="microsoft-edge" 
+                        Parameters="&quot;%1&quot;">
+                        <uap:DisplayName>Search Deflector</uap:DisplayName>
+                    </uap3:Protocol>
+                </uap3:Extension>
+            </Extensions>
+        </Application>
+    </Applications>
+</Package>
