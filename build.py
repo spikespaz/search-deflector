@@ -1,92 +1,65 @@
 #! py -3
 
-from os.path import join, dirname, basename, isfile
 from subprocess import call, check_output
 from argparse import ArgumentParser
+from os.path import dirname, exists
 from shutil import rmtree, copyfile
 from os import remove, makedirs
 from glob import glob
 
+BIN_PATH = "build/bin"
+DIST_PATH = "build/dist"
+VARS_PATH = "build/vars"
+STORE_PATH = "build/store"
+
 PARSER = ArgumentParser(description="Search Deflector Build Script")
+
 ARGUMENTS = {
-    "all": {
-        "flags": ("-a", "-all"),
-        "action": "store_true",
-        "help": "build setup, updater, and deflector binaries"
+    "mode": {
+        "flags": ("-m", "--mode"),
+        "choices": ("classic", "store"),
+        "default": "classic",
+        "help": "preset of things to build"
     },
-    "setup": {
-        "flags": ("-s", "-setup"),
-        "action": "store_true",
-        "help": "build setup binary"
+    "build": {
+        "flags": ("-b", "--build"),
+        "action": "append",
+        "choices": ("setup", "updater", "deflector", "installer", "package"),
+        "default": [],
+        "help": "parts of the program to build"
     },
-    "updater": {
-        "flags": ("-u", "-updater"),
+    "debug": {
+        "flags": ("-d", "--debug"),
         "action": "store_true",
-        "help": "build updater binary"
-    },
-    "deflector": {
-        "flags": ("-d", "-deflector"),
-        "action": "store_true",
-        "help": "build deflector binary"
-    },
-    "installer": {
-        "flags": ("-i", "-installer"),
-        "action": "store_true",
-        "help": "build installer executable"
-    },
-    "package": {
-        "flags": ("-p", "-package"),
-        "action": "store_true",
-        "help": "build app package"
+        "help": "enable compiler debug flags"
     },
     "clean": {
-        "flags": ("-c", "-clean"),
+        "flags": ("-c", "--clean"),
         "action": "store_true",
-        "help": "remove object and debug files"
+        "help": "clean up temporary files"
     },
-    "copy": {
-        "flags": ("-cp", "-copy"),
+    "version": {
+        "flags": ("-v", "--version"),
+        "default": "0.0.0",
+        "help": "version string to use in build"
+    },
+    "silent": {
+        "flags": ("-s", "--silent"),
         "action": "store_true",
-        "help": "copy libraries and imports"
-    },
-    "mode": {
-        "flags": ("-m", "-mode"),
-        "choices": ("r", "release", "s", "store", "d", "debug"),
-        "default": "debug",
-        "help": "build classic installer, store edition, or debug mode"
-    },
-    "sources": {
-        "flags": "-sources",
-        "nargs": "*",
-        "default": ("assets", "pack", "source", "libs"),
-        "metavar": "<path>",
-        "help": "paths of the source files"
-    },
-    "imports": {
-        "flags": "-imports",
-        "default": "source",
-        "metavar": "<path>",
-        "help": "path of modules imported by the source code"
-    },
-    "out": {
-        "flags": "-out",
-        "default": "build",
-        "metavar": "<path>",
-        "help": "path of the output files"
-    },
-    "verbose": {
-        "flags": ("-v", "-verbose"),
-        "action": "store_true",
-        "help": "show log output"
+        "help": "only print errors to console"
     }
 }
 
-LOG_VERBOSE = False
+LOG_VERBOSE = True
 
 
 def log_print(*args, **kwargs):
     if LOG_VERBOSE:
         print(*args, **kwargs)
+
+
+def get_version():
+    return check_output("git describe --tags --abbrev=0", shell=True).decode().strip()
 
 
 def assemble_args(parser, arguments):
@@ -99,65 +72,28 @@ def assemble_args(parser, arguments):
             parser.add_argument(*flags, dest=dest, **kwargs)
 
 
-def reform_args(args):
-    if args.mode == "r":
-        args.mode = "release"
-    elif args.mode == "s":
-        args.mode = "store"
-    elif args.mode == "d":
-        args.mode = "debug"
-
-    if not any((
-            args.setup,
-            args.updater,
-            args.deflector,
-            args.installer,
-            args.package
-    )):
-        args.all = True
-
-        if args.mode == "release":
-            args.installer = True
-            args.clean = True
-        elif args.mode == "store":
-            args.clean = True
-            args.package = True
-
-    if args.all:
-        args.setup = True
-        args.updater = True
-        args.deflector = True
-
-    if any((
-            args.setup,
-            args.updater,
-            args.deflector,
-            args.installer,
-            args.package
-    )):
-        args.copy = True
-
-    source_files = {}
-
-    for directory in args.sources:
-        for file in glob(join(directory, "*.*")):
-            if isfile(file):
-                source_files[basename(file)] = file
-
-    args.sources = source_files
-
-    return args
+def copy_file(from_file, to_file):
+    if not exists(to_file):
+        log_print("Copying file: " + to_file)
+        copyfile(from_file, to_file)
 
 
-def get_version(debug=True):
-    if debug:
-        return "0.0.0"
-    else:
-        return check_output("git describe --tags --abbrev=0", shell=True).decode().strip()
+def create_directory(directory):
+    if not exists(directory):
+        log_print("Creating directory: " + directory)
+        makedirs(directory, exist_ok=True)
 
 
-def compile_file(src_file, vars_path, out_file, debug=True):
-    command = ["ldc2", src_file, "-i", "-I", dirname(src_file), "-J", vars_path, "-of", out_file, "-m32"]
+def delete_directory(directory):
+    if exists(directory):
+        log_print("Deleting directory: " + directory)
+        rmtree(directory, ignore_errors=True)
+
+
+def compile_file(source, binary, debug=True):
+    log_print("Compiling binary: " + binary)
+
+    command = ["ldc2", source, "-i", "-I", dirname(source), "-J", VARS_PATH, "-of", binary, "-m32"]
 
     if debug:
         command.append("-g")
@@ -165,178 +101,139 @@ def compile_file(src_file, vars_path, out_file, debug=True):
         command.extend(["-O3", "-ffast-math", "-release"])
 
     log_print(">", *command)
-
     call(command)
 
 
-def build_installer(src_file, out_path, version_str):
-    log_print("Compiling installer: " + out_path)
-    command = "iscc \"/O{}\" /Q \"/DAppVersion={}\" \"{}\"".format(out_path, version_str, src_file)
+def copy_files(version):
+    copy_file("libs/libcurl.dll", BIN_PATH + "/libcurl.dll")
 
-    log_print("> " + command)
-    call(command)
+    copy_file("libs/engines.txt", VARS_PATH + "/engines.txt")
+    copy_file("libs/issue.txt", VARS_PATH + "/issue.txt")
 
-
-def clean_files(out_path):
-    for file in glob(join(out_path, "*.pdb")):
-        log_print("Removing debug file: " + join(out_path, file))
-        remove(file)
-
-    for file in glob(join(out_path, "*.obj")):
-        log_print("Removing object file: " + join(out_path, file))
-        remove(file)
-
-
-def copy_files(source, bin_path, vars_path, version_str):
-    log_print("Making binaries path: " + bin_path)
-    makedirs(bin_path, exist_ok=True)
-
-    log_print("Making variables path: " + vars_path)
-    makedirs(vars_path, exist_ok=True)
-
-    version_file = join(vars_path, "version.txt")
-
-    log_print("Creating version file: " + version_file)
+    version_file = VARS_PATH + "/version.txt"
+    log_print("Creating file: " + version_file)
 
     with open(version_file, "w") as out_file:
-        out_file.write(version_str)
+        out_file.write(version)
 
-    engines_file = join(vars_path, "engines.txt")
+    license_file = VARS_PATH + "/license.txt"
+    log_print("Creating file: " + license_file)
 
-    log_print("Copying engine templates file: " + engines_file)
-    copyfile(source["engines.txt"], engines_file)
+    with open(license_file, "w") as out_file:
+        with open("LICENSE") as in_file:
+            out_file.write(in_file.read())
 
-    issue_file = join(vars_path, "issue.txt")
+        out_file.write("\n")
 
-    log_print("Copying issue template file: " + issue_file)
-    copyfile(source["issue.txt"], issue_file)
-
-    libcurl_lib = join(bin_path, "libcurl.dll")
-
-    log_print("Copying libcurl library: " + libcurl_lib)
-    copyfile(source["libcurl.dll"], libcurl_lib)
+        with open("libs/libcurl.txt") as in_file:
+            out_file.write(in_file.read())
 
 
 if __name__ == "__main__":
     assemble_args(PARSER, ARGUMENTS)
+    ARGS = PARSER.parse_args()
 
-    ARGS = reform_args(PARSER.parse_args())
+    if ARGS.silent:
+        LOG_VERBOSE = False
 
-    BIN_PATH = join(ARGS.out, "bin")
-    VARS_PATH = join(ARGS.out, "vars")
-    DIST_PATH = join(ARGS.out, "dist")
+    if not ARGS.version:
+        ARGS.version = get_version()
 
-    VERSION_STR = get_version(ARGS.mode == "debug")
+    if ARGS.mode == "classic":
+        build_set = set(ARGS.build)
+        build_set.update(("setup", "updater", "deflector", "installer"))
+        ARGS.build = tuple(build_set)
 
-    LOG_VERBOSE = ARGS.verbose
+        ARGS.clean = True
 
-    if ARGS.mode in ("release", "store"):
-        log_print("Removing build path: " + ARGS.out)
-        rmtree(ARGS.out, ignore_errors=True)
+        delete_directory("build/bin")
+        delete_directory("build/vars")
+    elif ARGS.mode == "store":
+        build_set = set(ARGS.build)
+        build_set.update(("setup", "deflector", "package"))
+        ARGS.build = tuple(build_set)
 
-    if ARGS.copy:
-        copy_files(ARGS.sources, BIN_PATH, VARS_PATH, VERSION_STR)
+        ARGS.clean = True
 
-    if ARGS.setup:
-        setup_bin = join(BIN_PATH, "setup.exe")
+        delete_directory("build/bin")
+        delete_directory("build/vars")
+        delete_directory("build/store")
 
-        log_print("Building setup binary: " + setup_bin)
-        compile_file(
-            join(ARGS.sources["setup.d"]), VARS_PATH, setup_bin, ARGS.mode == "debug")
+    if "setup" in ARGS.build:
+        create_directory(BIN_PATH)
+        create_directory(VARS_PATH)
 
-    if ARGS.updater:
-        updater_bin = join(BIN_PATH, "updater.exe")
+        SETUP_BIN = BIN_PATH + "/setup.exe"
+        log_print("Building setup binary: " + SETUP_BIN)
 
-        log_print("Building updater binary: " + updater_bin)
-        compile_file(
-            join(ARGS.sources["updater.d"]), VARS_PATH, updater_bin,
-            ARGS.mode == "debug")
+        copy_files(ARGS.version)
+        compile_file("source/setup.d", SETUP_BIN, ARGS.debug)
 
-    if ARGS.deflector:
-        deflector_bin = join(BIN_PATH, "deflector.exe")
+    if "updater" in ARGS.build:
+        create_directory(BIN_PATH)
+        create_directory(VARS_PATH)
 
-        log_print("Building deflector binary: " + deflector_bin)
-        compile_file(
-            join(ARGS.sources["deflector.d"]), VARS_PATH, deflector_bin,
-            ARGS.mode == "debug")
+        UPDATER_BIN = BIN_PATH + "/updater.exe"
+        log_print("Building updater binary: " + UPDATER_BIN)
+
+        copy_files(ARGS.version)
+        compile_file("source/updater.d", UPDATER_BIN, ARGS.debug)
+
+    if "deflector" in ARGS.build:
+        create_directory(BIN_PATH)
+        create_directory(VARS_PATH)
+
+        DEFLECTOR_BIN = BIN_PATH + "/deflector.exe"
+        log_print("Building deflector binary: " + DEFLECTOR_BIN)
+
+        copy_files(ARGS.version)
+        compile_file("source/deflector.d", DEFLECTOR_BIN, ARGS.debug)
 
     if ARGS.clean:
-        clean_files(BIN_PATH)
+        for file in glob(BIN_PATH + "*.pdb"):
+            log_print("Removing debug file: " + BIN_PATH + "/" + file)
+            remove(file)
 
-    if ARGS.mode != "debug":
-        for binary in glob(join(BIN_PATH, "*.exe")):
-            log_print("Adding icon to executable: " + binary)
-            call(["rcedit", binary, "--set-icon", ARGS.sources["logo.ico"]])
+        for file in glob(BIN_PATH + "*.obj"):
+            log_print("Removing object file: " + BIN_PATH + "/" + file)
+            remove(file)
 
-    if ARGS.installer:
-        license_file = join(VARS_PATH, "license.txt")
+    if "installer" in ARGS.build:
+        create_directory(DIST_PATH)
 
-        log_print("Creating license file: " + license_file)
+        log_print("Making installer executable: " + DIST_PATH + "/SearchDeflector-Installer.exe")
 
-        with open(license_file, "w") as out_file:
-            with open("LICENSE") as in_file:
-                out_file.write(in_file.read())
+        command = "iscc \"/O{}\" /Q \"/DAppVersion={}\" \"pack/installer.iss\"".format(DIST_PATH, ARGS.version)
 
-            out_file.write("\n\n")
+        log_print("> " + command)
+        call(command)
 
-            with open(ARGS.sources["libcurl.txt"]) as in_file:
-                out_file.write(in_file.read())
+    if "package" in ARGS.build:
+        create_directory(DIST_PATH)
+        create_directory(STORE_PATH)
 
-        log_print("Making distribution path: " + DIST_PATH)
-        makedirs(DIST_PATH, exist_ok=True)
+        PACKAGE_FILE = DIST_PATH + "/SearchDeflector-Package.appx"
+        log_print("Making store package: " + PACKAGE_FILE)
 
-        build_installer(ARGS.sources["installer.iss"], DIST_PATH, VERSION_STR)
+        create_directory(STORE_PATH + "/Assets")
 
-    if ARGS.package:
-        appx_file = join(DIST_PATH, "SearchDeflector-Package.appx")
+        copy_file("assets/logo.png", STORE_PATH + "/Assets/Logo-Store.png")
+        copy_file("assets/logo_44.png", STORE_PATH + "/Assets/Logo-44.png")
+        copy_file("assets/logo_150.png", STORE_PATH + "/Assets/Logo-150.png")
 
-        store_path = join(ARGS.out, "store")
+        copy_file(BIN_PATH + "/setup.exe", STORE_PATH + "/setup.exe")
+        copy_file(BIN_PATH + "/deflector.exe", STORE_PATH + "/deflector.exe")
 
-        log_print("Making distribution path: " + DIST_PATH)
-        makedirs(DIST_PATH, exist_ok=True)
-
-        log_print("Making app package path: " + store_path)
-        makedirs(store_path, exist_ok=True)
-
-        assets_path = join(store_path, "Assets")
-
-        log_print("Making assets path: " + assets_path)
-        makedirs(assets_path, exist_ok=True)
-
-        manifest_file = join(store_path, "AppxManifest.xml")
-
-        log_print("Creating app package manifest file: " + manifest_file)
+        manifest_file = STORE_PATH + "/AppxManifest.xml"
+        log_print("Creating file: " + manifest_file)
 
         with open(manifest_file, "w") as out_file:
-            with open(ARGS.sources["appxmanifest.xml"]) as in_file:
-                out_file.write(in_file.read().replace("{{version}}", VERSION_STR + ".0"))
+            with open("pack/appxmanifest.xml") as in_file:
+                out_file.write(in_file.read().replace("{{version}}", ARGS.version + ".0"))
 
-        setup_bin = join(store_path, "setup.exe")
+        log_print("Packing file: " + PACKAGE_FILE)
 
-        log_print("Copying setup binary: " + setup_bin)
-        copyfile(join(BIN_PATH, "setup.exe"), setup_bin)
-
-        deflector_bin = join(store_path, "deflector.exe")
-
-        log_print("Copying deflector binary: " + deflector_bin)
-        copyfile(join(BIN_PATH, "deflector.exe"), deflector_bin)
-
-        logo_store_file = join(assets_path, "Logo-Store.png")
-
-        log_print("Copying store logo: " + logo_store_file)
-        copyfile(ARGS.sources["logo.png"], logo_store_file)
-
-        logo_44_file = join(assets_path, "Logo-44.png")
-
-        log_print("Copying tile logo: " + logo_44_file)
-        copyfile(ARGS.sources["logo_44.png"], logo_44_file)
-
-        logo_150_file = join(assets_path, "Logo-150.png")
-
-        log_print("Copying tile logo: " + logo_150_file)
-        copyfile(ARGS.sources["logo_150.png"], logo_150_file)
-
-        log_print("Building app package: " + appx_file)
-        command = "MakeAppx pack /d \"{}\" /p \"{}\" /o".format(store_path, appx_file)
+        command = "MakeAppx pack /d \"{}\" /p \"{}\" /o".format(STORE_PATH, PACKAGE_FILE)
         log_print("> " + command)
+
         call(command)
