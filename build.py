@@ -7,6 +7,11 @@ from shutil import rmtree, copyfile
 from os import remove, makedirs
 from glob import glob
 
+ASSETS_PATH = "assets"
+SOURCE_PATH = "source"
+LIBS_PATH = "libs"
+PACK_PATH = "pack"
+
 BIN_PATH = "build/bin"
 DIST_PATH = "build/dist"
 VARS_PATH = "build/vars"
@@ -105,10 +110,10 @@ def compile_file(source, binary, debug=True):
 
 
 def copy_files(version):
-    copy_file("libs/libcurl.dll", BIN_PATH + "/libcurl.dll")
+    copy_file(LIBS_PATH + "/libcurl.dll", BIN_PATH + "/libcurl.dll")
 
-    copy_file("libs/engines.txt", VARS_PATH + "/engines.txt")
-    copy_file("libs/issue.txt", VARS_PATH + "/issue.txt")
+    copy_file(LIBS_PATH + "/engines.txt", VARS_PATH + "/engines.txt")
+    copy_file(LIBS_PATH + "/issue.txt", VARS_PATH + "/issue.txt")
 
     version_file = VARS_PATH + "/version.txt"
     log_print("Creating file: " + version_file)
@@ -125,7 +130,7 @@ def copy_files(version):
 
         out_file.write("\n")
 
-        with open("libs/libcurl.txt") as in_file:
+        with open(LIBS_PATH + "/libcurl.txt") as in_file:
             out_file.write(in_file.read())
 
 
@@ -167,7 +172,7 @@ if __name__ == "__main__":
         log_print("Building setup binary: " + SETUP_BIN)
 
         copy_files(ARGS.version)
-        compile_file("source/setup.d", SETUP_BIN, ARGS.debug)
+        compile_file(SOURCE_PATH + "/setup.d", SETUP_BIN, ARGS.debug)
 
     if "updater" in ARGS.build:
         create_directory(BIN_PATH)
@@ -177,7 +182,7 @@ if __name__ == "__main__":
         log_print("Building updater binary: " + UPDATER_BIN)
 
         copy_files(ARGS.version)
-        compile_file("source/updater.d", UPDATER_BIN, ARGS.debug)
+        compile_file(SOURCE_PATH + "/updater.d", UPDATER_BIN, ARGS.debug)
 
     if "deflector" in ARGS.build:
         create_directory(BIN_PATH)
@@ -187,7 +192,7 @@ if __name__ == "__main__":
         log_print("Building deflector binary: " + DEFLECTOR_BIN)
 
         copy_files(ARGS.version)
-        compile_file("source/deflector.d", DEFLECTOR_BIN, ARGS.debug)
+        compile_file(SOURCE_PATH + "/deflector.d", DEFLECTOR_BIN, ARGS.debug)
 
     if ARGS.clean:
         for file in glob(BIN_PATH + "*.pdb"):
@@ -203,7 +208,7 @@ if __name__ == "__main__":
 
         log_print("Making installer executable: " + DIST_PATH + "/SearchDeflector-Installer.exe")
 
-        command = "iscc \"/O{}\" /Q \"/DAppVersion={}\" \"pack/installer.iss\"".format(DIST_PATH, ARGS.version)
+        command = "iscc \"/O{}\" /Q \"/DAppVersion={}\" \"{}/installer.iss\"".format(DIST_PATH, ARGS.version, PACK_PATH)
 
         log_print("> " + command)
         call(command)
@@ -217,9 +222,9 @@ if __name__ == "__main__":
 
         create_directory(STORE_PATH + "/Assets")
 
-        copy_file("assets/logo.png", STORE_PATH + "/Assets/Logo-Store.png")
-        copy_file("assets/logo_44.png", STORE_PATH + "/Assets/Logo-44.png")
-        copy_file("assets/logo_150.png", STORE_PATH + "/Assets/Logo-150.png")
+        copy_file(ASSETS_PATH + "/logo.png", STORE_PATH + "/Assets/Logo-Store.png")
+        copy_file(ASSETS_PATH + "/logo_44.png", STORE_PATH + "/Assets/Logo-44.png")
+        copy_file(ASSETS_PATH + "/logo_150.png", STORE_PATH + "/Assets/Logo-150.png")
 
         copy_file(BIN_PATH + "/setup.exe", STORE_PATH + "/setup.exe")
         copy_file(BIN_PATH + "/deflector.exe", STORE_PATH + "/deflector.exe")
@@ -228,7 +233,7 @@ if __name__ == "__main__":
         log_print("Creating file: " + manifest_file)
 
         with open(manifest_file, "w") as out_file:
-            with open("pack/appxmanifest.xml") as in_file:
+            with open(PACK_PATH + "/appxmanifest.xml") as in_file:
                 out_file.write(in_file.read().replace("{{version}}", ARGS.version + ".0"))
 
         log_print("Packing file: " + PACKAGE_FILE)
