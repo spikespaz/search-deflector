@@ -23,7 +23,6 @@ ARGUMENTS = {
     "mode": {
         "flags": ("-m", "--mode"),
         "choices": ("classic", "store"),
-        "default": "classic",
         "help": "preset of things to build"
     },
     "build": {
@@ -45,7 +44,6 @@ ARGUMENTS = {
     },
     "version": {
         "flags": ("-v", "--version"),
-        "default": "0.0.0",
         "help": "version string to use in build"
     },
     "silent": {
@@ -144,7 +142,9 @@ if __name__ == "__main__":
     if not ARGS.version:
         ARGS.version = get_version()
 
-    if ARGS.mode == "classic":
+    log_print("Using version number: " + ARGS.version)
+
+    if ARGS.mode == "classic" and not ARGS.clean:
         build_set = set(ARGS.build)
         build_set.update(("setup", "updater", "deflector", "installer"))
         ARGS.build = tuple(build_set)
@@ -153,7 +153,7 @@ if __name__ == "__main__":
 
         delete_directory("build/bin")
         delete_directory("build/vars")
-    elif ARGS.mode == "store":
+    elif ARGS.mode == "store" and not ARGS.clean:
         build_set = set(ARGS.build)
         build_set.update(("setup", "deflector", "package"))
         ARGS.build = tuple(build_set)
@@ -195,11 +195,11 @@ if __name__ == "__main__":
         compile_file(SOURCE_PATH + "/deflector.d", DEFLECTOR_BIN, ARGS.debug)
 
     if ARGS.clean:
-        for file in glob(BIN_PATH + "*.pdb"):
+        for file in glob(BIN_PATH + "/*.pdb"):
             log_print("Removing debug file: " + BIN_PATH + "/" + file)
             remove(file)
 
-        for file in glob(BIN_PATH + "*.obj"):
+        for file in glob(BIN_PATH + "/*.obj"):
             log_print("Removing object file: " + BIN_PATH + "/" + file)
             remove(file)
 
