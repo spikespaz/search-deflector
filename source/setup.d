@@ -42,10 +42,9 @@ DeflectorSettings promptSettings(const string[string] browsers, const string[str
             "Don't forget to star the repository on GitHub so people see it!\n");
     // dfmt on
 
-    const string browserName = promptBrowserChoice(browsers);
-    const string engineName = promptEngineChoice(engines);
-
     DeflectorSettings settings;
+
+    const string browserName = promptBrowserChoice(browsers);
 
     switch (browserName) {
     case "System Default":
@@ -57,6 +56,8 @@ DeflectorSettings promptSettings(const string[string] browsers, const string[str
     default:
         settings.browserPath = browsers[browserName];
     }
+
+    const string engineName = promptEngineChoice(engines);
 
     switch (engineName) {
     case "Custom URL":
