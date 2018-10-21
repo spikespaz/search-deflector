@@ -1,16 +1,21 @@
 module deflector;
 
-import core.sys.windows.windows: MessageBox, MB_ICONWARNING, MB_YESNO, IDYES;
+import core.sys.windows.windows: GetCommandLineW, MessageBox, MB_ICONWARNING, MB_YESNO, IDYES;
+import common: getConsoleArgs, createErrorDialog, readSettings, DeflectorSettings;
 import std.process: browse, spawnProcess, Config, ProcessException;
-import common: createErrorDialog, readSettings, DeflectorSettings;
 import std.string: replace, indexOf, toLower, startsWith;
 import std.uri: decodeComponent, encodeComponent;
+import core.runtime: Runtime;
 import std.regex: matchFirst;
 import std.array: split;
 import std.conv: to;
 
 /// Entry to call the deflection, or error out.
-void main(string[] args) {
+extern (Windows) int WinMain(void*, void*, void*, int) {
+    Runtime.initialize();
+
+    string[] args = getConsoleArgs(GetCommandLineW());
+
     if (args.length > 1) {
         try {
             const DeflectorSettings settings = readSettings();
@@ -18,8 +23,14 @@ void main(string[] args) {
             openUri(settings.browserPath, rewriteUri(args[1], settings.engineURL));
         } catch (Exception error)
             createErrorDialog(error);
-    } else
+    } else {
         createErrorDialog(new Exception("Expected one URI argument, recieved: \n" ~ args.to!string()));
+        return 1;
+    }
+
+    Runtime.terminate();
+
+    return 0;
 }
 
 /// Reqrites a "microsoft-edge" URI to something browsers can use.
