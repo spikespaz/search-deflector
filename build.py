@@ -62,7 +62,7 @@ def log_print(*args, **kwargs):
 
 
 def get_version():
-    return check_output("git describe --tags --abbrev=0", shell=True).decode().strip()
+    return check_output("git describe --tags --abbrev=0").decode().strip()
 
 
 def assemble_args(parser, arguments):
@@ -105,6 +105,12 @@ def compile_file(source, binary, debug=True):
 
     log_print(">", *command)
     call(command)
+
+
+def add_icon(binary):
+    log_print("Adding icon: " + binary)
+
+    call(["rcedit", "--set-icon", ASSETS_PATH + "/logo.ico", binary])
 
 
 def copy_files(version):
@@ -174,6 +180,8 @@ if __name__ == "__main__":
         copy_files(ARGS.version)
         compile_file(SOURCE_PATH + "/setup.d", SETUP_BIN, ARGS.debug)
 
+        add_icon(SETUP_BIN)
+
     if "updater" in ARGS.build:
         create_directory(BIN_PATH)
         create_directory(VARS_PATH)
@@ -184,6 +192,8 @@ if __name__ == "__main__":
         copy_files(ARGS.version)
         compile_file(SOURCE_PATH + "/updater.d", UPDATER_BIN, ARGS.debug)
 
+        add_icon(UPDATER_BIN)
+
     if "deflector" in ARGS.build:
         create_directory(BIN_PATH)
         create_directory(VARS_PATH)
@@ -193,6 +203,8 @@ if __name__ == "__main__":
 
         copy_files(ARGS.version)
         compile_file(SOURCE_PATH + "/deflector.d", DEFLECTOR_BIN, ARGS.debug)
+
+        add_icon(DEFLECTOR_BIN)
 
     if ARGS.clean:
         for file in glob(BIN_PATH + "/*.pdb"):
