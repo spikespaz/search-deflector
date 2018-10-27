@@ -13,6 +13,14 @@ Now you can search faster by just tapping the Windows key, and typing your searc
 
 After a simple setup, you can use *any* browser (provided it is registered as a protocol handler) and *any* search engine. If you are having trouble getting either of these to work, send me an email at support@spikespaz.com or create an [issue](https://github.com/spikespaz/search-deflector/issues), and I will see what I can do to get your custom settings working.
 
+<h1>
+  <a href="https://www.microsoft.com/store/productId/9P8ZJJ80RZ2K">
+    <img src="assets/store.png" alt="Get it from Microsoft!" width="200"\>
+  </a>
+</h1>
+
+**Note:** There is a free version and a paid version. Both are exactly the same. The free version is unsigned and may register a false-positive with your antivirus software. The version on the Microsoft Store costs $1.99, and is digitally signed and distributed by Microsoft. The free (classic) version uses custom code for automatic updates (source is [here](https://github.com/spikespaz/search-deflector/blob/master/updater.d)). I would greatly appreciate if you tried the free version from GitHub and later paid for the Store version, as even the few dollars goes a long way to help me out.
+
 ### Doesn't this already exist?
 
 Yes, I know. [EdgeDeflector](https://github.com/da2x/EdgeDeflector) and [SearchWithMyBrowser](https://github.com/sylveon/SearchWithMyBrowser).
@@ -23,7 +31,7 @@ SearchWithMyBrowser has the same problems as EdgeDeflector.
 
 # How do I set it up?
 
-Download the latest installer executable by clicking [here](https://spikespaz.com/tools/repo-dl/?user=spikespaz&repo=search-deflector&file=SearchDeflector-Installer.exe) and follow the prompts.
+Get it at the Microsoft Store [here](https://www.microsoft.com/store/productId/9P8ZJJ80RZ2K) to support development or download the latest installer executable by clicking [here](https://spikespaz.com/tools/repo-dl/?user=spikespaz&repo=search-deflector&file=SearchDeflector-Installer.exe). Just follow the prompts.
 
 **Take a look at the [Wiki page](https://github.com/spikespaz/search-deflector/wiki/Setup-&-Installing) if you're having trouble or need more information.**
 
@@ -55,8 +63,6 @@ I will accept donations through PayPal.Me, Buy Me a Coffee, or Patreon.
 | Issues   | https://github.com/spikespaz/search-deflector/issues                      |
 | License  | https://github.com/spikespaz/search-deflector/blob/master/LICENSE         |
 | Readme   | https://github.com/spikespaz/search-deflector/blob/master/README.md       |
-| DEV      | https://dev.to/spikespaz/start-menu-search-on-windows-10-with-google-46ie |
-| Kinja    | https://spikespaz.kinja.com/how-to-use-any-search-engine-and-browser-with-windows-1-1828842888 |
 | Email    | support@spikespaz.com                                                     |
 
 # Special thanks
@@ -77,7 +83,5 @@ Even though I've basically usurped their projects, @da2x and @sylveon for the in
  - @Freyam
  - @MulverineX
  - @fernandex00
-
-Sorry if I missed your name.
 
 ~~Extra special thanks to Microsoft for giving me a problem to solve.~~
