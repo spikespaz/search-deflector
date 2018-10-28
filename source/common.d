@@ -1,17 +1,11 @@
 module common;
 
 import core.sys.windows.windows: CommandLineToArgvW, MessageBox, MB_ICONERROR, MB_YESNO, IDYES;
-import std.string: split, toStringz, strip, splitLines, indexOf, stripLeft;
 import std.windows.registry: Registry, RegistryException, Key, REGSAM;
-import std.datetime: SysTime, DateTime;
-import std.json: JSONValue, parseJSON;
+import std.string: strip, splitLines, indexOf, stripLeft;
 import std.uri: encodeComponent;
-import std.range: zip, popFront;
-import std.algorithm: sort;
 import std.process: browse;
 import std.format: format;
-import std.net.curl: get;
-import std.utf: toUTF16z;
 import std.conv: to;
 
 /// File name of the executable to download and run to install an update.
