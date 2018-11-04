@@ -4,6 +4,8 @@
 [![Project License](https://img.shields.io/github/license/spikespaz/search-deflector.svg?style=for-the-badge)](https://github.com/spikespaz/search-deflector/blob/master/LICENSE)
 [![Total Downloads](https://img.shields.io/github/downloads/spikespaz/search-deflector/total.svg?style=for-the-badge)](https://spikespaz.com/tools/repo-dl/?user=spikespaz&repo=search-deflector&file=SearchDeflector-Installer.exe)
 [![Project Stars](https://img.shields.io/github/stars/spikespaz/search-deflector.svg?style=for-the-badge)](https://github.com/spikespaz/search-deflector/stargazers)
+[![Backers on Open Collective](https://opencollective.com/search-deflector/backers/badge.svg?style=for-the-badge)](#backers) 
+[![Sponsors on Open Collective](https://opencollective.com/search-deflector/sponsors/badge.svg?style=for-the-badge)](#sponsors) 
 
 ### **Search Deflector** is a small tool that redirects searches made from the Windows Start Menu or Cortana to whatever browser and search engine you prefer. No more Microsoft Edge and Bing!
 
@@ -85,3 +87,33 @@ Even though I've basically usurped their projects, @da2x and @sylveon for the in
  - @fernandex00
 
 ~~Extra special thanks to Microsoft for giving me a problem to solve.~~
+
+## Contributors
+
+This project exists thanks to all the people who contribute. 
+<a href="https://github.com/spikespaz/search-deflector/contributors"><img src="https://opencollective.com/search-deflector/contributors.svg?width=890&button=false" /></a>
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/search-deflector#backer)]
+
+<a href="https://opencollective.com/search-deflector#backers" target="_blank"><img src="https://opencollective.com/search-deflector/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/search-deflector#sponsor)]
+
+<a href="https://opencollective.com/search-deflector/sponsor/0/website" target="_blank"><img src="https://opencollective.com/search-deflector/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/search-deflector/sponsor/1/website" target="_blank"><img src="https://opencollective.com/search-deflector/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/search-deflector/sponsor/2/website" target="_blank"><img src="https://opencollective.com/search-deflector/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/search-deflector/sponsor/3/website" target="_blank"><img src="https://opencollective.com/search-deflector/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/search-deflector/sponsor/4/website" target="_blank"><img src="https://opencollective.com/search-deflector/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/search-deflector/sponsor/5/website" target="_blank"><img src="https://opencollective.com/search-deflector/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/search-deflector/sponsor/6/website" target="_blank"><img src="https://opencollective.com/search-deflector/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/search-deflector/sponsor/7/website" target="_blank"><img src="https://opencollective.com/search-deflector/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/search-deflector/sponsor/8/website" target="_blank"><img src="https://opencollective.com/search-deflector/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/search-deflector/sponsor/9/website" target="_blank"><img src="https://opencollective.com/search-deflector/sponsor/9/avatar.svg"></a>
+
+
