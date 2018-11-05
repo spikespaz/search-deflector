@@ -58,6 +58,7 @@ I will accept donations through PayPal.Me, Buy Me a Coffee, or Patreon.
 | Name | Link |
 | ---- | ---- |
 | Wiki     | https://github.com/spikespaz/search-deflector/wiki                        |
+| Store    | https://www.microsoft.com/store/productId/9P8ZJJ80RZ2K                    |
 | Download | https://spikespaz.com/tools/repo-dl/?user=spikespaz&repo=search-deflector&file=SearchDeflector-Installer.exe |
 | Releases | https://github.com/spikespaz/search-deflector/releases                    |
 | Issues   | https://github.com/spikespaz/search-deflector/issues                      |
