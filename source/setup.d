@@ -1,8 +1,8 @@
 module setup;
 
 import common: DeflectorSettings, parseConfig, writeSettings, createErrorDialog, getConsoleArgs,
-    PROJECT_VERSION, ENGINE_TEMPLATES;
-import std.windows.registry: Registry, Key;
+    mergeAAs, PROJECT_VERSION, ENGINE_TEMPLATES;
+import std.windows.registry: Registry, Key, RegistryException;
 import std.string: strip, split, indexOf, toLower;
 import std.socket: SocketException, getAddress;
 import std.regex: Regex, regex, matchFirst;
@@ -19,7 +19,7 @@ void main() {
     writeln("Version: " ~ PROJECT_VERSION);
 
     try {
-        const string[string] browsers = getAvailableBrowsers();
+        const string[string] browsers = mergeAAs(getAvailableBrowsers(false), getAvailableBrowsers(true));
         const string[string] engines = parseConfig(ENGINE_TEMPLATES);
 
         DeflectorSettings settings = promptSettings(browsers, engines);
@@ -80,12 +80,23 @@ DeflectorSettings promptSettings(const string[string] browsers, const string[str
 
 /// Fetch a list of available browsers from the Windows registry along with their paths.
 /// Use the names as the keys in an associative array containing the browser executable paths.
-string[string] getAvailableBrowsers() {
+string[string] getAvailableBrowsers(const bool currentUser = false) {
     string[string] availableBrowsers;
-    Key startMenuInternetKey = Registry.localMachine.getKey("SOFTWARE\\Clients\\StartMenuInternet");
+    Key startMenuInternetKey;
+
+    if (currentUser)
+        startMenuInternetKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\StartMenuInternet");
+    else
+        startMenuInternetKey = Registry.localMachine.getKey("SOFTWARE\\Clients\\StartMenuInternet");
 
     foreach (key; startMenuInternetKey.keys) {
-        string browserName = key.getValue("").value_SZ;
+        string browserName;
+
+        try
+            browserName = key.getValue("").value_SZ;
+        catch (RegistryException)
+            continue;
+
         string browserPath = key.getKey("shell\\open\\command").getValue("").value_SZ;
 
         if (!isValidFilename(browserPath) && !exists(browserPath)) {

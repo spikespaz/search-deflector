@@ -99,3 +99,13 @@ string[string] parseConfig(const string config) {
 
     return data;
 }
+
+/// Merge two associative arrays, updating existing values in "baseAA" with new ones from "updateAA".
+T[K] mergeAAs(T, K)(T[K] baseAA, T[K] updateAA) {
+    T[K] newAA = baseAA;
+
+    foreach (key; updateAA.byKey())
+        newAA[key] = updateAA[key];
+
+    return newAA;
+}
