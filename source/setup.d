@@ -19,7 +19,13 @@ void main() {
     writeln("Version: " ~ PROJECT_VERSION);
 
     try {
-        const string[string] browsers = mergeAAs(getAvailableBrowsers(false), getAvailableBrowsers(true));
+        string[string] browsers = getAvailableBrowsers(false);
+
+        try
+            browsers = mergeAAs(browsers, getAvailableBrowsers(true));
+        catch (RegistryException) {
+        } // Just ignore if no browsers in HKCU
+
         const string[string] engines = parseConfig(ENGINE_TEMPLATES);
 
         DeflectorSettings settings = promptSettings(browsers, engines);
