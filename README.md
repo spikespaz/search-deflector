@@ -19,7 +19,7 @@ After a simple setup, you can use *any* browser (provided it is registered as a 
   </a>
 </h1>
 
-**Note:** There is a free version and a paid version. Both are exactly the same. The free version is unsigned and may register a false-positive with your antivirus software. The version on the Microsoft Store costs $1.99, and is digitally signed and distributed by Microsoft. The free (classic) version uses custom code for automatic updates (source is [here](https://github.com/spikespaz/search-deflector/blob/master/updater.d)). I would greatly appreciate if you tried the free version from GitHub and later paid for the Store version, as even the few dollars goes a long way to help me out.
+**Note:** There is a free version and a paid version. Both are exactly the same. The free version is unsigned and may register a false-positive with your antivirus software. The version on the Microsoft Store costs $1.99, and is digitally signed and distributed by Microsoft. The free (classic) version uses custom code for automatic updates (source is [here](https://github.com/spikespaz/search-deflector/blob/master/source/updater.d)). I would greatly appreciate if you tried the free version from GitHub and later paid for the Store version, as even the few dollars goes a long way to help me out.
 
 ### Doesn't this already exist?
 
