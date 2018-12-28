@@ -70,19 +70,19 @@ I will accept donations through PayPal.Me, Buy Me a Coffee, or Patreon.
 
 All of the very first users of this project deserve callouts for putting up with me and the bugs I've made.
 
-Even though I've basically usurped their projects, @da2x and @sylveon for the inspiration.
+Even though I've basically usurped their projects, [@da2x](https://github.com/da2x) and [@sylveon](https://github.com/sylveon) for the inspiration.
 
- - @elliottedward327
- - @maxloh
- - @Thomas-QM
- - @loganran
- - @loginnotsecure
- - @shalvah
- - @TruckMangione
- - @lordvlad
- - @tango409
- - @Freyam
- - @MulverineX
- - @fernandex00
+ - [@elliottedward327](https://github.com/elliottedward327)
+ - [@maxloh](https://github.com/maxloh)
+ - [@Thomas-QM](https://github.com/Thomas-QM)
+ - [@loganran](https://github.com/loganran)
+ - [@loginnotsecure](https://github.com/loginnotsecure)
+ - [@shalvah](https://github.com/shalvah)
+ - [@TruckMangione](https://github.com/TruckMangione)
+ - [@lordvlad](https://github.com/lordvlad)
+ - [@tango409](https://github.com/tango409)
+ - [@Freyam](https://github.com/Freyam)
+ - [@MulverineX](https://github.com/MulverineX)
+ - [@fernandex00](https://github.com/fernandex00)
 
 ~~Extra special thanks to Microsoft for giving me a problem to solve.~~
