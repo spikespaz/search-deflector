@@ -30,6 +30,7 @@ UninstallDisplayIcon={app}\setup.exe
 VersionInfoVersion={#AppVersion}
 VersionInfoDescription=Search Deflector {#AppVersion} Installer
 WizardSmallImageFile=assets\logo.bmp
+WizardImageFile=assets\wizard.bmp
 OutputDir=build\dist
 SourceDir=..
 
