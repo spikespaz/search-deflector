@@ -21,6 +21,10 @@ After a simple setup, you can use *any* browser (provided it is registered as a 
 
 **Note:** There is a free version and a paid version. Both are exactly the same. The free version is unsigned and may register a false-positive with your antivirus software. The version on the Microsoft Store costs $1.99, and is digitally signed and distributed by Microsoft. The free (classic) version uses custom code for automatic updates (source is [here](https://github.com/spikespaz/search-deflector/blob/master/source/updater.d)). I would greatly appreciate if you tried the free version from GitHub and later paid for the Store version, as even the few dollars goes a long way to help me out.
 
+**If you find this software useful and would like to show your appreciation, please consider making a small donation!**
+
+[![Donate](https://spikespaz.com/assets/donate_button_1x.png)](https://spikespaz.com/donate)
+
 ### Doesn't this already exist?
 
 Yes, I know. [EdgeDeflector](https://github.com/da2x/EdgeDeflector) and [SearchWithMyBrowser](https://github.com/sylveon/SearchWithMyBrowser).
@@ -38,20 +42,6 @@ Get it at the Microsoft Store [here](https://www.microsoft.com/store/productId/9
 # I found a bug / it doesn't work!
 
 **First, look at the [Wiki](https://github.com/spikespaz/search-deflector/wiki/Troubleshooting) for help.** If that still doesn't fix your problem, submit a new [issue](https://github.com/spikespaz/search-deflector/issues) describing the problem with as much detail as possible.
-
-# Donations
-
-If you would like to show appreciation for my work, I would gladly accept a small donation!
-
-I am the sole author of this project, and if you appreciate my work or any of my other projects, you can donate a small amount to help me out.
-
-Even if you don't want to donate, I would hugely appreciate a star on the repository so the visibility goes up and I get that dopamine rush. Seeing people use the software I've worked hard on makes me happy.
-
-I will accept donations through PayPal.Me, Buy Me a Coffee, or Patreon.
-
-[![Buy Me a Coffee](https://i.imgur.com/fN422E7.png)](https://buymeacoffee.com/spikespaz)
-[![PayPal.Me](https://i.imgur.com/JWkunGi.png)](https://paypal.me/spikespaz)
-[![Patreon](https://i.imgur.com/K05b2RO.png)](https://patreon.com/spikespaz)
 
 # Links
 
