@@ -1,13 +1,12 @@
-Thanks for using Search Deflector!
+Thank you for using Search Deflector!
 
-ADDITIONAL INFORMATION
+If you have any questions, please consult the wiki first. If your question or problem isn't solved by the wiki content, please create an issue on GitHub or reach out to me via email.
 
-If you have any questions, please consult the wiki first. If your question or problem isn't solved by the wiki content, please create an issue on GitHub or reach out to me via email at support@spikespaz.com.
-
-If you appreciate this software and would like to support the author, please star the repository on GitHub or consider donating!
+If you appreciate this software and would like to support the author, please star the repository on GitHub, or consider donating!
 
 Homepage: https://spikespaz.com/search-deflector
 GitHub: https://github.com/spikespaz/search-deflector
 Wiki: https://github.com/spikespaz/search-deflector/wiki
 Microsoft Store: https://www.microsoft.com/store/productId/9P8ZJJ80RZ2K
 Donate: https://spikespaz.com/donate
+Email: support@spikespaz.com

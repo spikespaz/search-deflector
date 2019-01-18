@@ -239,3 +239,47 @@ Root: HKCU; \
     ValueName: "BrowserPath"; \
     ValueData: "system_default"; \
     ValueType: string;
+
+[Code]
+
+{
+    The below code is from Martin Prikryl on Stack Overflow.
+    https://stackoverflow.com/a/40949812/2512078
+}
+
+var InfoBeforeCheck: TNewCheckBox;
+
+procedure CheckInfoBeforeRead;
+begin
+    WizardForm.NextButton.Enabled := InfoBeforeCheck.Checked;
+end;
+
+procedure InfoBeforeCheckClick(Sender: TObject);
+begin
+    CheckInfoBeforeRead;
+end;
+
+procedure InitializeWizard();
+begin
+    InfoBeforeCheck := TNewCheckBox.Create(WizardForm);
+    InfoBeforeCheck.Parent := WizardForm.InfoBeforePage;
+    InfoBeforeCheck.Top := WizardForm.LicenseNotAcceptedRadio.Top;
+    InfoBeforeCheck.Left := WizardForm.LicenseNotAcceptedRadio.Left;
+    InfoBeforeCheck.Width := WizardForm.LicenseNotAcceptedRadio.Width;
+    InfoBeforeCheck.Height := WizardForm.LicenseNotAcceptedRadio.Height;
+    InfoBeforeCheck.Caption := 'I promise that I have read the above information';
+    InfoBeforeCheck.OnClick := @InfoBeforeCheckClick;
+
+    WizardForm.InfoBeforeMemo.Height :=
+        ((WizardForm.LicenseMemo.Top + WizardForm.LicenseMemo.Height) -
+            WizardForm.InfoBeforeMemo.Top) +
+        (InfoBeforeCheck.Top - WizardForm.LicenseAcceptedRadio.Top);
+end;
+
+procedure CurPageChanged(CurPageID: Integer);
+begin
+    if CurPageID = wpInfoBefore then
+    begin
+        CheckInfoBeforeRead;
+    end;
+end;
