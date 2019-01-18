@@ -1,30 +1,13 @@
 Thanks for using Search Deflector!
 
-This software will override the default behavior for the protocol used by Cortana and Windows Search.
-Without this program, you are forced to use Microsoft Edge and Bing when searching or entering URLs through
-the Windows 10 start menu. This project aims to give you more freedom over how the built-in search works,
-allowing you to use whatever browser or search engine you wish.
+ADDITIONAL INFORMATION
 
-This application will receive automatic updates and you shouldn't need to do anything to it after the initial install.
+If you have any questions, please consult the wiki first. If your question or problem isn't solved by the wiki content, please create an issue on GitHub or reach out to me via email at support@spikespaz.com.
 
+If you appreciate this software and would like to support the author, please star the repository on GitHub or consider donating!
 
-For support, please go to the GitHub Issues page,
-or email me at support@spikespaz.com.
-
-For more information about this project, or for more detailed setup information, see the README.md file in the GitHub repository.
-
-Website: https://github.com/spikespaz/search-deflector
-
-
-Please consider donating!
-
-I am a young Computer Science student, and I have spent the majority of my self-aware life programming and teaching myself
-new languages and computer science related skills. It's what I do in my free time, it is my hobby and my passion. I don't
-have a job, and I have no way of buying new hardware when it's necessary. If you appreciate my work, please leave a small
-donation to help me keep going. I'm not asking much, a small donation anywhere from $1 to $5 is plenty.
-
-Thanks!
-
-Buy me a Coffee: https://buymeacoffee.com/spikespaz
-PayPal.Me: https://paypal.me/spikespaz
-Patreon: https://patreon.com/spikespaz
+Homepage: https://spikespaz.com/search-deflector
+GitHub: https://github.com/spikespaz/search-deflector
+Wiki: https://github.com/spikespaz/search-deflector/wiki
+Microsoft Store: https://www.microsoft.com/store/productId/9P8ZJJ80RZ2K
+Donate: https://spikespaz.com/donate
