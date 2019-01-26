@@ -3,7 +3,7 @@
 AllowNetworkDrive=no
 AllowUNCPath=no
 AppContact=support@spikespaz.com
-AppCopyright=Copyright (C) 2018 Jacob Birkett
+AppCopyright=Copyright (C) 2019 Jacob Birkett
 AppId=spikespaz-search-deflector
 AppName=Search Deflector
 AppPublisher=spikespaz

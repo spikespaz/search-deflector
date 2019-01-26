@@ -1,6 +1,6 @@
 Thank you for using Search Deflector!
 
-Later during this setup, you will be asked to install the "Automatic Updater" module. Note that if you choose to disable this module, you will not recieve any future updates or bug fixes. Please ensure that you are using the latest version of Search Deflector before submitting a bug report.
+Later during this setup, you will be asked to install the "Automatic Updater" module. Note that if you choose to disable this module, you will not receive any future updates or bug fixes. Please ensure that you are using the latest version of Search Deflector before submitting a bug report.
 
 If you have any questions, please consult the wiki first. If your question or problem isn't solved by the wiki content, feel free to create an issue on GitHub or reach out to me via email.
 
