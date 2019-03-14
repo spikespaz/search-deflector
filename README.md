@@ -27,7 +27,11 @@ After a simple setup, you can use *any* browser (provided it is registered as a 
 
 **If you find this software useful and would like to show your appreciation, please consider making a small donation!**
 
-[![Donate](https://spikespaz.com/assets/donate_button_1x.png)](https://spikespaz.com/donate)
+<h1>
+  <a href="https://spikespaz.com/donate">
+    <img src="https://spikespaz.com/images/donate/donate.svg" alt="Donate!" width="200"\>
+  </a>
+</h1>
 
 # Doesn't this already exist?
 
