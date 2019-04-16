@@ -1,7 +1,7 @@
 module setup;
 
-import common: DeflectorSettings, parseConfig, writeSettings, createErrorDialog, getConsoleArgs,
-    mergeAAs, PROJECT_VERSION, ENGINE_TEMPLATES;
+import common: DeflectorSettings, parseConfig, readSettings, writeSettings, createErrorDialog,
+    getConsoleArgs, mergeAAs, PROJECT_VERSION, ENGINE_TEMPLATES;
 import std.windows.registry: Registry, Key, RegistryException;
 import std.string: strip, split, indexOf, toLower;
 import std.socket: SocketException, getAddress;
@@ -49,7 +49,7 @@ DeflectorSettings promptSettings(const string[string] browsers, const string[str
             "Don't forget to star the repository on GitHub so people see it!\n");
     // dfmt on
 
-    DeflectorSettings settings;
+    DeflectorSettings settings = readSettings();
 
     const string browserName = promptBrowserChoice(browsers);
 
