@@ -239,6 +239,21 @@ Root: HKCU; \
     ValueName: "BrowserPath"; \
     ValueData: "system_default"; \
     ValueType: string;
+Root: HKCU; \
+    Subkey: "Software\Clients\SearchDeflector"; \
+    ValueName: "SearchCount"; \
+    ValueData: 0; \
+    ValueType: dword;
+Root: HKCU; \
+    Subkey: "Software\Clients\SearchDeflector"; \
+    ValueName: "FreeVersion"; \
+    ValueData: 1; \
+    ValueType: dword;
+Root: HKCU; \
+    Subkey: "Software\Clients\SearchDeflector"; \
+    ValueName: "ThankedUser"; \
+    ValueData: 0; \
+    ValueType: dword;
 
 [Code]
 
