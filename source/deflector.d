@@ -24,7 +24,7 @@ extern (Windows) int WinMain(void*, void*, void*, int) {
 
             settings.searchCount++;
 
-            if (!settings.thankedUser && settings.freeVersion && settings.searchCount == 10)
+            if (settings.freeVersion && settings.searchCount == 10)
                 openUri(settings.browserPath, WIKI_THANKS_URL);
 
             writeSettings(settings);

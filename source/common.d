@@ -62,7 +62,6 @@ struct DeflectorSettings {
     string browserPath; /// ditto
     uint searchCount; /// Counter for how many times the user has made a search query.
     bool freeVersion; /// Flag to determine if this is the classic version from GitHub.
-    bool thankedUser; /// Flag to check if the user has been sent to the thank-you wiki page.
 }
 
 /// Read the settings from the registry.
@@ -76,11 +75,10 @@ DeflectorSettings readSettings() {
             deflectorKey.getValue("BrowserPath").value_SZ,
             deflectorKey.getValue("SearchCount").value_DWORD,
             deflectorKey.getValue("FreeVersion").value_DWORD.to!bool(),
-            deflectorKey.getValue("ThankedUser").value_DWORD.to!bool()
         );
         // dfmt on
     } catch (RegistryException)
-        return DeflectorSettings("google.com/search?q={{query}}", "system_default", 0, false, false);
+        return DeflectorSettings("google.com/search?q={{query}}", "system_default", 0, false);
 }
 
 /// Write settings to registry.
@@ -92,7 +90,6 @@ void writeSettings(const DeflectorSettings settings) {
     deflectorKey.setValue("BrowserPath", settings.browserPath);
     deflectorKey.setValue("SearchCount", settings.searchCount);
     deflectorKey.setValue("FreeVersion", settings.freeVersion.to!uint());
-    deflectorKey.setValue("ThankedUser", settings.thankedUser.to!uint());
 
     deflectorKey.flush();
 }

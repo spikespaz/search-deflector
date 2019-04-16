@@ -257,13 +257,6 @@ Root: HKCU; \
     ValueType: dword; \
     Flags: createvalueifdoesntexist; \
     Components: main
-Root: HKCU; \
-    Subkey: "Software\Clients\SearchDeflector"; \
-    ValueName: "ThankedUser"; \
-    ValueData: 0; \
-    ValueType: dword; \
-    Flags: createvalueifdoesntexist; \
-    Components: main
 
 [Code]
 
