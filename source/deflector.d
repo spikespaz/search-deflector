@@ -1,7 +1,7 @@
 module deflector;
 
 import core.sys.windows.windows: GetCommandLineW, MessageBox, MB_ICONWARNING, MB_YESNO, IDYES;
-import common: getConsoleArgs, createErrorDialog, readSettings, DeflectorSettings;
+import common: getConsoleArgs, createErrorDialog, readSettings, writeSettings, DeflectorSettings, WIKI_THANKS_URL;
 import std.process: browse, spawnProcess, Config, ProcessException;
 import std.string: replace, indexOf, toLower, startsWith;
 import std.uri: decodeComponent, encodeComponent;
@@ -18,9 +18,16 @@ extern (Windows) int WinMain(void*, void*, void*, int) {
 
     if (args.length > 1) {
         try {
-            const DeflectorSettings settings = readSettings();
+            DeflectorSettings settings = readSettings();
 
             openUri(settings.browserPath, rewriteUri(args[1], settings.engineURL));
+
+            settings.searchCount++;
+
+            if (!settings.thankedUser && settings.freeVersion && settings.searchCount == 10)
+                openUri(settings.browserPath, WIKI_THANKS_URL);
+
+            writeSettings(settings);
         } catch (Exception error)
             createErrorDialog(error);
     } else {
