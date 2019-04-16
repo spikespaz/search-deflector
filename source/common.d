@@ -21,6 +21,9 @@ enum string ENGINE_TEMPLATES = import("engines.txt");
 /// String of the GitHub issue template.
 enum string ISSUE_TEMPLATE = import("issue.txt");
 
+/// URL of the wiki's thank-you page.
+enum string WIKI_THANKS_URL = "https://github.com/spikespaz/search-deflector/wiki/Thanks-for-using-Search-Deflector!";
+
 /// Creates a message box telling the user there was an error, and redirect to issues page.
 void createErrorDialog(const Exception error) {
     const uint messageId = MessageBox(null,
@@ -57,6 +60,9 @@ string[] getConsoleArgs(const wchar* commandLine) {
 struct DeflectorSettings {
     string engineURL; /// ditto
     string browserPath; /// ditto
+    uint searchCount; /// Counter for how many times the user has made a search query.
+    bool freeVersion; /// Flag to determine if this is the classic version from GitHub.
+    bool thankedUser; /// Flag to check if the user has been sent to the thank-you wiki page.
 }
 
 /// Read the settings from the registry.
@@ -64,10 +70,17 @@ DeflectorSettings readSettings() {
     try {
         Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
 
-        return DeflectorSettings(deflectorKey.getValue("EngineURL").value_SZ,
-                deflectorKey.getValue("BrowserPath").value_SZ);
+        // dfmt off
+        return DeflectorSettings(
+            deflectorKey.getValue("EngineURL").value_SZ,
+            deflectorKey.getValue("BrowserPath").value_SZ,
+            deflectorKey.getValue("SearchCount").value_DWORD,
+            deflectorKey.getValue("FreeVersion").value_DWORD.to!bool(),
+            deflectorKey.getValue("ThankedUser").value_DWORD.to!bool()
+        );
+        // dfmt on
     } catch (RegistryException)
-        return DeflectorSettings("google.com/search?q={{query}}", "system_default");
+        return DeflectorSettings("google.com/search?q={{query}}", "system_default", 0, false, false);
 }
 
 /// Write settings to registry.
@@ -77,6 +90,9 @@ void writeSettings(const DeflectorSettings settings) {
     // Write necessary changes.
     deflectorKey.setValue("EngineURL", settings.engineURL);
     deflectorKey.setValue("BrowserPath", settings.browserPath);
+    deflectorKey.setValue("SearchCount", settings.searchCount);
+    deflectorKey.setValue("FreeVersion", settings.freeVersion.to!uint());
+    deflectorKey.setValue("ThankedUser", settings.thankedUser.to!uint());
 
     deflectorKey.flush();
 }
