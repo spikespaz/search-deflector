@@ -233,27 +233,37 @@ Root: HKCU; \
     Subkey: "Software\Clients\SearchDeflector"; \
     ValueName: "EngineURL"; \
     ValueData: "google.com/search?q={{{{query}}"; \
-    ValueType: string;
+    ValueType: string; \
+    Flags: createvalueifdoesntexist; \
+    Components: main
 Root: HKCU; \
     Subkey: "Software\Clients\SearchDeflector"; \
     ValueName: "BrowserPath"; \
     ValueData: "system_default"; \
-    ValueType: string;
+    ValueType: string; \
+    Flags: createvalueifdoesntexist; \
+    Components: main
 Root: HKCU; \
     Subkey: "Software\Clients\SearchDeflector"; \
     ValueName: "SearchCount"; \
     ValueData: 0; \
-    ValueType: dword;
+    ValueType: dword; \
+    Flags: createvalueifdoesntexist; \
+    Components: main
 Root: HKCU; \
     Subkey: "Software\Clients\SearchDeflector"; \
     ValueName: "FreeVersion"; \
     ValueData: 1; \
-    ValueType: dword;
+    ValueType: dword; \
+    Flags: createvalueifdoesntexist; \
+    Components: main
 Root: HKCU; \
     Subkey: "Software\Clients\SearchDeflector"; \
     ValueName: "ThankedUser"; \
     ValueData: 0; \
-    ValueType: dword;
+    ValueType: dword; \
+    Flags: createvalueifdoesntexist; \
+    Components: main
 
 [Code]
 
