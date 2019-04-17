@@ -265,33 +265,35 @@ Root: HKCU; \
     https://stackoverflow.com/a/40949812/2512078
 }
 
-var InfoBeforeCheck: TNewCheckBox;
+var InfoBeforeCheckBox: TNewCheckBox;
 
 procedure CheckInfoBeforeRead;
 begin
-    WizardForm.NextButton.Enabled := InfoBeforeCheck.Checked;
+    WizardForm.NextButton.Enabled := WizardSilent or InfoBeforeCheckBox.Checked;
 end;
 
-procedure InfoBeforeCheckClick(Sender: TObject);
+procedure InfoBeforeCheckBoxClick(Sender: TObject);
 begin
     CheckInfoBeforeRead;
 end;
 
 procedure InitializeWizard();
 begin
-    InfoBeforeCheck := TNewCheckBox.Create(WizardForm);
-    InfoBeforeCheck.Parent := WizardForm.InfoBeforePage;
-    InfoBeforeCheck.Top := WizardForm.LicenseNotAcceptedRadio.Top;
-    InfoBeforeCheck.Left := WizardForm.LicenseNotAcceptedRadio.Left;
-    InfoBeforeCheck.Width := WizardForm.LicenseNotAcceptedRadio.Width;
-    InfoBeforeCheck.Height := WizardForm.LicenseNotAcceptedRadio.Height;
-    InfoBeforeCheck.Caption := 'I promise that I have read the above information';
-    InfoBeforeCheck.OnClick := @InfoBeforeCheckClick;
+    InfoBeforeCheckBox := TNewCheckBox.Create(WizardForm);
+    InfoBeforeCheckBox.Parent := WizardForm.InfoBeforePage;
+    InfoBeforeCheckBox.Top := WizardForm.LicenseNotAcceptedRadio.Top;
+    InfoBeforeCheckBox.Left := WizardForm.LicenseNotAcceptedRadio.Left;
+    InfoBeforeCheckBox.Width := WizardForm.LicenseNotAcceptedRadio.Width;
+    InfoBeforeCheckBox.Height := WizardForm.LicenseNotAcceptedRadio.Height;
+    InfoBeforeCheckBox.Caption := 'I promise that I have read the above information';
+    InfoBeforeCheckBox.OnClick := @InfoBeforeCheckBoxClick;
 
     WizardForm.InfoBeforeMemo.Height :=
-        ((WizardForm.LicenseMemo.Top + WizardForm.LicenseMemo.Height) -
-            WizardForm.InfoBeforeMemo.Top) +
-        (InfoBeforeCheck.Top - WizardForm.LicenseAcceptedRadio.Top);
+        WizardForm.LicenseMemo.Top +
+        WizardForm.LicenseMemo.Height -
+        WizardForm.InfoBeforeMemo.Top -
+        WizardForm.LicenseAcceptedRadio.Top +
+        InfoBeforeCheckBox.Top;
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
