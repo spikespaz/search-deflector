@@ -1,7 +1,7 @@
 import arsd.minigui;
 import std.windows.registry: RegistryException;
 import std.stdio: writeln;
-import common: getConsoleArgs, createErrorDialog;
+import common: getConsoleArgs, createErrorDialog, PROJECT_VERSION;
 import setup: getAvailableBrowsers, getAvailableBrowsers;
 
 
@@ -35,26 +35,26 @@ void main(string[] args) {
         auto window = new MainWindow("Search Deflector", 400, 260);
         auto layout = new VerticalLayout(window);
 
-        auto textLabel0 = new TextLabel("Preferred Browser", TextAlignment.Left, layout);
+        auto textLabel0 = new TextLabel("Preferred Browser", layout);
         auto browserSelect = new DropDownSelection(layout);
         auto vSpacer0 = new VerticalSpacer(layout);
 
-        auto textLabel1 = new TextLabel("Browser Executable", TextAlignment.Left,  layout);
+        auto textLabel1 = new TextLabel("Browser Executable", layout);
         auto hLayout0 = new HorizontalLayout(layout);
         auto browserPath = new LineEdit(hLayout0);
         auto browserPathButton = new Button("...", hLayout0);
         auto vSpacer1 = new VerticalSpacer(layout);
 
-        auto textLabel2 = new TextLabel("Preferred Search Engine", TextAlignment.Left,  layout);
+        auto textLabel2 = new TextLabel("Preferred Search Engine", layout);
         auto engineSelect = new DropDownSelection(layout);
         auto vSpacer2 = new VerticalSpacer(layout);
 
-        auto textLabel3 = new TextLabel("Custom Search Engine URL", TextAlignment.Left,  layout);
+        auto textLabel3 = new TextLabel("Custom Search Engine URL", layout);
         auto engineUrl = new LineEdit(layout);
         auto vSpacer3 = new VerticalSpacer(layout);
 
         auto applyButton = new Button("Apply Settings", layout);
-
+        
         window.setPadding(4, 8, 4, 8);
         window.win.setMinSize(300, 260);
 
@@ -63,9 +63,15 @@ void main(string[] args) {
         vSpacer2.setMaxHeight(8);
 
         browserPath.setEnabled(false);
+        engineUrl.setEnabled(false);
         browserPathButton.hide();
 
         browserSelect.addOption(customBrowserName);
+
+        browserPathButton.setMaxWidth(30);
+        browserPathButton.addEventListener(EventType.triggered, {
+            getOpenFileName(&browserPath.content, browserPath.content, null);
+        });
 
         browserSelect.addEventListener(EventType.change, {
             if (browserSelect.currentText() == customBrowserName) {
@@ -81,12 +87,17 @@ void main(string[] args) {
             }
         });
 
-        browserPathButton.setMaxWidth(30);
-        browserPathButton.addEventListener(EventType.triggered, {
-            getOpenFileName(&browserPath.content, browserPath.content, null);
-        });
+        engineSelect.addEventListener(EventType.change, {
+            if (engineSelect.currentText() == customEngineName) {
+                engineUrl.setEnabled(true);
 
-        engineSelect.setEnabled(false);
+                engineUrl.content = "";
+            } else {
+                engineUrl.setEnabled(false);
+
+                engineUrl.content = "";
+            }
+        });
 
         window.loop();
     } catch (Exception error) {
