@@ -98,7 +98,9 @@ def compile_file(source, binary, debug=True):
     if debug:
         command.extend(["-gc", "-d-debug", "-L/subsystem:console"])
     else:
-        command.extend(["-O3", "-ffast-math", "-release", "-L/subsystem:windows"])
+        command.extend(
+            ["-O3", "-ffast-math", "-release", "-L/subsystem:windows", "-L/entry:mainCRTStartup"]
+        )
 
     log_print(">", *command)
     call(command)
