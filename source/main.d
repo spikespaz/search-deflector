@@ -2,8 +2,8 @@ import arsd.minigui;
 import std.windows.registry: RegistryException;
 import std.stdio: writeln;
 import std.algorithm: countUntil, canFind;
-import common: mergeAAs, parseConfig, createErrorDialog, readSettings, writeSettings,
-    DeflectorSettings, PROJECT_VERSION, PROJECT_AUTHOR, ENGINE_TEMPLATES;
+import common: mergeAAs, openUri, parseConfig, createErrorDialog, readSettings, writeSettings,
+    DeflectorSettings, PROJECT_VERSION, PROJECT_AUTHOR, ENGINE_TEMPLATES, WIKI_URL;
 import setup: getAvailableBrowsers;
 
 void main(string[] args) {
@@ -17,7 +17,7 @@ void main(string[] args) {
         catch (RegistryException) {
         }
 
-        auto window = new Window(400, 260, "Search Deflector");
+        auto window = new Window(400, 280, "Search Deflector");
         auto layout = new VerticalLayout(window);
 
         auto textLabel0 = new TextLabel("Preferred Browser", layout);
@@ -41,19 +41,21 @@ void main(string[] args) {
         auto applyButton = new Button("Apply Settings", layout);
         auto vSpacer4 = new VerticalSpacer(layout);
 
+        auto wikiButton = new Button("Open Website", layout);
+        auto vSpacer5 = new VerticalSpacer(layout);
+
         auto infoText = new TextLabel(
                 "Version: " ~ PROJECT_VERSION ~ ", Author: " ~ PROJECT_AUTHOR, layout);
 
-        auto wikiButton = new ArrowButton("Open Wiki", layout);
-
         window.setPadding(4, 8, 4, 8);
-        window.win.setMinSize(300, 260);
+        window.win.setMinSize(300, 280);
 
         vSpacer0.setMaxHeight(8);
         vSpacer1.setMaxHeight(8);
         vSpacer2.setMaxHeight(8);
 
-        vSpacer4.setMaxHeight(8);
+        vSpacer4.setMaxHeight(2);
+        vSpacer5.setMaxHeight(8);
 
         browserPath.setEnabled(false);
         engineUrl.setEnabled(false);
@@ -131,7 +133,7 @@ void main(string[] args) {
         });
 
         wikiButton.addEventListener(EventType.triggered, {
-            
+            openUri(settings.browserPath, WIKI_URL);
         });
 
         window.loop();

@@ -1,9 +1,12 @@
 module common;
 
-import core.sys.windows.windows: CommandLineToArgvW, GetCommandLineW, MessageBox, MB_ICONERROR, MB_YESNO, IDYES;
+import core.sys.windows.windows: CommandLineToArgvW, GetCommandLineW,
+    MessageBox, MB_ICONERROR, MB_ICONWARNING, MB_YESNO, IDYES;
 import std.windows.registry: Registry, RegistryException, Key, REGSAM;
+import std.process: browse, spawnProcess, Config, ProcessException;
 import std.string: strip, splitLines, indexOf, stripLeft;
 import std.uri: encodeComponent;
+import std.algorithm: canFind;
 import std.process: browse;
 import std.format: format;
 import std.conv: to;
@@ -21,8 +24,10 @@ enum string ENGINE_TEMPLATES = import("engines.txt");
 /// String of the GitHub issue template.
 enum string ISSUE_TEMPLATE = import("issue.txt");
 
+/// URL of the Search Deflector Wiki home page.
+enum string WIKI_URL = "https://github.com/spikespaz/search-deflector/wiki";
 /// URL of the wiki's thank-you page.
-enum string WIKI_THANKS_URL = "https://github.com/spikespaz/search-deflector/wiki/Thanks-for-using-Search-Deflector!";
+enum string WIKI_THANKS_URL = WIKI_URL ~ "/Thanks-for-using-Search-Deflector!";
 
 void createErrorDialog(const Throwable error) nothrow {
     // dfmt off
@@ -70,7 +75,8 @@ struct DeflectorSettings {
 /// Read the settings from the registry.
 DeflectorSettings readSettings() {
     try {
-        Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
+        Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector",
+                REGSAM.KEY_READ);
 
         // dfmt off
         return DeflectorSettings(
@@ -86,7 +92,8 @@ DeflectorSettings readSettings() {
 
 /// Write settings to registry.
 void writeSettings(const DeflectorSettings settings) {
-    Key deflectorKey = Registry.currentUser.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
+    Key deflectorKey = Registry.currentUser.createKey(
+            "SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
 
     // Write necessary changes.
     deflectorKey.setValue("EngineURL", settings.engineURL);
@@ -124,4 +131,20 @@ T[K] mergeAAs(T, K)(T[K] baseAA, T[K] updateAA) {
         newAA[key] = updateAA[key];
 
     return newAA;
+}
+
+/// Open a URL by spawning a shell process to the browser executable, or system default.
+void openUri(const string browserPath, const string url) {
+    if (["system_default", ""].canFind(browserPath))
+        browse(url); // Automatically calls the system default browser.
+    else
+        try
+            spawnProcess([browserPath, url], null, Config.detached); // Uses a specific executable.
+        catch (ProcessException error) {
+            const uint messageId = MessageBox(null, "Search Deflector could not deflect the URI to your browser." ~ "\nMake sure that the browser is still installed and that the executable still exists." ~ "\n\nWould you like to see the full error message online?",
+                    "Search Deflector", MB_ICONWARNING | MB_YESNO);
+
+            if (messageId == IDYES)
+                createErrorDialog(error);
+        }
 }
