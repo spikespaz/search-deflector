@@ -53,7 +53,7 @@ string rewriteUri(const string uri, const string engineUrl) {
 
 /// Open a URL by spawning a shell process to the browser executable, or system default.
 void openUri(const string browserPath, const string url) {
-    if (browserPath == "system_default")
+    if (["system_default", ""].canFind(browserPath))
         browse(url); // Automatically calls the system default browser.
     else
         try

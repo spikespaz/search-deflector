@@ -2,8 +2,8 @@ import arsd.minigui;
 import std.windows.registry: RegistryException;
 import std.stdio: writeln;
 import std.algorithm: countUntil, canFind;
-import common: mergeAAs, parseConfig, createErrorDialog, readSettings,
-    writeSettings, DeflectorSettings, PROJECT_VERSION, ENGINE_TEMPLATES;
+import common: mergeAAs, parseConfig, createErrorDialog, readSettings, writeSettings,
+    DeflectorSettings, PROJECT_VERSION, PROJECT_AUTHOR, ENGINE_TEMPLATES;
 import setup: getAvailableBrowsers;
 
 void main(string[] args) {
@@ -41,7 +41,10 @@ void main(string[] args) {
         auto applyButton = new Button("Apply Settings", layout);
         auto vSpacer4 = new VerticalSpacer(layout);
 
-        auto infoText = new TextLabel("Version: " ~ PROJECT_VERSION, layout);
+        auto infoText = new TextLabel(
+                "Version: " ~ PROJECT_VERSION ~ ", Author: " ~ PROJECT_AUTHOR, layout);
+
+        auto wikiButton = new ArrowButton("Open Wiki", layout);
 
         window.setPadding(4, 8, 4, 8);
         window.win.setMinSize(300, 260);
@@ -125,6 +128,10 @@ void main(string[] args) {
             writeSettings(settings);
 
             debug writeln(settings);
+        });
+
+        wikiButton.addEventListener(EventType.triggered, {
+            
         });
 
         window.loop();
