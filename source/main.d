@@ -5,6 +5,28 @@ import common: getConsoleArgs, createErrorDialog;
 import setup: getAvailableBrowsers, getAvailableBrowsers;
 
 
+extern (Windows) int WinMain(void*, void*, char*, int) {    
+    import core.runtime: Runtime;
+    
+    try {
+        Runtime.initialize();
+
+        debug writeln("Initialized D runtime.");
+
+        main(getConsoleArgs());
+
+        Runtime.terminate();
+
+        debug writeln("Terminated D runtime.");
+    } catch (Throwable error) { // @suppress(dscanner.suspicious.catch_em_all)
+        createErrorDialog(error);
+
+        debug writeln(error);
+    }
+
+    return 0;
+}
+
 void main(string[] args) {
     try {
         auto window = new MainWindow("Search Deflector", 400, 250);
@@ -33,6 +55,8 @@ void main(string[] args) {
         window.loop();
     } catch (Exception error) {
         createErrorDialog(error);
+
+        debug writeln(error);
     }
 }
 
@@ -65,10 +89,4 @@ class NewVerticalLayout : VerticalLayout {
         this._marginBottom = bottom;
         this._marginRight = right;
     }
-}
-
-extern (Windows) int WinMain(void*, void*, char*, int) {
-    main(getConsoleArgs());
-
-    return 0;
 }
