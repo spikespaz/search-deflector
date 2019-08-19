@@ -90,7 +90,7 @@ def delete_directory(directory):
         rmtree(directory, ignore_errors=True)
 
 
-def compile_file(source, binary, debug=True):
+def compile_file(source, binary, debug=True, console=False):
     log_print("Compiling binary: " + binary)
 
     command = ["ldc2", source, "-i", "-I", dirname(source), "-J", VARS_PATH, "-of", binary, "-m32"]
@@ -98,9 +98,10 @@ def compile_file(source, binary, debug=True):
     if debug:
         command.extend(["-gc", "-d-debug", "-L/subsystem:console"])
     else:
-        command.extend(
-            ["-O3", "-ffast-math", "-release", "-L/subsystem:windows", "-L/entry:mainCRTStartup"]
-        )
+        command.extend(["-O3", "-ffast-math", "-release"])
+
+        if not console:
+            command.extend(["-L/subsystem:windows", "-L/entry:mainCRTStartup"])
 
     log_print(">", *command)
     call(command)
@@ -189,7 +190,7 @@ if __name__ == "__main__":
         log_print("Building updater binary: " + UPDATER_BIN)
 
         copy_files(ARGS.version)
-        compile_file(SOURCE_PATH + "/updater.d", UPDATER_BIN, ARGS.debug)
+        compile_file(SOURCE_PATH + "/updater.d", UPDATER_BIN, ARGS.debug, console=True)
 
         add_icon(UPDATER_BIN)
 
