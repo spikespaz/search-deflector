@@ -1,3 +1,4 @@
 [submodule "source/arsd"]
 	path = source/arsd
-	url = https://github.com/adamdruppe/arsd
+	url = https://github.com/spikespaz/arsd-minigui
+	branch = minigui
