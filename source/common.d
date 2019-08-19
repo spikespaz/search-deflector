@@ -1,6 +1,6 @@
 module common;
 
-import core.sys.windows.windows: CommandLineToArgvW, MessageBox, MB_ICONERROR, MB_YESNO, IDYES;
+import core.sys.windows.windows: CommandLineToArgvW, GetCommandLineW, MessageBox, MB_ICONERROR, MB_YESNO, IDYES;
 import std.windows.registry: Registry, RegistryException, Key, REGSAM;
 import std.string: strip, splitLines, indexOf, stripLeft;
 import std.uri: encodeComponent;
@@ -45,7 +45,7 @@ string createIssueMessage(const Exception error) {
 }
 
 /// Return a string array of arguments that are parsed in ArgV style from a string.
-string[] getConsoleArgs(const wchar* commandLine) {
+string[] getConsoleArgs(const wchar* commandLine = GetCommandLineW()) {
     int argCount;
     wchar** argList = CommandLineToArgvW(commandLine, &argCount);
     string[] args;
