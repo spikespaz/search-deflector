@@ -8,16 +8,21 @@ void main(string[] args) {
         auto layout = new PaddedVerticalLayout(window);
 
         auto textLabel0 = new TextLabel("Preferred Browser", TextAlignment.Left, layout);
-
         auto browserSelect = new DropDownSelection(layout);
+        auto vSpacer0 = new VerticalSpacer(layout);
+
+        auto textLabel1 = new TextLabel("Browser Executable", TextAlignment.Left,  layout);
         auto browserPath = new LineEdit(layout);
+        auto vSpacer1 = new VerticalSpacer(layout);
 
-        auto textLabel1 = new TextLabel("Preferred Search Engine", TextAlignment.Left,  layout);
-
+        auto textLabel2 = new TextLabel("Preferred Search Engine", TextAlignment.Left,  layout);
         auto engineSelect = new DropDownSelection(layout);
-        auto engineUrl = new LineEdit(layout);
+        auto vSpacer2 = new VerticalSpacer(layout);
 
-        auto spacer = new VerticalSpacer(layout);
+        auto textLabel3 = new TextLabel("Custom Search Engine URL", TextAlignment.Left,  layout);
+        auto engineUrl = new LineEdit(layout);
+        auto vSpacer3 = new VerticalSpacer(layout);
+
         auto applyButton = new Button("Apply Settings", layout);
 
         window.loop();
@@ -31,19 +36,19 @@ class PaddedVerticalLayout : VerticalLayout {
         super(parent);
     }
 
-    override int paddingLeft() {
+    override int marginLeft() {
         return 10;
     }
 
-    override int paddingTop() {
+    override int marginTop() {
         return 10;
     }
 
-    override int paddingRight() {
+    override int marginRight() {
         return 10;
     }
 
-    override int paddingBottom() {
+    override int marginBottom() {
         return 10;
     }
 }
