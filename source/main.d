@@ -63,6 +63,10 @@ void main(string[] args) {
 
         applyButton.setMaxSize(int.max, Window.lineHeight + 4);
 
+        browserPathButton.addEventListener(EventType.triggered, {
+            getOpenFileName(&browserPath.content, browserPath.content, null);
+        });
+
         window.loop();
     } catch (Exception error) {
         createErrorDialog(error);
