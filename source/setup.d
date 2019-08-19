@@ -15,29 +15,29 @@ import std.algorithm: sort;
 import std.utf: toUTF16z;
 import std.range: array;
 
-void main() {
-    writeln("Version: " ~ PROJECT_VERSION);
+// void main() {
+//     writeln("Version: " ~ PROJECT_VERSION);
 
-    try {
-        string[string] browsers = getAvailableBrowsers(false);
+//     try {
+//         string[string] browsers = getAvailableBrowsers(false);
 
-        try
-            browsers = mergeAAs(browsers, getAvailableBrowsers(true));
-        catch (RegistryException) {
-        } // Just ignore if no browsers in HKCU
+//         try
+//             browsers = mergeAAs(browsers, getAvailableBrowsers(true));
+//         catch (RegistryException) {
+//         } // Just ignore if no browsers in HKCU
 
-        const string[string] engines = parseConfig(ENGINE_TEMPLATES);
+//         const string[string] engines = parseConfig(ENGINE_TEMPLATES);
 
-        DeflectorSettings settings = promptSettings(browsers, engines);
+//         DeflectorSettings settings = promptSettings(browsers, engines);
 
-        writeSettings(settings);
-    } catch (Exception error) {
-        createErrorDialog(error);
-    }
+//         writeSettings(settings);
+//     } catch (Exception error) {
+//         createErrorDialog(error);
+//     }
 
-    writeln("\nPress Enter to close the setup.");
-    readln();
-}
+//     writeln("\nPress Enter to close the setup.");
+//     readln();
+// }
 
 /// Function to run when setting up the deflector.
 DeflectorSettings promptSettings(const string[string] browsers, const string[string] engines) {
