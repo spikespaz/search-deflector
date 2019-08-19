@@ -5,9 +5,7 @@ import setup: getAvailableBrowsers;
 void main(string[] args) {
     try {
         auto window = new MainWindow("Search Deflector", 500, 500);
-        // auto vLayout = new VerticalLayout(window);
-
-        auto layout = window;
+        auto layout = new PaddedVerticalLayout(window);
 
         auto textLabel0 = new TextLabel("Preferred Browser", TextAlignment.Left, layout);
 
@@ -25,6 +23,28 @@ void main(string[] args) {
         window.loop();
     } catch (Exception error) {
         createErrorDialog(error);
+    }
+}
+
+class PaddedVerticalLayout : VerticalLayout {
+    this(Widget parent = null) {
+        super(parent);
+    }
+
+    override int paddingLeft() {
+        return 10;
+    }
+
+    override int paddingTop() {
+        return 10;
+    }
+
+    override int paddingRight() {
+        return 10;
+    }
+
+    override int paddingBottom() {
+        return 10;
     }
 }
 
