@@ -29,6 +29,9 @@ extern (Windows) int WinMain(void*, void*, char*, int) {
 
 void main(string[] args) {
     try {
+        const string customBrowserName = "Custom Executable Path";
+        const string customEngineName = "Custom Search Engine URL";
+
         auto window = new MainWindow("Search Deflector", 400, 260);
         auto layout = new VerticalLayout(window);
 
@@ -59,11 +62,31 @@ void main(string[] args) {
         vSpacer1.setMaxHeight(8);
         vSpacer2.setMaxHeight(8);
 
-        browserPathButton.setMaxWidth(30);
+        browserPath.setEnabled(false);
+        browserPathButton.hide();
 
+        browserSelect.addOption(customBrowserName);
+
+        browserSelect.addEventListener(EventType.change, {
+            if (browserSelect.currentText() == customBrowserName) {
+                browserPath.setEnabled(true);
+                browserPathButton.show();
+
+                browserPath.content = "";
+            } else {
+                browserPath.setEnabled(false);
+                browserPathButton.hide();
+
+                browserPath.content = ""; // TODO
+            }
+        });
+
+        browserPathButton.setMaxWidth(30);
         browserPathButton.addEventListener(EventType.triggered, {
             getOpenFileName(&browserPath.content, browserPath.content, null);
         });
+
+        engineSelect.setEnabled(false);
 
         window.loop();
     } catch (Exception error) {
