@@ -24,23 +24,26 @@ enum string ISSUE_TEMPLATE = import("issue.txt");
 /// URL of the wiki's thank-you page.
 enum string WIKI_THANKS_URL = "https://github.com/spikespaz/search-deflector/wiki/Thanks-for-using-Search-Deflector!";
 
-/// Creates a message box telling the user there was an error, and redirect to issues page.
-void createErrorDialog(const Exception error) {
-    const uint messageId = MessageBox(null,
-            "Search Deflector launch failed. Would you like to open the issues page to submit a bug report?" ~
-            "\nThe important information will be filled out for you." ~
-            "\n\nIf you do not wish to create a bug report, click 'No' to exit.",
-            "Search Deflector", MB_ICONERROR | MB_YESNO);
-
+void createErrorDialog(const Throwable error) nothrow {
     // dfmt off
-    if (messageId == IDYES)
-        browse("https://github.com/spikespaz/search-deflector/issues/new?body=" ~
-            createIssueMessage(error).encodeComponent());
+    try {
+        const uint messageId = MessageBox(null,
+                "Search Deflector launch failed. Would you like to open the issues page to submit a bug report?" ~
+                "\nThe important information will be filled out for you." ~
+                "\n\nIf you do not wish to create a bug report, click 'No' to exit.",
+                "Search Deflector", MB_ICONERROR | MB_YESNO);
+
+        if (messageId == IDYES)
+            browse("https://github.com/spikespaz/search-deflector/issues/new?body=" ~
+                createIssueMessage(error).encodeComponent());
+    } catch (Throwable) { // @suppress(dscanner.suspicious.catch_em_all)
+        assert(0);
+    }
     // dfmt on
 }
 
 /// Creates a GitHub issue body with the data from an Exception.
-string createIssueMessage(const Exception error) {
+string createIssueMessage(const Throwable error) {
     return ISSUE_TEMPLATE.strip().format(error.file, error.line, error.msg, error.info);
 }
 
