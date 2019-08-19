@@ -106,6 +106,8 @@ void main(string[] args) {
                 browserPath.content = browsers.get(browserSelect.currentText, "");
             }
 
+            settings.browserPath = browserPath.content;
+
             debug writeln(browserPath.content);
         });
 
@@ -120,13 +122,12 @@ void main(string[] args) {
                 engineUrl.content = engines[engineSelect.currentText];
             }
 
+            settings.engineURL = engineUrl.content;
+
             debug writeln(engineUrl.content);
         });
 
         applyButton.addEventListener(EventType.triggered, {
-            settings.browserPath = browserPath.content;
-            settings.engineURL = engineUrl.content;
-
             writeSettings(settings);
 
             debug writeln(settings);
