@@ -10,12 +10,7 @@ import std.regex: matchFirst;
 import std.array: split;
 import std.conv: to;
 
-/// Entry to call the deflection, or error out.
-extern (Windows) int WinMain(void*, void*, void*, int) {
-    Runtime.initialize();
-
-    string[] args = getConsoleArgs(GetCommandLineW());
-
+void main(string[] args) {
     if (args.length > 1) {
         try {
             DeflectorSettings settings = readSettings();
@@ -30,14 +25,12 @@ extern (Windows) int WinMain(void*, void*, void*, int) {
             writeSettings(settings);
         } catch (Exception error)
             createErrorDialog(error);
+
+            debug writeln(error);
     } else {
         createErrorDialog(new Exception("Expected one URI argument, recieved: \n" ~ args.to!string()));
         return 1;
     }
-
-    Runtime.terminate();
-
-    return 0;
 }
 
 /// Reqrites a "microsoft-edge" URI to something browsers can use.

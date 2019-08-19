@@ -2,31 +2,9 @@ import arsd.minigui;
 import std.windows.registry: RegistryException;
 import std.stdio: writeln;
 import std.algorithm: countUntil, canFind;
-import common: mergeAAs, getConsoleArgs, parseConfig, createErrorDialog,
-    readSettings, writeSettings, DeflectorSettings, PROJECT_VERSION, ENGINE_TEMPLATES;
+import common: mergeAAs, parseConfig, createErrorDialog, readSettings,
+    writeSettings, DeflectorSettings, PROJECT_VERSION, ENGINE_TEMPLATES;
 import setup: getAvailableBrowsers;
-
-extern (Windows) int WinMain(void*, void*, char*, int) {
-    import core.runtime: Runtime;
-
-    try {
-        Runtime.initialize();
-
-        debug writeln("Initialized D runtime.");
-
-        main(getConsoleArgs());
-
-        Runtime.terminate();
-
-        debug writeln("Terminated D runtime.");
-    } catch (Throwable error) { // @suppress(dscanner.suspicious.catch_em_all)
-        createErrorDialog(error);
-
-        debug writeln(error);
-    }
-
-    return 0;
-}
 
 void main(string[] args) {
     try {
@@ -77,7 +55,7 @@ void main(string[] args) {
         browserPath.setEnabled(false);
         engineUrl.setEnabled(false);
         browserPathButton.hide();
-        
+
         browserSelect.addOption("Custom");
         browserSelect.addOption("System Default");
         engineSelect.addOption("Custom");
@@ -122,6 +100,8 @@ void main(string[] args) {
 
                 browserPath.content = browsers.get(browserSelect.currentText, "");
             }
+
+            debug writeln(browserPath.content);
         });
 
         engineSelect.addEventListener(EventType.change, {
@@ -134,6 +114,8 @@ void main(string[] args) {
 
                 engineUrl.content = engines[engineSelect.currentText];
             }
+
+            debug writeln(engineUrl.content);
         });
 
         applyButton.addEventListener(EventType.triggered, {
@@ -141,6 +123,8 @@ void main(string[] args) {
             settings.engineURL = engineUrl.content;
 
             writeSettings(settings);
+
+            debug writeln(settings);
         });
 
         window.loop();
