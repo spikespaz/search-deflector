@@ -30,7 +30,7 @@ extern (Windows) int WinMain(void*, void*, char*, int) {
 void main(string[] args) {
     try {
         auto window = new MainWindow("Search Deflector", 400, 250);
-        auto layout = new NewVerticalLayout(window);
+        auto layout = new VerticalLayout(window);
 
         auto textLabel0 = new TextLabel("Preferred Browser", TextAlignment.Left, layout);
         auto browserSelect = new DropDownSelection(layout);
@@ -50,43 +50,12 @@ void main(string[] args) {
 
         auto applyButton = new Button("Apply Settings", layout);
 
-        layout.setMargins(4, 8, 4, 8);
+        window.setMargins(4, 8, 4, 8);
 
         window.loop();
     } catch (Exception error) {
         createErrorDialog(error);
 
         debug writeln(error);
-    }
-}
-
-class NewVerticalLayout : VerticalLayout {
-    private int _marginTop = 0, _marginLeft = 0, _marginBottom = 0, _marginRight = 0;
-
-    this(Widget parent = null) {
-        super(parent);
-    }
-
-    override int marginTop() {
-        return this._marginTop;
-    }
-
-    override int marginLeft() {
-        return this._marginLeft;
-    }
-
-    override int marginRight() {
-        return this._marginRight;
-    }
-
-    override int marginBottom() {
-        return this._marginBottom;
-    }
-
-    void setMargins(int top, int left, int bottom, int right) {
-        this._marginTop = top;
-        this._marginLeft = left;
-        this._marginBottom = bottom;
-        this._marginRight = right;
     }
 }
