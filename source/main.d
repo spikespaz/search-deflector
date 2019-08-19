@@ -29,7 +29,7 @@ extern (Windows) int WinMain(void*, void*, char*, int) {
 
 void main(string[] args) {
     try {
-        auto window = new MainWindow("Search Deflector", 400, 250);
+        auto window = new MainWindow("Search Deflector", 400, 260);
         auto layout = new VerticalLayout(window);
 
         auto textLabel0 = new TextLabel("Preferred Browser", TextAlignment.Left, layout);
@@ -37,7 +37,9 @@ void main(string[] args) {
         auto vSpacer0 = new VerticalSpacer(layout);
 
         auto textLabel1 = new TextLabel("Browser Executable", TextAlignment.Left,  layout);
-        auto browserPath = new LineEdit(layout);
+        auto hLayout0 = new HorizontalLayout(layout);
+        auto browserPath = new LineEdit(hLayout0);
+        auto browserPathButton = new Button("...", hLayout0);
         auto vSpacer1 = new VerticalSpacer(layout);
 
         auto textLabel2 = new TextLabel("Preferred Search Engine", TextAlignment.Left,  layout);
@@ -50,7 +52,16 @@ void main(string[] args) {
 
         auto applyButton = new Button("Apply Settings", layout);
 
-        window.setMargins(4, 8, 4, 8);
+        window.setPadding(4, 8, 4, 8);
+        window.win.setMinSize(300, 260);
+
+        vSpacer0.setMaxSize(int.max, 8);
+        vSpacer1.setMaxSize(int.max, 8);
+        vSpacer2.setMaxSize(int.max, 8);
+
+        browserPathButton.setMaxSize(30, Window.lineHeight + 4);
+
+        applyButton.setMaxSize(int.max, Window.lineHeight + 4);
 
         window.loop();
     } catch (Exception error) {
