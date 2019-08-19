@@ -55,13 +55,11 @@ void main(string[] args) {
         window.setPadding(4, 8, 4, 8);
         window.win.setMinSize(300, 260);
 
-        vSpacer0.setMaxSize(int.max, 8);
-        vSpacer1.setMaxSize(int.max, 8);
-        vSpacer2.setMaxSize(int.max, 8);
+        vSpacer0.setMaxHeight(8);
+        vSpacer1.setMaxHeight(8);
+        vSpacer2.setMaxHeight(8);
 
-        browserPathButton.setMaxSize(30, Window.lineHeight + 4);
-
-        applyButton.setMaxSize(int.max, Window.lineHeight + 4);
+        browserPathButton.setMaxWidth(30);
 
         browserPathButton.addEventListener(EventType.triggered, {
             getOpenFileName(&browserPath.content, browserPath.content, null);
