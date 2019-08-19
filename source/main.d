@@ -1,8 +1,8 @@
 import arsd.minigui;
 import std.windows.registry: RegistryException;
 import std.stdio: writeln;
-import common: getConsoleArgs, createErrorDialog, PROJECT_VERSION;
-import setup: getAvailableBrowsers, getAvailableBrowsers;
+import common: mergeAAs, getConsoleArgs, parseConfig, createErrorDialog, PROJECT_VERSION, ENGINE_TEMPLATES;
+import setup: getAvailableBrowsers;
 
 
 extern (Windows) int WinMain(void*, void*, char*, int) {    
@@ -29,8 +29,12 @@ extern (Windows) int WinMain(void*, void*, char*, int) {
 
 void main(string[] args) {
     try {
-        const string customBrowserName = "Custom Executable Path";
-        const string customEngineName = "Custom Search Engine URL";
+        string[string] browsers = getAvailableBrowsers(false);
+        const string[string] engines = parseConfig(ENGINE_TEMPLATES);
+
+        try
+            browsers = mergeAAs(browsers, getAvailableBrowsers(true));
+        catch (RegistryException) {}
 
         auto window = new Window(400, 260, "Search Deflector");
         auto layout = new VerticalLayout(window);
@@ -71,7 +75,14 @@ void main(string[] args) {
         engineUrl.setEnabled(false);
         browserPathButton.hide();
 
-        browserSelect.addOption(customBrowserName);
+        browserSelect.addOption("Custom");
+        engineSelect.addOption("Custom");
+
+        foreach (string browser; browsers.keys)
+            browserSelect.addOption(browser);
+
+        foreach (string engine; engines.keys)
+            engineSelect.addOption(engine);
 
         browserPathButton.setMaxWidth(30);
         browserPathButton.addEventListener(EventType.triggered, {
@@ -79,7 +90,7 @@ void main(string[] args) {
         });
 
         browserSelect.addEventListener(EventType.change, {
-            if (browserSelect.currentText() == customBrowserName) {
+            if (browserSelect.currentText == "Custom") {
                 browserPath.setEnabled(true);
                 browserPathButton.show();
 
@@ -88,19 +99,19 @@ void main(string[] args) {
                 browserPath.setEnabled(false);
                 browserPathButton.hide();
 
-                browserPath.content = ""; // TODO
+                browserPath.content = browsers[browserSelect.currentText];
             }
         });
 
         engineSelect.addEventListener(EventType.change, {
-            if (engineSelect.currentText() == customEngineName) {
+            if (engineSelect.currentText == "Custom") {
                 engineUrl.setEnabled(true);
 
                 engineUrl.content = "";
             } else {
                 engineUrl.setEnabled(false);
 
-                engineUrl.content = "";
+                engineUrl.content = engines[engineSelect.currentText];
             }
         });
 
