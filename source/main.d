@@ -1,13 +1,14 @@
 import arsd.minigui;
 import std.windows.registry: RegistryException;
 import std.stdio: writeln;
-import common: mergeAAs, getConsoleArgs, parseConfig, createErrorDialog, PROJECT_VERSION, ENGINE_TEMPLATES;
+import std.algorithm: countUntil;
+import common: mergeAAs, getConsoleArgs, parseConfig, createErrorDialog,
+    readSettings, writeSettings, DeflectorSettings, PROJECT_VERSION, ENGINE_TEMPLATES;
 import setup: getAvailableBrowsers;
 
-
-extern (Windows) int WinMain(void*, void*, char*, int) {    
+extern (Windows) int WinMain(void*, void*, char*, int) {
     import core.runtime: Runtime;
-    
+
     try {
         Runtime.initialize();
 
@@ -29,12 +30,14 @@ extern (Windows) int WinMain(void*, void*, char*, int) {
 
 void main(string[] args) {
     try {
+        auto settings = readSettings();
         string[string] browsers = getAvailableBrowsers(false);
         const string[string] engines = parseConfig(ENGINE_TEMPLATES);
 
         try
             browsers = mergeAAs(browsers, getAvailableBrowsers(true));
-        catch (RegistryException) {}
+        catch (RegistryException) {
+        }
 
         auto window = new Window(400, 260, "Search Deflector");
         auto layout = new VerticalLayout(window);
@@ -59,7 +62,7 @@ void main(string[] args) {
 
         auto applyButton = new Button("Apply Settings", layout);
         auto vSpacer4 = new VerticalSpacer(layout);
-        
+
         auto infoText = new TextLabel("Version: " ~ PROJECT_VERSION, layout);
 
         window.setPadding(4, 8, 4, 8);
@@ -74,15 +77,33 @@ void main(string[] args) {
         browserPath.setEnabled(false);
         engineUrl.setEnabled(false);
         browserPathButton.hide();
-
+        
         browserSelect.addOption("Custom");
+        browserSelect.addOption("System Default");
         engineSelect.addOption("Custom");
 
-        foreach (string browser; browsers.keys)
+        int browserIndex = settings.browserPath == "system_default" ? 1 : -1;
+        int engineIndex = -1;
+
+        foreach (uint index, string browser; browsers.keys) {
             browserSelect.addOption(browser);
 
-        foreach (string engine; engines.keys)
+            if (browsers[browser] == settings.browserPath)
+                browserIndex = index + 2;
+        }
+
+        foreach (uint index, string engine; engines.keys) {
             engineSelect.addOption(engine);
+
+            if (engines[engine] == settings.engineURL)
+                engineIndex = index + 1;
+        }
+
+        browserSelect.setSelection(browserIndex);
+        engineSelect.setSelection(engineIndex);
+
+        browserPath.content = browsers.get(browserSelect.currentText, "");
+        engineUrl.content = engines.get(engineSelect.currentText, "");
 
         browserPathButton.setMaxWidth(30);
         browserPathButton.addEventListener(EventType.triggered, {
@@ -99,7 +120,7 @@ void main(string[] args) {
                 browserPath.setEnabled(false);
                 browserPathButton.hide();
 
-                browserPath.content = browsers[browserSelect.currentText];
+                browserPath.content = browsers.get(browserSelect.currentText, "");
             }
         });
 
