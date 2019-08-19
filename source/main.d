@@ -1,7 +1,7 @@
 import arsd.minigui;
 import std.windows.registry: RegistryException;
 import std.stdio: writeln;
-import std.algorithm: countUntil;
+import std.algorithm: countUntil, canFind;
 import common: mergeAAs, getConsoleArgs, parseConfig, createErrorDialog,
     readSettings, writeSettings, DeflectorSettings, PROJECT_VERSION, ENGINE_TEMPLATES;
 import setup: getAvailableBrowsers;
@@ -82,7 +82,7 @@ void main(string[] args) {
         browserSelect.addOption("System Default");
         engineSelect.addOption("Custom");
 
-        int browserIndex = settings.browserPath == "system_default" ? 1 : -1;
+        int browserIndex = ["system_default", ""].canFind(settings.browserPath) ? 1 : -1;
         int engineIndex = -1;
 
         foreach (uint index, string browser; browsers.keys) {
@@ -134,6 +134,13 @@ void main(string[] args) {
 
                 engineUrl.content = engines[engineSelect.currentText];
             }
+        });
+
+        applyButton.addEventListener(EventType.triggered, {
+            settings.browserPath = browserPath.content;
+            settings.engineURL = engineUrl.content;
+
+            writeSettings(settings);
         });
 
         window.loop();
