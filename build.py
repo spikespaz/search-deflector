@@ -175,7 +175,7 @@ if __name__ == "__main__":
         log_print("Building setup binary: " + SETUP_BIN)
 
         copy_files(ARGS.version)
-        compile_file(SOURCE_PATH + "/setup.d", SETUP_BIN, ARGS.debug)
+        compile_file(SOURCE_PATH + "/main.d", SETUP_BIN, ARGS.debug)
 
         add_icon(SETUP_BIN)
 
