@@ -32,7 +32,7 @@ void main(string[] args) {
         const string customBrowserName = "Custom Executable Path";
         const string customEngineName = "Custom Search Engine URL";
 
-        auto window = new MainWindow("Search Deflector", 400, 260);
+        auto window = new Window(400, 260, "Search Deflector");
         auto layout = new VerticalLayout(window);
 
         auto textLabel0 = new TextLabel("Preferred Browser", layout);
@@ -54,13 +54,18 @@ void main(string[] args) {
         auto vSpacer3 = new VerticalSpacer(layout);
 
         auto applyButton = new Button("Apply Settings", layout);
+        auto vSpacer4 = new VerticalSpacer(layout);
         
+        auto infoText = new TextLabel("Version: " ~ PROJECT_VERSION, layout);
+
         window.setPadding(4, 8, 4, 8);
         window.win.setMinSize(300, 260);
 
         vSpacer0.setMaxHeight(8);
         vSpacer1.setMaxHeight(8);
         vSpacer2.setMaxHeight(8);
+
+        vSpacer4.setMaxHeight(8);
 
         browserPath.setEnabled(false);
         engineUrl.setEnabled(false);
