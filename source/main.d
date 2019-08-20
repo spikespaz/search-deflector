@@ -115,6 +115,10 @@ void main(string[] args) {
             debug writeln(browserPath.content);
         });
 
+        browserPath.addEventListener(EventType.keyup, {
+            applyButton.setEnabled(true);
+        });
+
         engineSelect.addEventListener(EventType.change, {
             if (engineSelect.currentText == "Custom") {
                 engineUrl.setEnabled(true);
@@ -131,6 +135,10 @@ void main(string[] args) {
             applyButton.setEnabled(true);
 
             debug writeln(engineUrl.content);
+        });
+
+        engineUrl.addEventListener(EventType.keyup, {
+            applyButton.setEnabled(true);
         });
 
         applyButton.addEventListener(EventType.triggered, {
