@@ -27,7 +27,7 @@
     </Capabilities>
     <Applications>
         <Application Id="SearchDeflector" 
-            Executable="setup.exe" 
+            Executable="configure.exe" 
             EntryPoint="Windows.FullTrustApplication">
             <uap:VisualElements DisplayName="Search Deflector" 
                 Description="A small program that forwards searches from Cortana to your preferred browser and search engine." 

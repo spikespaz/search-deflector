@@ -13,7 +13,7 @@ AppSupportURL=https://github.com/spikespaz/search-deflector/issues
 AppUpdatesURL=https://github.com/spikespaz/search-deflector/releases
 AppVerName=Search Deflector {#AppVersion}
 AppVersion={#AppVersion}
-AppModifyPath={app}\setup.exe
+AppModifyPath={app}\configure.exe
 ChangesAssociations=yes
 Compression=lzma
 DefaultDirName={pf32}\Search Deflector
@@ -26,7 +26,7 @@ OutputBaseFilename=SearchDeflector-Installer
 SetupIconFile=assets\logo.ico
 Uninstallable=yes
 UninstallDisplayName=Search Deflector
-UninstallDisplayIcon={app}\setup.exe
+UninstallDisplayIcon={app}\configure.exe
 VersionInfoVersion={#AppVersion}
 VersionInfoDescription=Search Deflector {#AppVersion} Installer
 WizardSmallImageFile=assets\logo.bmp
@@ -60,7 +60,7 @@ Name: "localmachine"; \
 
 [Files]
 
-Source: "build\bin\setup.exe"; \
+Source: "build\bin\configure.exe"; \
     DestDir: "{app}"; \
     Components: main
 Source: "build\bin\deflector.exe"; \
@@ -84,7 +84,7 @@ Source: "pack\updatetask.xml"; \
 [Icons]
 
 Name: "{group}\Configure"; \
-    Filename: "{app}\setup.exe"; \
+    Filename: "{app}\configure.exe"; \
     Flags: excludefromshowinnewinstall preventpinning; \
     Components: main
 Name: "{group}\Visit Website"; \
@@ -99,7 +99,7 @@ Name: "{group}\Force Update"; \
 
 [Run]
 
-Filename: "{app}\setup.exe"; \
+Filename: "{app}\configure.exe"; \
     Flags: hidewizard skipifsilent; \
     Components: main
 

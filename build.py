@@ -28,7 +28,7 @@ ARGUMENTS = {
     "build": {
         "flags": ("-b", "--build"),
         "action": "append",
-        "choices": ("setup", "updater", "deflector", "installer", "package"),
+        "choices": ("configure", "updater", "deflector", "installer", "package"),
         "default": [],
         "help": "parts of the program to build",
     },
@@ -152,7 +152,7 @@ if __name__ == "__main__":
 
     if ARGS.mode == "classic" and not ARGS.clean:
         build_set = set(ARGS.build)
-        build_set.update(("setup", "updater", "deflector", "installer"))
+        build_set.update(("configure", "updater", "deflector", "installer"))
         ARGS.build = tuple(build_set)
 
         ARGS.clean = True
@@ -161,7 +161,7 @@ if __name__ == "__main__":
         delete_directory("build/vars")
     elif ARGS.mode == "store" and not ARGS.clean:
         build_set = set(ARGS.build)
-        build_set.update(("setup", "deflector", "package"))
+        build_set.update(("configure", "deflector", "package"))
         ARGS.build = tuple(build_set)
 
         ARGS.clean = True
@@ -170,15 +170,15 @@ if __name__ == "__main__":
         delete_directory("build/vars")
         delete_directory("build/store")
 
-    if "setup" in ARGS.build:
+    if "configure" in ARGS.build:
         create_directory(BIN_PATH)
         create_directory(VARS_PATH)
 
-        SETUP_BIN = BIN_PATH + "/setup.exe"
-        log_print("Building setup binary: " + SETUP_BIN)
+        SETUP_BIN = BIN_PATH + "/configure.exe"
+        log_print("Building configure binary: " + SETUP_BIN)
 
         copy_files(ARGS.version)
-        compile_file(SOURCE_PATH + "/main.d", SETUP_BIN, ARGS.debug)
+        compile_file(SOURCE_PATH + "/configure.d", SETUP_BIN, ARGS.debug)
 
         add_icon(SETUP_BIN)
 
@@ -240,7 +240,7 @@ if __name__ == "__main__":
         copy_file(ASSETS_PATH + "/logo_44.png", STORE_PATH + "/Assets/Logo-44.png")
         copy_file(ASSETS_PATH + "/logo_150.png", STORE_PATH + "/Assets/Logo-150.png")
 
-        copy_file(BIN_PATH + "/setup.exe", STORE_PATH + "/setup.exe")
+        copy_file(BIN_PATH + "/configure.exe", STORE_PATH + "/configure.exe")
         copy_file(BIN_PATH + "/deflector.exe", STORE_PATH + "/deflector.exe")
 
         manifest_file = STORE_PATH + "/AppxManifest.xml"

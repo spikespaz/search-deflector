@@ -1,4 +1,4 @@
-module setup;
+module configure;
 
 import std.windows.registry: Registry, Key, RegistryException;
 import std.algorithm: endsWith, canFind, countUntil;
@@ -27,7 +27,7 @@ void main(string[] args) {
         catch (RegistryException) {
         }
 
-        auto window = new Window(400, 290, "Search Deflector");
+        auto window = new Window(400, 290, "Configure Search Deflector");
         auto layout = new VerticalLayout(window);
 
         auto textLabel0 = new TextLabel("Preferred Browser", layout);
