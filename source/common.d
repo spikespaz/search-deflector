@@ -1,7 +1,7 @@
 module common;
 
 import core.sys.windows.windows: CommandLineToArgvW, GetCommandLineW,
-    MessageBox, MB_ICONERROR, MB_ICONWARNING, MB_YESNO, IDYES;
+    MessageBox, MB_ICONERROR, MB_ICONWARNING, MB_YESNO, IDYES, MB_OK, HWND;
 import std.windows.registry: Registry, RegistryException, Key, REGSAM;
 import std.process: browse, spawnProcess, Config, ProcessException;
 import std.string: strip, splitLines, indexOf, stripLeft;
@@ -9,6 +9,8 @@ import std.uri: encodeComponent;
 import std.algorithm: canFind;
 import std.process: browse;
 import std.format: format;
+import std.stdio: writeln;
+import std.utf: toUTF16z;
 import std.conv: to;
 
 /// File name of the executable to download and run to install an update.
@@ -29,10 +31,10 @@ enum string WIKI_URL = "https://github.com/spikespaz/search-deflector/wiki";
 /// URL of the wiki's thank-you page.
 enum string WIKI_THANKS_URL = WIKI_URL ~ "/Thanks-for-using-Search-Deflector!";
 
-void createErrorDialog(const Throwable error) nothrow {
+void createErrorDialog(const Throwable error, HWND hWnd = null) nothrow {
     // dfmt off
     try {
-        const uint messageId = MessageBox(null,
+        const uint messageId = MessageBox(hWnd,
                 "Search Deflector launch failed. Would you like to open the issues page to submit a bug report?" ~
                 "\nThe important information will be filled out for you." ~
                 "\n\nIf you do not wish to create a bug report, click 'No' to exit.",
@@ -45,6 +47,16 @@ void createErrorDialog(const Throwable error) nothrow {
         assert(0);
     }
     // dfmt on
+}
+
+void createWarningDialog(const string message, HWND hWnd = null) nothrow {
+    try {
+        debug writeln(message);
+    
+        MessageBox(hWnd, message.toUTF16z, "Search Deflector", MB_ICONWARNING | MB_OK);
+    } catch (Throwable error) // @suppress(dscanner.suspicious.catch_em_all)
+        createErrorDialog(error);
+
 }
 
 /// Creates a GitHub issue body with the data from an Exception.

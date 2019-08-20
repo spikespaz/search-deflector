@@ -1,10 +1,12 @@
 import arsd.minigui;
 import std.windows.registry: RegistryException;
+import std.string: strip;
 import std.stdio: writeln;
 import std.algorithm: countUntil, canFind;
-import common: mergeAAs, openUri, parseConfig, createErrorDialog, readSettings, writeSettings,
+import common: mergeAAs, openUri, parseConfig, createErrorDialog,
+    createWarningDialog, readSettings, writeSettings,
     DeflectorSettings, PROJECT_VERSION, PROJECT_AUTHOR, ENGINE_TEMPLATES, WIKI_URL;
-import setup: getAvailableBrowsers;
+import setup: getAvailableBrowsers, validateEngineUrl, validateExecutablePath;
 
 void main(string[] args) {
     try {
@@ -112,15 +114,13 @@ void main(string[] args) {
             }
 
             settings.browserPath = browserPath.content;
-
             applyButton.setEnabled(true);
 
             debug writeln(browserPath.content);
         });
 
         browserPath.addEventListener(EventType.keyup, {
-            settings.engineURL = engineUrl.content;
-            
+            settings.engineURL = engineUrl.content.strip();
             applyButton.setEnabled(true);
         });
 
@@ -136,19 +136,34 @@ void main(string[] args) {
             }
 
             settings.engineURL = engineUrl.content;
-
             applyButton.setEnabled(true);
 
             debug writeln(engineUrl.content);
         });
 
         engineUrl.addEventListener(EventType.keyup, {
-            settings.engineURL = engineUrl.content;
-
+            settings.engineURL = engineUrl.content.strip();
             applyButton.setEnabled(true);
         });
 
         applyButton.addEventListener(EventType.triggered, {
+            if (browserSelect.currentText != "System Default" &&
+                !validateExecutablePath(settings.browserPath)) {
+                debug writeln(settings.browserPath);
+
+                createWarningDialog(
+                    "Custom browser path is invalid.\nCheck the wiki for more information.",
+                    window.hwnd);
+                return;
+            }
+
+            if (!validateEngineUrl(settings.engineURL)) {
+                createWarningDialog(
+                    "Custom search engine URL is invalid.\nCheck the wiki for more information.",
+                    window.hwnd);
+                return;
+            }
+
             writeSettings(settings);
 
             applyButton.setEnabled(false);

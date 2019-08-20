@@ -8,10 +8,10 @@ import std.socket: SocketException, getAddress;
 import std.regex: Regex, regex, matchFirst;
 import std.stdio: write, writeln, readln;
 import std.conv: ConvException, parse;
+import std.algorithm: sort, endsWith;
 import std.path: isValidFilename;
 import std.file: exists, isFile;
 import std.range: enumerate;
-import std.algorithm: sort;
 import std.utf: toUTF16z;
 import std.range: array;
 
@@ -214,6 +214,10 @@ string promptCustomEngine() {
     }
 }
 
+bool validateExecutablePath(const string path) {
+    return path && path.exists() && path.isFile() && path.endsWith(".exe");
+}
+
 /// Ask the user for a custom browser path and validate it.
 string promptBrowserPath() {
     const Regex!char pathRegex = regex(`^\s*(["']|)\s*(.+?)\s*(\1)\s*$`);
@@ -223,7 +227,7 @@ string promptBrowserPath() {
 
     string path = readln().matchFirst(pathRegex)[2];
 
-    while (!path || !exists(path) || !isFile(path)) {
+    while (validateExecutablePath(path)) {
         write("Please enter a valid path: ");
         path = readln().matchFirst(pathRegex)[2];
     }
