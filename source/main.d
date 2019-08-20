@@ -68,7 +68,10 @@ void main(string[] args) {
         applyButton.setEnabled(false);
 
         int browserIndex = ["system_default", ""].canFind(settings.browserPath) ? 1 : -1;
-        int engineIndex = -1;
+        int engineIndex = !browsers.values.canFind(settings.engineURL) ? 0 : -1;
+
+        if (engineIndex == 0)
+            engineUrl.setEnabled(true);
 
         foreach (uint index, string browser; browsers.keys) {
             browserSelect.addOption(browser);
@@ -88,7 +91,7 @@ void main(string[] args) {
         engineSelect.setSelection(engineIndex);
 
         browserPath.content = browsers.get(browserSelect.currentText, "");
-        engineUrl.content = engines.get(engineSelect.currentText, "");
+        engineUrl.content = engines.get(engineSelect.currentText, settings.engineURL);
 
         browserPathButton.setMaxWidth(30);
         browserPathButton.addEventListener(EventType.triggered, {
@@ -116,6 +119,8 @@ void main(string[] args) {
         });
 
         browserPath.addEventListener(EventType.keyup, {
+            settings.engineURL = engineUrl.content;
+            
             applyButton.setEnabled(true);
         });
 
@@ -138,6 +143,8 @@ void main(string[] args) {
         });
 
         engineUrl.addEventListener(EventType.keyup, {
+            settings.engineURL = engineUrl.content;
+
             applyButton.setEnabled(true);
         });
 
