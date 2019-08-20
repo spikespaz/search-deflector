@@ -1,6 +1,6 @@
 module updater;
 
-import common: SETUP_FILENAME, PROJECT_AUTHOR, PROJECT_NAME, PROJECT_VERSION;
+import common: createErrorDialog, SETUP_FILENAME, PROJECT_AUTHOR, PROJECT_NAME, PROJECT_VERSION;
 import std.json: JSONValue, JSONType, parseJSON;
 import std.path: buildNormalizedPath, dirName;
 import std.process: Config, spawnShell;
@@ -12,53 +12,62 @@ import std.algorithm: sort;
 import std.stdio: writeln;
 import std.conv: to;
 
-/* NOTE:
-    I was going to use the Windows API to hide and show the console window
-    based on a "-silent" flag, but that quickly got too complicated and the
-    implimentation was fragile. This comment is here as a reminder to myself
-    to either finish that in the most correct way, or (since this will be run
-    by the Task Scheduler) set the user running the process to "SYSTEM".
-    I found this on Stack Overflow, and it seems to be the best option.
-    https://stackoverflow.com/a/6568823/2512078
-    It also needs to be run with highest privileges, not sure if the user
-    being set to "SYSTEM" will take care of that for me.
-*/
+import arsd.minigui;
 
-void main() {
-    writeln("Search Deflector " ~ PROJECT_VERSION);
+void main(string[] args) {
+    try {
+        const JSONValue releaseJson = getLatestRelease(PROJECT_AUTHOR, PROJECT_NAME);
+        const JSONValue releaseAsset = getReleaseAsset(releaseJson, SETUP_FILENAME);
+        const string installerFile = buildNormalizedPath(tempDir(), SETUP_FILENAME);
 
-    const JSONValue releaseJson = getLatestRelease(PROJECT_AUTHOR, PROJECT_NAME);
-    const JSONValue releaseAsset = getReleaseAsset(releaseJson, SETUP_FILENAME);
+        auto window = new Window(300, 160, "Search Deflector Updater");
+        auto layout = new VerticalLayout(window);
 
-    if (!compareVersions(releaseJson["tag_name"].str, PROJECT_VERSION.split('-')[0]))
-        return;
+        window.setPadding(4, 8, 4, 8);
+        window.win.setMinSize(300, 160);
 
-    // dfmt off
-    writeln(
-        "\nNew update information:",
-        "\n=======================",
-        "\nName: " ~ releaseJson["name"].str,
-        "\nTag name: " ~ releaseJson["tag_name"].str,
-        "\nAuthor: " ~ releaseJson["author"]["login"].str,
-        "\nPrerelease: " ~ (releaseJson["prerelease"].type == JSONType.TRUE ? "Yes" : "No"),
-        "\nPublish date: " ~ releaseJson["published_at"].str,
-        "\nPatch notes: " ~ releaseJson["html_url"].str,
-        "\nInstaller URL: " ~ releaseAsset["browser_download_url"].str
-    );
-    // dfmt on
+        TextLabel label;
 
-    const string installerFile = buildNormalizedPath(tempDir(), SETUP_FILENAME);
+        label = new TextLabel("Version: " ~ releaseJson["tag_name"].str, layout);
+        // label = new TextLabel("URL: " ~ releaseJson["html_url"].str, layout);
+        label = new TextLabel("Uploader: " ~ releaseAsset["uploader"]["login"].str, layout);
+        label = new TextLabel("Timestamp: " ~ releaseAsset["updated_at"].str, layout);
+        label = new TextLabel("Binary Size: " ~ releaseAsset["size"].integer.to!string(), layout);
+        label = new TextLabel("Download Count: " ~ releaseAsset["download_count"].integer.to!string(), layout);
+        
+        VerticalSpacer spacer;
 
-    // Download the installer to the temporary path created above.
-    download(releaseAsset["browser_download_url"].str, installerFile);
+        if (!compareVersions(releaseJson["tag_name"].str, PROJECT_VERSION.split('-')[0])) {
+            spacer = new VerticalSpacer(layout);
 
-    // This executable should already be running as admin so no verb should be necessary.
-    // dfmt off
-    spawnShell(`"{{installerFile}}" /VERYSILENT /COMPONENTS="main, updater" /DIR="{{installPath}}"`.formatString([
-        "installerFile": installerFile,
-        "installPath": thisExePath().dirName()
-    ]), null, Config.detached);
-    // dfmt on
+            spacer.setMaxHeight(Window.lineHeight);
+
+            label = new TextLabel("No update available.");
+        }
+
+        spacer = new VerticalSpacer(layout);
+
+        auto updateButton = new Button("Install Update", layout);
+
+        updateButton.addEventListener(EventType.triggered, {
+            // Download the installer to the temporary path created above.
+            download(releaseAsset["browser_download_url"].str, installerFile);
+
+            // This executable should already be running as admin so no verb should be necessary.
+            spawnShell(
+                `"{{installerFile}}" /VERYSILENT /COMPONENTS="main, updater" /DIR="{{installPath}}"`
+                .formatString([
+                    "installerFile": installerFile,
+                    "installPath": thisExePath().dirName()
+                ]), null, Config.detached);
+        });
+
+        window.loop();
+    } catch (Exception error) {
+        createErrorDialog(error);
+
+        debug writeln(error);
+    }
 }
 
 /// Iterate through a release's assets and return the one that matches the filename given.
@@ -72,7 +81,8 @@ JSONValue getReleaseAsset(const JSONValue release, const string filename) {
 
 /// Return the latest release according to semantic versioning.
 JSONValue getLatestRelease(const string author, const string repository) {
-    const string apiReleases = "https://api.github.com/repos/" ~ author ~ "/" ~ repository ~ "/releases";
+    const string apiReleases = "https://api.github.com/repos/" ~ author ~ "/" ~
+        repository ~ "/releases";
 
     JSONValue releasesJson = get(apiReleases).parseJSON();
 
@@ -117,21 +127,3 @@ public bool compareVersions(const string firstVer, const string secondVer) {
 
     return false;
 }
-
-/* TODO:
-    Abstract the shell command replacement into the setup executable,
-    since this file changed to only execute the installer.
-
-    That post-install functionality needs to be moved into the setup
-    so that when the installer calls it, it can fix the registry settings
-    to point to the new location or version folder autonomously.
-
-    This should work by checking if the config key in the registry exists.
-    If it does, make sure the "shell open" command points to the latest deflector.
-
-    Also, once the setup is rewritten to use the Task Scheduler to run the updater,
-    update that task to point to the new updater.
-
-    Should be ported from the old code. For reference, I'll link it.
-    https://github.com/spikespaz/search-deflector/blob/0.2.3/source/updater.d
-*/
