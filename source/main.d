@@ -17,7 +17,7 @@ void main(string[] args) {
         catch (RegistryException) {
         }
 
-        auto window = new Window(400, 280, "Search Deflector");
+        auto window = new Window(400, 290, "Search Deflector");
         auto layout = new VerticalLayout(window);
 
         auto textLabel0 = new TextLabel("Preferred Browser", layout);
@@ -48,7 +48,7 @@ void main(string[] args) {
                 "Version: " ~ PROJECT_VERSION ~ ", Author: " ~ PROJECT_AUTHOR, layout);
 
         window.setPadding(4, 8, 4, 8);
-        window.win.setMinSize(300, 280);
+        window.win.setMinSize(300, 290);
 
         vSpacer0.setMaxHeight(8);
         vSpacer1.setMaxHeight(8);
@@ -64,6 +64,8 @@ void main(string[] args) {
         browserSelect.addOption("Custom");
         browserSelect.addOption("System Default");
         engineSelect.addOption("Custom");
+
+        applyButton.setEnabled(false);
 
         int browserIndex = ["system_default", ""].canFind(settings.browserPath) ? 1 : -1;
         int engineIndex = -1;
@@ -108,6 +110,8 @@ void main(string[] args) {
 
             settings.browserPath = browserPath.content;
 
+            applyButton.setEnabled(true);
+
             debug writeln(browserPath.content);
         });
 
@@ -124,11 +128,15 @@ void main(string[] args) {
 
             settings.engineURL = engineUrl.content;
 
+            applyButton.setEnabled(true);
+
             debug writeln(engineUrl.content);
         });
 
         applyButton.addEventListener(EventType.triggered, {
             writeSettings(settings);
+
+            applyButton.setEnabled(false);
 
             debug writeln(settings);
         });
