@@ -98,6 +98,9 @@ void main(string[] args) {
         browserPathButton.setMaxWidth(30);
         browserPathButton.addEventListener(EventType.triggered, {
             getOpenFileName(&browserPath.content, browserPath.content, null);
+
+            settings.engineURL = engineUrl.content.strip();
+            applyButton.setEnabled(true);
         });
 
         browserSelect.addEventListener(EventType.change, {
