@@ -72,9 +72,6 @@ void main(string[] args) {
         int browserIndex = ["system_default", ""].canFind(settings.browserPath) ? 1 : -1;
         int engineIndex = !browsers.values.canFind(settings.engineURL) ? 0 : -1;
 
-        if (engineIndex == 0)
-            engineUrl.setEnabled(true);
-
         foreach (uint index, string browser; browsers.keys) {
             browserSelect.addOption(browser);
 
@@ -92,6 +89,9 @@ void main(string[] args) {
         browserSelect.setSelection(browserIndex);
         engineSelect.setSelection(engineIndex);
 
+        if (browserSelect.currentText == "Custom")
+            engineUrl.setEnabled(true);
+
         browserPath.content = browsers.get(browserSelect.currentText, "");
         engineUrl.content = engines.get(engineSelect.currentText, settings.engineURL);
 
@@ -99,11 +99,14 @@ void main(string[] args) {
         browserPathButton.addEventListener(EventType.triggered, {
             getOpenFileName(&browserPath.content, browserPath.content, null);
 
-            settings.engineURL = engineUrl.content.strip();
+            settings.browserPath = browserPath.content.strip();
             applyButton.setEnabled(true);
         });
 
         browserSelect.addEventListener(EventType.change, {
+            debug writeln(browserSelect.currentText);
+            debug writeln(browserPath.content);
+
             if (browserSelect.currentText == "Custom") {
                 browserPath.setEnabled(true);
                 browserPathButton.show();
@@ -118,8 +121,6 @@ void main(string[] args) {
 
             settings.browserPath = browserPath.content;
             applyButton.setEnabled(true);
-
-            debug writeln(browserPath.content);
         });
 
         browserPath.addEventListener(EventType.keyup, {
@@ -128,6 +129,9 @@ void main(string[] args) {
         });
 
         engineSelect.addEventListener(EventType.change, {
+            debug writeln(engineSelect.currentText);
+            debug writeln(engineUrl.content);
+
             if (engineSelect.currentText == "Custom") {
                 engineUrl.setEnabled(true);
 
@@ -150,6 +154,8 @@ void main(string[] args) {
         });
 
         applyButton.addEventListener(EventType.triggered, {
+            debug writeln("Valid Browser: ", validateExecutablePath(settings.browserPath));
+
             if (browserSelect.currentText != "System Default" &&
                 !validateExecutablePath(settings.browserPath)) {
                 debug writeln(settings.browserPath);
@@ -157,13 +163,17 @@ void main(string[] args) {
                 createWarningDialog(
                     "Custom browser path is invalid.\nCheck the wiki for more information.",
                     window.hwnd);
+
                 return;
             }
 
             if (!validateEngineUrl(settings.engineURL)) {
+                debug writeln(settings.engineURL);
+
                 createWarningDialog(
                     "Custom search engine URL is invalid.\nCheck the wiki for more information.",
                     window.hwnd);
+
                 return;
             }
 
