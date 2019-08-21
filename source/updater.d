@@ -11,6 +11,8 @@ import std.range: zip, popFront;
 import std.algorithm: sort;
 import std.stdio: writeln;
 import std.conv: to;
+import std.format: format;
+import core.stdc.stdlib: exit;
 
 import arsd.minigui;
 
@@ -23,16 +25,15 @@ void main(string[] args) {
         auto window = new Window(300, 160, "Search Deflector Updater");
         auto layout = new VerticalLayout(window);
 
-        window.setPadding(4, 8, 4, 8);
+        window.setPadding(8, 8, 8, 8);
         window.win.setMinSize(300, 160);
 
         TextLabel label;
 
         label = new TextLabel("Version: " ~ releaseJson["tag_name"].str, layout);
-        // label = new TextLabel("URL: " ~ releaseJson["html_url"].str, layout);
         label = new TextLabel("Uploader: " ~ releaseAsset["uploader"]["login"].str, layout);
         label = new TextLabel("Timestamp: " ~ releaseAsset["updated_at"].str, layout);
-        label = new TextLabel("Binary Size: " ~ releaseAsset["size"].integer.to!string(), layout);
+        label = new TextLabel("Binary Size: " ~ format("%.2f MB", releaseAsset["size"].integer / 1048576f), layout);
         label = new TextLabel("Download Count: " ~ releaseAsset["download_count"].integer.to!string(), layout);
         
         VerticalSpacer spacer;
@@ -50,16 +51,20 @@ void main(string[] args) {
         auto updateButton = new Button("Install Update", layout);
 
         updateButton.addEventListener(EventType.triggered, {
+            updateButton.setEnabled(false);
+            
             // Download the installer to the temporary path created above.
             download(releaseAsset["browser_download_url"].str, installerFile);
 
             // This executable should already be running as admin so no verb should be necessary.
             spawnShell(
-                `"{{installerFile}}" /VERYSILENT /COMPONENTS="main, updater" /DIR="{{installPath}}"`
+                `"{{installerFile}}" /components="main, updater" /dir="{{installPath}}"`
                 .formatString([
                     "installerFile": installerFile,
                     "installPath": thisExePath().dirName()
                 ]), null, Config.detached);
+
+            exit(0);
         });
 
         window.loop();
