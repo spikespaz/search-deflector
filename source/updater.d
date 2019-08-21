@@ -24,17 +24,26 @@ void main(string[] args) {
 
         auto window = new Window(300, 160, "Search Deflector Updater");
         auto layout = new VerticalLayout(window);
+        auto hLayout = new HorizontalLayout(layout);
+        auto vLayout0 = new VerticalLayout(hLayout);
+        auto vLayout1 = new VerticalLayout(hLayout);
 
         window.setPadding(8, 8, 8, 8);
         window.win.setMinSize(300, 160);
 
         TextLabel label;
 
-        label = new TextLabel("Version: " ~ releaseJson["tag_name"].str, layout);
-        label = new TextLabel("Uploader: " ~ releaseAsset["uploader"]["login"].str, layout);
-        label = new TextLabel("Timestamp: " ~ releaseAsset["updated_at"].str, layout);
-        label = new TextLabel("Binary Size: " ~ format("%.2f MB", releaseAsset["size"].integer / 1048576f), layout);
-        label = new TextLabel("Download Count: " ~ releaseAsset["download_count"].integer.to!string(), layout);
+        label = new TextLabel("Version:", vLayout0);
+        label = new TextLabel("Uploader:", vLayout0);
+        label = new TextLabel("Timestamp:", vLayout0);
+        label = new TextLabel("Binary Size:", vLayout0);
+        label = new TextLabel("Download Count:", vLayout0);
+        
+        label = new TextLabel(releaseJson["tag_name"].str, vLayout1);
+        label = new TextLabel(releaseAsset["uploader"]["login"].str, vLayout1);
+        label = new TextLabel(releaseAsset["updated_at"].str, vLayout1);
+        label = new TextLabel(format("%.2f MB", releaseAsset["size"].integer / 1048576f), vLayout1);
+        label = new TextLabel(releaseAsset["download_count"].integer.to!string(), vLayout1);
         
         VerticalSpacer spacer;
 
