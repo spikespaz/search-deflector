@@ -66,7 +66,10 @@ void main(string[] args) {
         label = new TextLabel(format("%.2f MB", releaseAsset["size"].integer / 1048576f), vLayout1);
         label = new TextLabel(releaseAsset["download_count"].integer.to!string(), vLayout1);
 
-        VerticalSpacer spacer;
+        auto updateButton = new Button("Install Update", layout);
+
+        if (!shouldUpdate)
+            updateButton.setEnabled(false);
 
         updateButton.addEventListener(EventType.triggered, {
             updateButton.setEnabled(false);
