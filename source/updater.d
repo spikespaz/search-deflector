@@ -21,18 +21,39 @@ void main(string[] args) {
         const JSONValue releaseJson = getLatestRelease(PROJECT_AUTHOR, PROJECT_NAME);
         const JSONValue releaseAsset = getReleaseAsset(releaseJson, SETUP_FILENAME);
         const string installerFile = buildNormalizedPath(tempDir(), SETUP_FILENAME);
+        const bool shouldUpdate = compareVersions(releaseJson["tag_name"].str, PROJECT_VERSION);
 
-        auto window = new Window(300, 160, "Search Deflector Updater");
+        debug writeln("Update Version: " ~ releaseJson["tag_name"].str);
+        debug writeln("Current Version: " ~ PROJECT_VERSION);
+        debug writeln("Should Update: ", shouldUpdate);
+        
+        auto window = new Window(300, 190, "Search Deflector Updater");
         auto layout = new VerticalLayout(window);
         auto hLayout = new HorizontalLayout(layout);
         auto vLayout0 = new VerticalLayout(hLayout);
         auto vLayout1 = new VerticalLayout(hLayout);
 
         window.setPadding(8, 8, 8, 8);
-        window.win.setMinSize(300, 160);
+        window.win.setMinSize(300, 190);
 
         TextLabel label;
+        VerticalSpacer spacer;
 
+        if (shouldUpdate) {
+            label = new TextLabel("Current Version:", vLayout0);
+            label = new TextLabel(PROJECT_VERSION, vLayout1);
+        } else {
+            label = new TextLabel("No update available.", vLayout0);
+            
+            spacer = new VerticalSpacer(vLayout1);
+            spacer.setMaxHeight(Window.lineHeight);
+        }
+
+        spacer = new VerticalSpacer(vLayout0);
+        spacer.setMaxHeight(Window.lineHeight);
+        spacer = new VerticalSpacer(vLayout1);
+        spacer.setMaxHeight(Window.lineHeight);
+        
         label = new TextLabel("Version:", vLayout0);
         label = new TextLabel("Uploader:", vLayout0);
         label = new TextLabel("Timestamp:", vLayout0);
@@ -44,20 +65,8 @@ void main(string[] args) {
         label = new TextLabel(releaseAsset["updated_at"].str, vLayout1);
         label = new TextLabel(format("%.2f MB", releaseAsset["size"].integer / 1048576f), vLayout1);
         label = new TextLabel(releaseAsset["download_count"].integer.to!string(), vLayout1);
-        
+
         VerticalSpacer spacer;
-
-        if (!compareVersions(releaseJson["tag_name"].str, PROJECT_VERSION.split('-')[0])) {
-            spacer = new VerticalSpacer(layout);
-
-            spacer.setMaxHeight(Window.lineHeight);
-
-            label = new TextLabel("No update available.");
-        }
-
-        spacer = new VerticalSpacer(layout);
-
-        auto updateButton = new Button("Install Update", layout);
 
         updateButton.addEventListener(EventType.triggered, {
             updateButton.setEnabled(false);
