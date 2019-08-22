@@ -1,64 +1,117 @@
 module updater;
 
-import common: SETUP_FILENAME, PROJECT_AUTHOR, PROJECT_NAME, PROJECT_VERSION;
+import common: createErrorDialog, SETUP_FILENAME, PROJECT_AUTHOR, PROJECT_NAME, PROJECT_VERSION;
+
 import std.json: JSONValue, JSONType, parseJSON;
 import std.path: buildNormalizedPath, dirName;
 import std.process: Config, spawnShell;
 import std.file: tempDir, thisExePath;
+import std.algorithm: sort, canFind;
 import std.net.curl: get, download;
 import std.string: split, replace;
 import std.range: zip, popFront;
-import std.algorithm: sort;
+import std.format: format;
 import std.stdio: writeln;
 import std.conv: to;
 
-/* NOTE:
-    I was going to use the Windows API to hide and show the console window
-    based on a "-silent" flag, but that quickly got too complicated and the
-    implimentation was fragile. This comment is here as a reminder to myself
-    to either finish that in the most correct way, or (since this will be run
-    by the Task Scheduler) set the user running the process to "SYSTEM".
-    I found this on Stack Overflow, and it seems to be the best option.
-    https://stackoverflow.com/a/6568823/2512078
-    It also needs to be run with highest privileges, not sure if the user
-    being set to "SYSTEM" will take care of that for me.
-*/
+import core.stdc.stdlib: exit;
 
-void main() {
-    writeln("Search Deflector " ~ PROJECT_VERSION);
+import arsd.minigui;
 
-    const JSONValue releaseJson = getLatestRelease(PROJECT_AUTHOR, PROJECT_NAME);
-    const JSONValue releaseAsset = getReleaseAsset(releaseJson, SETUP_FILENAME);
+void main(string[] args) {
+    const bool silent = args.canFind("--silent") || args.canFind("-s");
 
-    if (!compareVersions(releaseJson["tag_name"].str, PROJECT_VERSION.split('-')[0]))
-        return;
+    try {
+        const JSONValue releaseJson = getLatestRelease(PROJECT_AUTHOR, PROJECT_NAME);
+        const JSONValue releaseAsset = getReleaseAsset(releaseJson, SETUP_FILENAME);
+        const string installerFile = buildNormalizedPath(tempDir(), SETUP_FILENAME);
+        const bool shouldUpdate = compareVersions(releaseJson["tag_name"].str, PROJECT_VERSION);
 
-    // dfmt off
-    writeln(
-        "\nNew update information:",
-        "\n=======================",
-        "\nName: " ~ releaseJson["name"].str,
-        "\nTag name: " ~ releaseJson["tag_name"].str,
-        "\nAuthor: " ~ releaseJson["author"]["login"].str,
-        "\nPrerelease: " ~ (releaseJson["prerelease"].type == JSONType.TRUE ? "Yes" : "No"),
-        "\nPublish date: " ~ releaseJson["published_at"].str,
-        "\nPatch notes: " ~ releaseJson["html_url"].str,
-        "\nInstaller URL: " ~ releaseAsset["browser_download_url"].str
-    );
-    // dfmt on
+        debug writeln("Update Version: " ~ releaseJson["tag_name"].str);
+        debug writeln("Current Version: " ~ PROJECT_VERSION);
+        debug writeln("Should Update: ", shouldUpdate);
+        
+        if (silent && shouldUpdate)
+            startInstallUpdate(releaseAsset["browser_download_url"].str, installerFile, true);
+        else if (silent)
+            return;
+        else
+            loopWindow(releaseJson, releaseAsset, installerFile, shouldUpdate);
+    } catch (Exception error) {
+        createErrorDialog(error);
 
-    const string installerFile = buildNormalizedPath(tempDir(), SETUP_FILENAME);
+        debug writeln(error);
+    }
+}
 
+void loopWindow(const JSONValue releaseJson, const JSONValue releaseAsset, const string installerFile, const bool shouldUpdate) {
+    auto window = new Window(300, 190, "Search Deflector Updater");
+    auto layout = new VerticalLayout(window);
+    auto hLayout = new HorizontalLayout(layout);
+    auto vLayout0 = new VerticalLayout(hLayout);
+    auto vLayout1 = new VerticalLayout(hLayout);
+
+    window.setPadding(8, 8, 8, 8);
+    window.win.setMinSize(300, 190);
+
+    TextLabel label;
+    VerticalSpacer spacer;
+
+    if (shouldUpdate) {
+        label = new TextLabel("Current Version:", vLayout0);
+        label = new TextLabel(PROJECT_VERSION, vLayout1);
+    } else {
+        label = new TextLabel("No update available.", vLayout0);
+        
+        spacer = new VerticalSpacer(vLayout1);
+        spacer.setMaxHeight(Window.lineHeight);
+    }
+
+    spacer = new VerticalSpacer(vLayout0);
+    spacer.setMaxHeight(Window.lineHeight);
+    spacer = new VerticalSpacer(vLayout1);
+    spacer.setMaxHeight(Window.lineHeight);
+    
+    label = new TextLabel("Version:", vLayout0);
+    label = new TextLabel("Uploader:", vLayout0);
+    label = new TextLabel("Timestamp:", vLayout0);
+    label = new TextLabel("Binary Size:", vLayout0);
+    label = new TextLabel("Download Count:", vLayout0);
+    
+    label = new TextLabel(releaseJson["tag_name"].str, vLayout1);
+    label = new TextLabel(releaseAsset["uploader"]["login"].str, vLayout1);
+    label = new TextLabel(releaseAsset["updated_at"].str, vLayout1);
+    label = new TextLabel(format("%.2f MB", releaseAsset["size"].integer / 1048576f), vLayout1);
+    label = new TextLabel(releaseAsset["download_count"].integer.to!string(), vLayout1);
+
+    auto updateButton = new Button("Install Update", layout);
+
+    if (!shouldUpdate)
+        updateButton.setEnabled(false);
+
+    updateButton.addEventListener(EventType.triggered, {
+        updateButton.setEnabled(false);
+        
+        startInstallUpdate(releaseAsset["browser_download_url"].str, installerFile, false);
+    });
+
+    window.loop();
+}
+
+void startInstallUpdate(const string downloadUrl, const string installerFile, const bool silent = false) {
     // Download the installer to the temporary path created above.
-    download(releaseAsset["browser_download_url"].str, installerFile);
+    download(downloadUrl, installerFile);
 
     // This executable should already be running as admin so no verb should be necessary.
-    // dfmt off
-    spawnShell(`"{{installerFile}}" /VERYSILENT /COMPONENTS="main, updater" /DIR="{{installPath}}"`.formatString([
-        "installerFile": installerFile,
-        "installPath": thisExePath().dirName()
-    ]), null, Config.detached);
-    // dfmt on
+    spawnShell(
+        `"{{installerFile}}" {{otherArgs}} /components="main, updater" /dir="{{installPath}}"`
+        .formatString([
+            "installerFile": installerFile,
+            "installPath": thisExePath().dirName(),
+            "otherArgs": silent ? "/verysilent" : ""
+        ]), null, Config.detached);
+
+    exit(0);
 }
 
 /// Iterate through a release's assets and return the one that matches the filename given.
@@ -72,7 +125,8 @@ JSONValue getReleaseAsset(const JSONValue release, const string filename) {
 
 /// Return the latest release according to semantic versioning.
 JSONValue getLatestRelease(const string author, const string repository) {
-    const string apiReleases = "https://api.github.com/repos/" ~ author ~ "/" ~ repository ~ "/releases";
+    const string apiReleases = "https://api.github.com/repos/" ~ author ~ "/" ~
+        repository ~ "/releases";
 
     JSONValue releasesJson = get(apiReleases).parseJSON();
 
@@ -117,21 +171,3 @@ public bool compareVersions(const string firstVer, const string secondVer) {
 
     return false;
 }
-
-/* TODO:
-    Abstract the shell command replacement into the setup executable,
-    since this file changed to only execute the installer.
-
-    That post-install functionality needs to be moved into the setup
-    so that when the installer calls it, it can fix the registry settings
-    to point to the new location or version folder autonomously.
-
-    This should work by checking if the config key in the registry exists.
-    If it does, make sure the "shell open" command points to the latest deflector.
-
-    Also, once the setup is rewritten to use the Task Scheduler to run the updater,
-    update that task to point to the new updater.
-
-    Should be ported from the old code. For reference, I'll link it.
-    https://github.com/spikespaz/search-deflector/blob/0.2.3/source/updater.d
-*/
