@@ -190,7 +190,7 @@ if __name__ == "__main__":
         log_print("Building updater binary: " + UPDATER_BIN)
 
         copy_files(ARGS.version)
-        compile_file(SOURCE_PATH + "/updater.d", UPDATER_BIN, ARGS.debug, console=True)
+        compile_file(SOURCE_PATH + "/updater.d", UPDATER_BIN, ARGS.debug)
 
         add_icon(UPDATER_BIN)
 
