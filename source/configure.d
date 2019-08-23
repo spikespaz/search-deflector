@@ -1,11 +1,12 @@
 module configure;
 
 import std.windows.registry: Registry, Key, RegistryException;
+import std.path: isValidFilename, buildNormalizedPath;
 import std.algorithm: endsWith, canFind, countUntil;
 import std.socket: SocketException, getAddress;
+import std.file: exists, isFile, tempDir;
 import std.string: indexOf, strip;
-import std.path: isValidFilename;
-import std.file: exists, isFile;
+import std.json: JSONValue;
 import std.stdio: writeln;
 import std.utf: toUTF16z;
 
@@ -13,15 +14,25 @@ import arsd.minigui;
 
 import common: mergeAAs, openUri, parseConfig, createErrorDialog,
     createWarningDialog, readSettings, writeSettings,
-    getConsoleArgs, DeflectorSettings, PROJECT_VERSION, PROJECT_AUTHOR,
+    getConsoleArgs, DeflectorSettings, PROJECT_NAME, PROJECT_VERSION, PROJECT_AUTHOR, SETUP_FILENAME,
     ENGINE_TEMPLATES, WIKI_URL;
+import updater: compareVersions, startInstallUpdate, compareVersions, getReleaseAsset, getLatestRelease;
 
 void main(string[] args) {
-    try {
-        auto window = new Window(400, 290, "Configure Search Deflector");
-        auto app = ConfigApp(window);
+    const bool forceUpdate = args.canFind("--update") || args.canFind("-u");
 
-        app.loop();
+    try {
+        auto app = ConfigApp();
+
+        if (forceUpdate) {
+            app.fetchReleaseInfo();
+            
+            if (app.shouldUpdate())
+                app.installUpdate(true);
+        } else {
+            app.createWindow();
+            app.loopWindow();
+        }
     } catch (Exception error) {
         createErrorDialog(error);
         debug writeln(error);
@@ -45,8 +56,11 @@ struct ConfigApp {
     Button applyButton;
     Button wikiButton;
 
-    this(Window window) {
-        this.window = window;
+    JSONValue releaseJson;
+    JSONValue releaseAsset;
+
+    void createWindow() {
+        this.window = new Window(400, 290, "Configure Search Deflector");
         this.window.setPadding(4, 8, 4, 8);
         this.window.win.setMinSize(300, 290);
 
@@ -56,7 +70,15 @@ struct ConfigApp {
         this.bindListeners();
     }
 
-    void loop() {
+    bool shouldUpdate() {
+        return compareVersions(this.releaseJson["tag_name"].str, PROJECT_VERSION);
+    }
+
+    string getInstallerPath() {
+        return buildNormalizedPath(tempDir(), SETUP_FILENAME);
+    }
+
+    void loopWindow() {
         this.window.loop();
     }
 
@@ -238,6 +260,15 @@ struct ConfigApp {
         this.wikiButton.addEventListener(EventType.triggered, {
             openUri(this.settings.browserPath, WIKI_URL);
         });
+    }
+
+    void fetchReleaseInfo() {
+        this.releaseJson = getLatestRelease(PROJECT_AUTHOR, PROJECT_NAME);
+        this.releaseAsset = getReleaseAsset(releaseJson, SETUP_FILENAME);
+    }
+
+    void installUpdate(const bool silent) {
+        startInstallUpdate(this.releaseAsset["browser_download_url"].str, this.getInstallerPath(), silent);
     }
 }
 
