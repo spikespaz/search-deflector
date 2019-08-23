@@ -18,189 +18,226 @@ import common: mergeAAs, openUri, parseConfig, createErrorDialog,
 
 void main(string[] args) {
     try {
-        auto settings = readSettings();
-        string[string] browsers = getAvailableBrowsers(false);
-        const string[string] engines = parseConfig(ENGINE_TEMPLATES);
-
-        try
-            browsers = mergeAAs(browsers, getAvailableBrowsers(true));
-        catch (RegistryException) {
-        }
-
         auto window = new Window(400, 290, "Configure Search Deflector");
+        auto app = ConfigApp(window);
+
+        app.loop();
+    } catch (Exception error) {
+        createErrorDialog(error);
+        debug writeln(error);
+    }
+}
+
+struct ConfigApp {
+    string[string] browsers;
+    string[string] engines;
+
+    DeflectorSettings settings;
+    Window window;
+
+    DropDownSelection browserSelect;
+    DropDownSelection engineSelect;
+
+    LineEdit browserPath;
+    LineEdit engineUrl;
+
+    Button browserPathButton;
+    Button applyButton;
+    Button wikiButton;
+
+    this(Window window) {
+        this.window = window;
+        this.window.setPadding(4, 8, 4, 8);
+        this.window.win.setMinSize(300, 290);
+
+        this.createWidgets();
+        this.loadDefaults();
+        this.showDefaults();
+        this.bindListeners();
+    }
+
+    void loop() {
+        this.window.loop();
+    }
+
+    void createWidgets() {
         auto layout = new VerticalLayout(window);
 
-        auto textLabel0 = new TextLabel("Preferred Browser", layout);
-        auto browserSelect = new DropDownSelection(layout);
+        TextLabel label;
+
+        label = new TextLabel("Preferred Browser", layout);
+        this.browserSelect = new DropDownSelection(layout);
         auto vSpacer0 = new VerticalSpacer(layout);
-
-        auto textLabel1 = new TextLabel("Browser Executable", layout);
-        auto hLayout0 = new HorizontalLayout(layout);
-        auto browserPath = new LineEdit(hLayout0);
-        auto browserPathButton = new Button("...", hLayout0);
-        auto vSpacer1 = new VerticalSpacer(layout);
-
-        auto textLabel2 = new TextLabel("Preferred Search Engine", layout);
-        auto engineSelect = new DropDownSelection(layout);
-        auto vSpacer2 = new VerticalSpacer(layout);
-
-        auto textLabel3 = new TextLabel("Custom Search Engine URL", layout);
-        auto engineUrl = new LineEdit(layout);
-        auto vSpacer3 = new VerticalSpacer(layout);
-
-        auto applyButton = new Button("Apply Settings", layout);
-        auto vSpacer4 = new VerticalSpacer(layout);
-
-        auto wikiButton = new Button("Open Website", layout);
-        auto vSpacer5 = new VerticalSpacer(layout);
-
-        auto infoText = new TextLabel(
-                "Version: " ~ PROJECT_VERSION ~ ", Author: " ~ PROJECT_AUTHOR, layout);
-
-        window.setPadding(4, 8, 4, 8);
-        window.win.setMinSize(300, 290);
-
         vSpacer0.setMaxHeight(8);
+
+        label = new TextLabel("Browser Executable", layout);
+        auto hLayout0 = new HorizontalLayout(layout);
+        this.browserPath = new LineEdit(hLayout0);
+        this.browserPath.setEnabled(false);
+        this.browserPathButton = new Button("...", hLayout0);
+        this.browserPathButton.setMaxWidth(30);
+        this.browserPathButton.hide();
+
+        auto vSpacer1 = new VerticalSpacer(layout);
         vSpacer1.setMaxHeight(8);
+
+        label = new TextLabel("Preferred Search Engine", layout);
+        this.engineSelect = new DropDownSelection(layout);
+        auto vSpacer2 = new VerticalSpacer(layout);
         vSpacer2.setMaxHeight(8);
 
+        label = new TextLabel("Custom Search Engine URL", layout);
+        this.engineUrl = new LineEdit(layout);
+        this.engineUrl.setEnabled(false);
+        auto vSpacer3 = new VerticalSpacer(layout);
+
+        this.applyButton = new Button("Apply Settings", layout);
+        this.applyButton.setEnabled(false);
+        auto vSpacer4 = new VerticalSpacer(layout);
         vSpacer4.setMaxHeight(2);
+
+        this.wikiButton = new Button("Open Website", layout);
+        auto vSpacer5 = new VerticalSpacer(layout);
         vSpacer5.setMaxHeight(8);
 
-        browserPath.setEnabled(false);
-        engineUrl.setEnabled(false);
-        browserPathButton.hide();
+        label = new TextLabel("Version: " ~ PROJECT_VERSION ~ ", Author: " ~ PROJECT_AUTHOR, layout);
+    }
 
-        browserSelect.addOption("Custom");
-        browserSelect.addOption("System Default");
-        engineSelect.addOption("Custom");
+    void loadDefaults() {
+        this.settings = readSettings();
+        this.browsers = getAvailableBrowsers(false);
+        this.engines = parseConfig(ENGINE_TEMPLATES);
 
-        applyButton.setEnabled(false);
+        try
+            this.browsers = mergeAAs(this.browsers, getAvailableBrowsers(true));
+        catch (RegistryException) {
+        }
+    }
+
+    void showDefaults() {
+        this.browserSelect.addOption("Custom");
+        this.browserSelect.addOption("System Default");
+        this.engineSelect.addOption("Custom");
 
         int browserIndex = ["system_default", ""].canFind(settings.browserPath) ? 1 : -1;
-        int engineIndex = !browsers.values.canFind(settings.engineURL) ? 0 : -1;
+        int engineIndex = !this.browsers.values.canFind(settings.engineURL) ? 0 : -1;
 
-        foreach (uint index, string browser; browsers.keys) {
-            browserSelect.addOption(browser);
+        foreach (uint index, string browser; this.browsers.keys) {
+            this.browserSelect.addOption(browser);
 
-            if (browsers[browser] == settings.browserPath)
+            if (this.browsers[browser] == this.settings.browserPath)
                 browserIndex = index + 2;
         }
 
         foreach (uint index, string engine; engines.keys) {
-            engineSelect.addOption(engine);
+            this.engineSelect.addOption(engine);
 
-            if (engines[engine] == settings.engineURL)
+            if (engines[engine] == this.settings.engineURL)
                 engineIndex = index + 1;
         }
 
-        browserSelect.setSelection(browserIndex);
-        engineSelect.setSelection(engineIndex);
+        this.browserSelect.setSelection(browserIndex);
+        this.engineSelect.setSelection(engineIndex);
 
-        if (browserSelect.currentText == "Custom")
-            engineUrl.setEnabled(true);
+        if (this.browserSelect.currentText == "Custom")
+            this.engineUrl.setEnabled(true);
 
-        browserPath.content = browsers.get(browserSelect.currentText, "");
-        engineUrl.content = engines.get(engineSelect.currentText, settings.engineURL);
+        this.browserPath.content = this.browsers.get(this.browserSelect.currentText, "");
+        this.engineUrl.content = engines.get(this.engineSelect.currentText, this.settings.engineURL);
+    }
 
-        browserPathButton.setMaxWidth(30);
-        browserPathButton.addEventListener(EventType.triggered, {
-            getOpenFileName(&browserPath.content, browserPath.content, null);
+    void bindListeners() {
+        this.browserPathButton.addEventListener(EventType.triggered, {
+            getOpenFileName(&this.browserPath.content, this.browserPath.content, null);
 
-            settings.browserPath = browserPath.content.strip();
-            applyButton.setEnabled(true);
+            this.settings.browserPath = this.browserPath.content.strip();
+            this.applyButton.setEnabled(true);
         });
 
-        browserSelect.addEventListener(EventType.change, {
-            debug writeln(browserSelect.currentText);
-            debug writeln(browserPath.content);
+        this.browserSelect.addEventListener(EventType.change, {
+            debug writeln(this.browserSelect.currentText);
+            debug writeln(this.browserPath.content);
 
-            if (browserSelect.currentText == "Custom") {
-                browserPath.setEnabled(true);
-                browserPathButton.show();
+            if (this.browserSelect.currentText == "Custom") {
+                this.browserPath.setEnabled(true);
+                this.browserPathButton.show();
 
                 browserPath.content = "";
             } else {
-                browserPath.setEnabled(false);
-                browserPathButton.hide();
+                this.browserPath.setEnabled(false);
+                this.browserPathButton.hide();
 
-                browserPath.content = browsers.get(browserSelect.currentText, "");
+                this.browserPath.content = this.browsers.get(this.browserSelect.currentText, "");
             }
 
-            settings.browserPath = browserPath.content;
-            applyButton.setEnabled(true);
+            this.settings.browserPath = this.browserPath.content;
+            this.applyButton.setEnabled(true);
         });
 
-        browserPath.addEventListener(EventType.keyup, {
-            settings.engineURL = engineUrl.content.strip();
-            applyButton.setEnabled(true);
+        this.browserPath.addEventListener(EventType.keyup, {
+            this.settings.engineURL = this.engineUrl.content.strip();
+            this.applyButton.setEnabled(true);
         });
 
-        engineSelect.addEventListener(EventType.change, {
-            debug writeln(engineSelect.currentText);
-            debug writeln(engineUrl.content);
+        this.engineSelect.addEventListener(EventType.change, {
+            debug writeln(this.engineSelect.currentText);
+            debug writeln(this.engineUrl.content);
 
-            if (engineSelect.currentText == "Custom") {
-                engineUrl.setEnabled(true);
+            if (this.engineSelect.currentText == "Custom") {
+                this.engineUrl.setEnabled(true);
 
-                engineUrl.content = "";
+                this.engineUrl.content = "";
             } else {
-                engineUrl.setEnabled(false);
+                this.engineUrl.setEnabled(false);
 
-                engineUrl.content = engines[engineSelect.currentText];
+                this.engineUrl.content = engines[this.engineSelect.currentText];
             }
 
-            settings.engineURL = engineUrl.content;
-            applyButton.setEnabled(true);
+            this.settings.engineURL = this.engineUrl.content;
+            this.applyButton.setEnabled(true);
 
-            debug writeln(engineUrl.content);
+            debug writeln(this.engineUrl.content);
         });
 
-        engineUrl.addEventListener(EventType.keyup, {
-            settings.engineURL = engineUrl.content.strip();
-            applyButton.setEnabled(true);
+        this.engineUrl.addEventListener(EventType.keyup, {
+            this.settings.engineURL = this.engineUrl.content.strip();
+            this.applyButton.setEnabled(true);
         });
 
-        applyButton.addEventListener(EventType.triggered, {
-            debug writeln("Valid Browser: ", validateExecutablePath(settings.browserPath));
+        this.applyButton.addEventListener(EventType.triggered, {
+            debug writeln("Valid Browser: ", validateExecutablePath(this.settings.browserPath));
 
-            if (browserSelect.currentText != "System Default" &&
-                !validateExecutablePath(settings.browserPath)) {
-                debug writeln(settings.browserPath);
+            if (this.browserSelect.currentText != "System Default" &&
+                !validateExecutablePath(this.settings.browserPath)) {
+                debug writeln(this.settings.browserPath);
 
                 createWarningDialog(
                     "Custom browser path is invalid.\nCheck the wiki for more information.",
-                    window.hwnd);
+                    this.window.hwnd);
 
                 return;
             }
 
-            if (!validateEngineUrl(settings.engineURL)) {
-                debug writeln(settings.engineURL);
+            if (!validateEngineUrl(this.settings.engineURL)) {
+                debug writeln(this.settings.engineURL);
 
                 createWarningDialog(
                     "Custom search engine URL is invalid.\nCheck the wiki for more information.",
-                    window.hwnd);
+                    this.window.hwnd);
 
                 return;
             }
 
-            writeSettings(settings);
+            writeSettings(this.settings);
 
-            applyButton.setEnabled(false);
+            this.applyButton.setEnabled(false);
 
-            debug writeln(settings);
+            debug writeln(this.settings);
         });
 
-        wikiButton.addEventListener(EventType.triggered, {
-            openUri(settings.browserPath, WIKI_URL);
+        this.wikiButton.addEventListener(EventType.triggered, {
+            openUri(this.settings.browserPath, WIKI_URL);
         });
-
-        window.loop();
-    } catch (Exception error) {
-        createErrorDialog(error);
-
-        debug writeln(error);
     }
 }
 
