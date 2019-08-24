@@ -46,6 +46,11 @@ struct ConfigApp {
     DeflectorSettings settings;
     Window window;
 
+    TabWidget tabs;
+
+    // All widgets for Settings tab
+    TabWidgetPage page0;
+
     DropDownSelection browserSelect;
     DropDownSelection engineSelect;
 
@@ -56,18 +61,22 @@ struct ConfigApp {
     Button applyButton;
     Button wikiButton;
 
+    // All widgets for Update tab
+    TabWidgetPage page1;
+
+    Button updateButton;
+
     JSONValue releaseJson;
     JSONValue releaseAsset;
 
     void createWindow() {
-        this.window = new Window(400, 290, "Configure Search Deflector");
-        this.window.setPadding(4, 8, 4, 8);
-        this.window.win.setMinSize(300, 290);
+        this.window = new Window(400, 320, "Configure Search Deflector");
+        this.window.win.setMinSize(300, 320);
 
         this.createWidgets();
         this.loadDefaults();
         this.showDefaults();
-        this.bindListeners();
+        this.bindConfigPageListeners();
     }
 
     bool shouldUpdate() {
@@ -83,7 +92,24 @@ struct ConfigApp {
     }
 
     void createWidgets() {
-        auto layout = new VerticalLayout(window);
+        auto layout = new VerticalLayout(this.window);
+
+        this.tabs = new TabWidget(layout);
+        this.tabs.setMargins(0, 0, 0, 0);
+
+        this.page0 = this.tabs.addPage("Settings");
+        this.page0.setPadding(4, 4, 4, 4);
+        this.page1 = this.tabs.addPage("Update");
+        this.page1.setPadding(4, 4, 4, 4);
+
+        createConfigPageWidgets();
+
+        TextLabel label = new TextLabel("Version: " ~ PROJECT_VERSION ~ ", Author: " ~ PROJECT_AUTHOR, layout);
+        label.setMargins(4, 8, 2, 8);
+    }
+
+    void createConfigPageWidgets() {
+        auto layout = new VerticalLayout(this.page0);
 
         TextLabel label;
 
@@ -119,10 +145,6 @@ struct ConfigApp {
         vSpacer4.setMaxHeight(2);
 
         this.wikiButton = new Button("Open Website", layout);
-        auto vSpacer5 = new VerticalSpacer(layout);
-        vSpacer5.setMaxHeight(8);
-
-        label = new TextLabel("Version: " ~ PROJECT_VERSION ~ ", Author: " ~ PROJECT_AUTHOR, layout);
     }
 
     void loadDefaults() {
@@ -168,7 +190,7 @@ struct ConfigApp {
         this.engineUrl.content = engines.get(this.engineSelect.currentText, this.settings.engineURL);
     }
 
-    void bindListeners() {
+    void bindConfigPageListeners() {
         this.browserPathButton.addEventListener(EventType.triggered, {
             getOpenFileName(&this.browserPath.content, this.browserPath.content, null);
 
