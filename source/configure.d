@@ -6,9 +6,12 @@ import std.algorithm: endsWith, canFind, countUntil;
 import std.socket: SocketException, getAddress;
 import std.file: exists, isFile, tempDir;
 import std.string: indexOf, strip;
-import std.json: JSONValue;
+
+import std.json: JSONValue, JSONType;
+import std.format: format;
 import std.stdio: writeln;
 import std.utf: toUTF16z;
+import std.conv: to;
 
 import arsd.minigui;
 
@@ -64,34 +67,48 @@ struct ConfigApp {
     // All widgets for Update tab
     TabWidgetPage page1;
 
+    TextLabel versionLabel, uploaderLabel, timestampLabel, binarySizeLabel, downloadCountLabel;
+
     Button updateButton;
 
     JSONValue releaseJson;
     JSONValue releaseAsset;
 
     void createWindow() {
+        debug writeln("ConfigApp.createWindow()");
+
         this.window = new Window(400, 320, "Configure Search Deflector");
         this.window.win.setMinSize(300, 320);
 
         this.createWidgets();
+        this.fetchReleaseInfo();
         this.loadDefaults();
         this.showDefaults();
         this.bindConfigPageListeners();
+        this.bindUpdatePageListeners();
     }
 
     bool shouldUpdate() {
+        debug writeln("ConfigApp.shouldUpdate()");
+
         return compareVersions(this.releaseJson["tag_name"].str, PROJECT_VERSION);
     }
 
     string getInstallerPath() {
+        debug writeln("ConfigApp.getInstallerPath()");
+
         return buildNormalizedPath(tempDir(), SETUP_FILENAME);
     }
 
     void loopWindow() {
+        debug writeln("ConfigApp.loopWindow()");
+
         this.window.loop();
     }
 
     void createWidgets() {
+        debug writeln("ConfigApp.createWidgets()");
+
         auto layout = new VerticalLayout(this.window);
 
         this.tabs = new TabWidget(layout);
@@ -103,12 +120,15 @@ struct ConfigApp {
         this.page1.setPadding(4, 4, 4, 4);
 
         createConfigPageWidgets();
+        createUpdatePageWidgets();
 
         TextLabel label = new TextLabel("Version: " ~ PROJECT_VERSION ~ ", Author: " ~ PROJECT_AUTHOR, layout);
         label.setMargins(4, 8, 2, 8);
     }
 
     void createConfigPageWidgets() {
+        debug writeln("ConfigApp.createConfigPageWidgets()");
+
         auto layout = new VerticalLayout(this.page0);
 
         TextLabel label;
@@ -147,7 +167,43 @@ struct ConfigApp {
         this.wikiButton = new Button("Open Website", layout);
     }
 
+    void createUpdatePageWidgets() {
+        debug writeln("ConfigApp.createUpdatePageWidgets()");
+
+        auto layout = new VerticalLayout(this.page1);
+        auto hLayout = new HorizontalLayout(layout);
+        auto vLayout0 = new VerticalLayout(hLayout);
+        auto vLayout1 = new VerticalLayout(hLayout);
+
+        TextLabel label;
+        VerticalSpacer spacer;
+
+        label = new TextLabel("Current Version:", vLayout0);
+        label = new TextLabel(PROJECT_VERSION, vLayout1);
+
+        spacer = new VerticalSpacer(vLayout0);
+        spacer.setMaxHeight(Window.lineHeight);
+        spacer = new VerticalSpacer(vLayout1);
+        spacer.setMaxHeight(Window.lineHeight);
+
+        label = new TextLabel("Version:", vLayout0);
+        label = new TextLabel("Uploader:", vLayout0);
+        label = new TextLabel("Timestamp:", vLayout0);
+        label = new TextLabel("Binary Size:", vLayout0);
+        label = new TextLabel("Download Count:", vLayout0);
+
+        this.versionLabel = new TextLabel("", vLayout1);
+        this.uploaderLabel = new TextLabel("", vLayout1);
+        this.timestampLabel = new TextLabel("", vLayout1);
+        this.binarySizeLabel = new TextLabel("", vLayout1);
+        this.downloadCountLabel = new TextLabel("", vLayout1);
+
+        this.updateButton = new Button("Install Update", layout);
+    }
+
     void loadDefaults() {
+        debug writeln("ConfigApp.loadDefaults()");
+
         this.settings = readSettings();
         this.browsers = getAvailableBrowsers(false);
         this.engines = parseConfig(ENGINE_TEMPLATES);
@@ -159,6 +215,9 @@ struct ConfigApp {
     }
 
     void showDefaults() {
+        debug writeln("ConfigApp.showDefaults()");
+
+        // Config Page
         this.browserSelect.addOption("Custom");
         this.browserSelect.addOption("System Default");
         this.engineSelect.addOption("Custom");
@@ -188,9 +247,21 @@ struct ConfigApp {
 
         this.browserPath.content = this.browsers.get(this.browserSelect.currentText, "");
         this.engineUrl.content = engines.get(this.engineSelect.currentText, this.settings.engineURL);
+
+        // Update Page
+        if (!this.shouldUpdate)
+            this.updateButton.setEnabled(false);
+
+        this.versionLabel.label = releaseJson["tag_name"].str;
+        this.uploaderLabel.label = releaseAsset["uploader"]["login"].str;
+        this.timestampLabel.label = releaseAsset["updated_at"].str;
+        this.binarySizeLabel.label= format("%.2f MB", releaseAsset["size"].integer / 1_048_576f);
+        this.downloadCountLabel.label = releaseAsset["download_count"].integer.to!string();
     }
 
     void bindConfigPageListeners() {
+        debug writeln("ConfigApp.bindConfigPageListeners()");
+
         this.browserPathButton.addEventListener(EventType.triggered, {
             getOpenFileName(&this.browserPath.content, this.browserPath.content, null);
 
@@ -284,12 +355,26 @@ struct ConfigApp {
         });
     }
 
+    void bindUpdatePageListeners() {
+        debug writeln("ConfigApp.bindUpdatePageListeners()");
+
+        this.updateButton.addEventListener(EventType.triggered, {
+            this.updateButton.setEnabled(false);
+
+            this.installUpdate(false);
+        });
+    }
+
     void fetchReleaseInfo() {
+        debug writeln("ConfigApp.fetchReleaseInfo()");
+
         this.releaseJson = getLatestRelease(PROJECT_AUTHOR, PROJECT_NAME);
         this.releaseAsset = getReleaseAsset(releaseJson, SETUP_FILENAME);
     }
 
     void installUpdate(const bool silent) {
+        debug writeln("ConfigApp.installUpdate()");
+
         startInstallUpdate(this.releaseAsset["browser_download_url"].str, this.getInstallerPath(), silent);
     }
 }
