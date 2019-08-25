@@ -21,7 +21,7 @@ Replace this sentence with clear and concise description of what the bug is, inc
 
 ## How to Reproduce
 
-Replace the following browsers and delete this line.
+Replace the following placeholders with correct information and delete this line.
 
 **Browser**: System Default
 
