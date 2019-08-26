@@ -73,6 +73,7 @@ struct ConfigApp {
     TextLabel versionLabel, uploaderLabel, timestampLabel, binarySizeLabel, downloadCountLabel;
 
     Button updateButton;
+    Button detailsButton;
 
     JSONValue releaseJson;
     JSONValue releaseAsset;
@@ -218,7 +219,16 @@ struct ConfigApp {
         this.binarySizeLabel = new TextLabel("", vLayout1);
         this.downloadCountLabel = new TextLabel("", vLayout1);
 
-        this.updateButton = new Button("Install Update", layout);
+        auto hLayout0 = new HorizontalLayout(layout);
+        HorizontalSpacer hSpacer;
+
+        this.updateButton = new Button("Update", hLayout0);
+        
+        hSpacer = new HorizontalSpacer(hLayout0);
+        hSpacer.setMaxWidth(4);
+        hSpacer.setMaxHeight(1);
+
+        this.detailsButton = new Button("Details", hLayout0);
     }
 
     void loadDefaults() {
@@ -386,6 +396,10 @@ struct ConfigApp {
             this.updateButton.setEnabled(false);
 
             this.installUpdate(false);
+        });
+
+        this.detailsButton.addEventListener(EventType.triggered, {
+            openUri(this.settings.browserPath, this.releaseJson["html_url"].str);
         });
     }
 
