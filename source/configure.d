@@ -186,7 +186,7 @@ struct ConfigApp {
         spacer = new VerticalSpacer(vLayout1);
         spacer.setMaxHeight(Window.lineHeight);
 
-        label = new TextLabel("Version:", vLayout0);
+        label = new TextLabel("Latest Version:", vLayout0);
         label = new TextLabel("Uploader:", vLayout0);
         label = new TextLabel("Timestamp:", vLayout0);
         label = new TextLabel("Binary Size:", vLayout0);
