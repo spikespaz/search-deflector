@@ -80,8 +80,8 @@ struct ConfigApp {
     void createWindow() {
         debug writeln("ConfigApp.createWindow()");
 
-        this.window = new Window(400, 320, "Configure Search Deflector");
-        this.window.win.setMinSize(300, 320);
+        this.window = new Window(400, 290, "Configure Search Deflector");
+        this.window.win.setMinSize(300, 290);
 
         this.createWidgets();
         this.fetchReleaseInfo();
