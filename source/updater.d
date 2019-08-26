@@ -1,32 +1,30 @@
 module updater;
 
-import common: createErrorDialog, SETUP_FILENAME, PROJECT_AUTHOR, PROJECT_NAME, PROJECT_VERSION;
-
-import std.json: JSONValue, JSONType, parseJSON;
-import std.path: buildNormalizedPath, dirName;
 import std.process: Config, spawnShell;
-import std.file: tempDir, thisExePath;
-import std.algorithm: sort, canFind;
+import std.json: JSONValue, parseJSON;
 import std.net.curl: get, download;
 import std.string: split, replace;
 import std.range: zip, popFront;
-import std.format: format;
+import std.file: thisExePath;
+import std.algorithm: sort;
 import std.stdio: writeln;
+import std.path: dirName;
 import std.conv: to;
 
 import core.stdc.stdlib: exit;
-
-import arsd.minigui;
 
 void startInstallUpdate(const string downloadUrl, const string installerFile, const bool silent = false) {
     // Download the installer to the temporary path created above.
     download(downloadUrl, installerFile);
 
+    auto launchArgs = `"{{installerFile}}" {{otherArgs}} /components="main, updater" /dir="{{installPath}}"`
+        .formatString(["installerFile" : installerFile,
+                "installPath" : thisExePath().dirName(), "otherArgs" : silent ? "/verysilent" : ""]);
+    
+    debug writeln(launchArgs);
+
     // This executable should already be running as admin so no verb should be necessary.
-    spawnShell(`"{{installerFile}}" {{otherArgs}} /components="main, updater" /dir="{{installPath}}"`.formatString(
-            ["installerFile" : installerFile,
-            "installPath" : thisExePath().dirName(), "otherArgs" : silent ? "/verysilent" : ""]), null,
-            Config.detached | Config.suppressConsole);
+    spawnShell(launchArgs, null, Config.detached | Config.suppressConsole);
 
     exit(0);
 }
