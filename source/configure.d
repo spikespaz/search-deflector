@@ -13,6 +13,8 @@ import std.stdio: writeln;
 import std.utf: toUTF16z;
 import std.conv: to;
 
+import core.stdc.stdlib: exit;
+
 import arsd.minigui;
 
 import common: mergeAAs, openUri, parseConfig, createErrorDialog,
@@ -63,6 +65,7 @@ struct ConfigApp {
     Button browserPathButton;
     Button applyButton;
     Button wikiButton;
+    Button closeButton;
 
     // All widgets for Update tab
     TabWidgetPage page1;
@@ -136,11 +139,12 @@ struct ConfigApp {
         auto layout = new VerticalLayout(this.page0);
 
         TextLabel label;
+        VerticalSpacer vSpacer;
 
         label = new TextLabel("Preferred Browser", layout);
         this.browserSelect = new DropDownSelection(layout);
-        auto vSpacer0 = new VerticalSpacer(layout);
-        vSpacer0.setMaxHeight(8);
+        vSpacer = new VerticalSpacer(layout);
+        vSpacer.setMaxHeight(8);
 
         label = new TextLabel("Browser Executable", layout);
         auto hLayout0 = new HorizontalLayout(layout);
@@ -150,25 +154,35 @@ struct ConfigApp {
         this.browserPathButton.setMaxWidth(30);
         this.browserPathButton.hide();
 
-        auto vSpacer1 = new VerticalSpacer(layout);
-        vSpacer1.setMaxHeight(8);
+        vSpacer = new VerticalSpacer(layout);
+        vSpacer.setMaxHeight(8);
 
         label = new TextLabel("Preferred Search Engine", layout);
         this.engineSelect = new DropDownSelection(layout);
-        auto vSpacer2 = new VerticalSpacer(layout);
-        vSpacer2.setMaxHeight(8);
+        vSpacer = new VerticalSpacer(layout);
+        vSpacer.setMaxHeight(8);
 
         label = new TextLabel("Custom Search Engine URL", layout);
         this.engineUrl = new LineEdit(layout);
         this.engineUrl.setEnabled(false);
-        auto vSpacer3 = new VerticalSpacer(layout);
+        vSpacer = new VerticalSpacer(layout);
 
-        this.applyButton = new Button("Apply Settings", layout);
+        auto hLayout1 = new HorizontalLayout(layout);
+
+        HorizontalSpacer hSpacer;
+
+        this.applyButton = new Button("Apply", hLayout1);
         this.applyButton.setEnabled(false);
-        auto vSpacer4 = new VerticalSpacer(layout);
-        vSpacer4.setMaxHeight(2);
 
-        this.wikiButton = new Button("Open Website", layout);
+        hSpacer = new HorizontalSpacer(hLayout1);
+        hSpacer.setMaxWidth(4);
+
+        this.wikiButton = new Button("Website",hLayout1);
+        
+        hSpacer = new HorizontalSpacer(hLayout1);
+        hSpacer.setMaxWidth(4);
+
+        this.closeButton = new Button("Close", hLayout1);
     }
 
     void createUpdatePageWidgets() {
@@ -356,6 +370,10 @@ struct ConfigApp {
 
         this.wikiButton.addEventListener(EventType.triggered, {
             openUri(this.settings.browserPath, WIKI_URL);
+        });
+
+        this.closeButton.addEventListener(EventType.triggered, {
+            exit(0);
         });
     }
 
