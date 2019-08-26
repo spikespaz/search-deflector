@@ -4,7 +4,7 @@ import std.windows.registry: Registry, Key, RegistryException;
 import std.path: isValidFilename, buildNormalizedPath;
 import std.algorithm: endsWith, canFind, countUntil;
 import std.socket: SocketException, getAddress;
-import std.file: exists, isFile, tempDir;
+import std.file: exists, isFile, tempDir, thisExePath, timeLastModified;
 import std.string: indexOf, strip;
 
 import std.json: JSONValue;
@@ -200,7 +200,10 @@ struct ConfigApp {
         VerticalSpacer spacer;
 
         label = new TextLabel("Current Version:", vLayout0);
+        label = new TextLabel("Build Date:", vLayout0);
+        
         label = new TextLabel(PROJECT_VERSION, vLayout1);
+        label = new TextLabel(timeLastModified(thisExePath()).toISOExtString(), vLayout1);
 
         spacer = new VerticalSpacer(vLayout0);
         spacer.setMaxHeight(Window.lineHeight);
