@@ -1,10 +1,10 @@
 module configure;
 
+import std.file: exists, isFile, tempDir, thisExePath, timeLastModified;
 import std.windows.registry: Registry, Key, RegistryException;
 import std.path: isValidFilename, buildNormalizedPath;
 import std.algorithm: endsWith, canFind, countUntil;
 import std.socket: SocketException, getAddress;
-import std.file: exists, isFile, tempDir, thisExePath, timeLastModified;
 import std.string: indexOf, strip;
 
 import std.json: JSONValue;
@@ -17,10 +17,9 @@ import core.stdc.stdlib: exit;
 
 import arsd.minigui;
 
-import common: mergeAAs, openUri, parseConfig, createErrorDialog,
-    createWarningDialog, readSettings, writeSettings,
-    getConsoleArgs, DeflectorSettings, PROJECT_NAME, PROJECT_VERSION, PROJECT_AUTHOR, SETUP_FILENAME,
-    ENGINE_TEMPLATES, WIKI_URL;
+import common: mergeAAs, openUri, parseConfig, createErrorDialog, createWarningDialog, readSettings,
+    writeSettings, getConsoleArgs,
+    DeflectorSettings, PROJECT_NAME, PROJECT_VERSION, PROJECT_AUTHOR, SETUP_FILENAME, ENGINE_TEMPLATES, WIKI_URL;
 import updater: compareVersions, startInstallUpdate, compareVersions, getReleaseAsset, getLatestRelease;
 
 void main(string[] args) {
@@ -31,7 +30,7 @@ void main(string[] args) {
 
         if (forceUpdate) {
             app.fetchReleaseInfo();
-            
+
             if (app.shouldUpdate())
                 app.installUpdate(true);
         } else {
@@ -179,7 +178,7 @@ struct ConfigApp {
         hSpacer.setMaxWidth(4);
         hSpacer.setMaxHeight(1);
 
-        this.wikiButton = new Button("Website",hLayout1);
+        this.wikiButton = new Button("Website", hLayout1);
 
         hSpacer = new HorizontalSpacer(hLayout1);
         hSpacer.setMaxWidth(4);
@@ -201,9 +200,14 @@ struct ConfigApp {
 
         label = new TextLabel("Current Version:", vLayout0);
         label = new TextLabel("Build Date:", vLayout0);
-        
+
+        auto time = thisExePath.timeLastModified.toLocalTime();
+        auto hour = time.hour > 12 ? time.hour - 12 : time.hour;
+        auto amPm = time.hour > 12 ? "PM" : "AM";
+
         label = new TextLabel(PROJECT_VERSION, vLayout1);
-        label = new TextLabel(timeLastModified(thisExePath()).toISOExtString(), vLayout1);
+        label = new TextLabel("%02d/%02d/%0004d %02d:%02d %s".format(time.month, time.day, time.year, hour,
+                time.minute, amPm), vLayout1);
 
         spacer = new VerticalSpacer(vLayout0);
         spacer.setMaxHeight(Window.lineHeight);
@@ -226,7 +230,7 @@ struct ConfigApp {
         HorizontalSpacer hSpacer;
 
         this.updateButton = new Button("Update", hLayout0);
-        
+
         hSpacer = new HorizontalSpacer(hLayout0);
         hSpacer.setMaxWidth(4);
         hSpacer.setMaxHeight(1);
@@ -288,7 +292,7 @@ struct ConfigApp {
         this.versionLabel.label = releaseJson["tag_name"].str;
         this.uploaderLabel.label = releaseAsset["uploader"]["login"].str;
         this.timestampLabel.label = releaseAsset["updated_at"].str;
-        this.binarySizeLabel.label= format("%.2f MB", releaseAsset["size"].integer / 1_048_576f);
+        this.binarySizeLabel.label = format("%.2f MB", releaseAsset["size"].integer / 1_048_576f);
         this.downloadCountLabel.label = releaseAsset["download_count"].integer.to!string();
     }
 
@@ -355,13 +359,11 @@ struct ConfigApp {
         this.applyButton.addEventListener(EventType.triggered, {
             debug writeln("Valid Browser: ", validateExecutablePath(this.settings.browserPath));
 
-            if (this.browserSelect.currentText != "System Default" &&
-                !validateExecutablePath(this.settings.browserPath)) {
+            if (this.browserSelect.currentText != "System Default" && !validateExecutablePath(this.settings.browserPath)) {
                 debug writeln(this.settings.browserPath);
 
-                createWarningDialog(
-                    "Custom browser path is invalid.\nCheck the wiki for more information.",
-                    this.window.hwnd);
+                createWarningDialog("Custom browser path is invalid.\nCheck the wiki for more information.", this.window
+                    .hwnd);
 
                 return;
             }
@@ -369,8 +371,7 @@ struct ConfigApp {
             if (!validateEngineUrl(this.settings.engineURL)) {
                 debug writeln(this.settings.engineURL);
 
-                createWarningDialog(
-                    "Custom search engine URL is invalid.\nCheck the wiki for more information.",
+                createWarningDialog("Custom search engine URL is invalid.\nCheck the wiki for more information.",
                     this.window.hwnd);
 
                 return;
@@ -383,13 +384,9 @@ struct ConfigApp {
             debug writeln(this.settings);
         });
 
-        this.wikiButton.addEventListener(EventType.triggered, {
-            openUri(this.settings.browserPath, WIKI_URL);
-        });
+        this.wikiButton.addEventListener(EventType.triggered, { openUri(this.settings.browserPath, WIKI_URL); });
 
-        this.closeButton.addEventListener(EventType.triggered, {
-            exit(0);
-        });
+        this.closeButton.addEventListener(EventType.triggered, { exit(0); });
     }
 
     void bindUpdatePageListeners() {
