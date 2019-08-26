@@ -18,98 +18,15 @@ import core.stdc.stdlib: exit;
 
 import arsd.minigui;
 
-void main(string[] args) {
-    const bool silent = args.canFind("--silent") || args.canFind("-s");
-
-    try {
-        const JSONValue releaseJson = getLatestRelease(PROJECT_AUTHOR, PROJECT_NAME);
-        const JSONValue releaseAsset = getReleaseAsset(releaseJson, SETUP_FILENAME);
-        const string installerFile = buildNormalizedPath(tempDir(), SETUP_FILENAME);
-        const bool shouldUpdate = compareVersions(releaseJson["tag_name"].str, PROJECT_VERSION);
-
-        debug writeln("Update Version: " ~ releaseJson["tag_name"].str);
-        debug writeln("Current Version: " ~ PROJECT_VERSION);
-        debug writeln("Should Update: ", shouldUpdate);
-        
-        if (silent && shouldUpdate)
-            startInstallUpdate(releaseAsset["browser_download_url"].str, installerFile, true);
-        else if (silent)
-            return;
-        else
-            loopWindow(releaseJson, releaseAsset, installerFile, shouldUpdate);
-    } catch (Exception error) {
-        createErrorDialog(error);
-
-        debug writeln(error);
-    }
-}
-
-void loopWindow(const JSONValue releaseJson, const JSONValue releaseAsset, const string installerFile, const bool shouldUpdate) {
-    auto window = new Window(300, 190, "Search Deflector Updater");
-    auto layout = new VerticalLayout(window);
-    auto hLayout = new HorizontalLayout(layout);
-    auto vLayout0 = new VerticalLayout(hLayout);
-    auto vLayout1 = new VerticalLayout(hLayout);
-
-    window.setPadding(8, 8, 8, 8);
-    window.win.setMinSize(300, 190);
-
-    TextLabel label;
-    VerticalSpacer spacer;
-
-    if (shouldUpdate) {
-        label = new TextLabel("Current Version:", vLayout0);
-        label = new TextLabel(PROJECT_VERSION, vLayout1);
-    } else {
-        label = new TextLabel("No update available.", vLayout0);
-        
-        spacer = new VerticalSpacer(vLayout1);
-        spacer.setMaxHeight(Window.lineHeight);
-    }
-
-    spacer = new VerticalSpacer(vLayout0);
-    spacer.setMaxHeight(Window.lineHeight);
-    spacer = new VerticalSpacer(vLayout1);
-    spacer.setMaxHeight(Window.lineHeight);
-    
-    label = new TextLabel("Version:", vLayout0);
-    label = new TextLabel("Uploader:", vLayout0);
-    label = new TextLabel("Timestamp:", vLayout0);
-    label = new TextLabel("Binary Size:", vLayout0);
-    label = new TextLabel("Download Count:", vLayout0);
-    
-    label = new TextLabel(releaseJson["tag_name"].str, vLayout1);
-    label = new TextLabel(releaseAsset["uploader"]["login"].str, vLayout1);
-    label = new TextLabel(releaseAsset["updated_at"].str, vLayout1);
-    label = new TextLabel(format("%.2f MB", releaseAsset["size"].integer / 1048576f), vLayout1);
-    label = new TextLabel(releaseAsset["download_count"].integer.to!string(), vLayout1);
-
-    auto updateButton = new Button("Install Update", layout);
-
-    if (!shouldUpdate)
-        updateButton.setEnabled(false);
-
-    updateButton.addEventListener(EventType.triggered, {
-        updateButton.setEnabled(false);
-        
-        startInstallUpdate(releaseAsset["browser_download_url"].str, installerFile, false);
-    });
-
-    window.loop();
-}
-
 void startInstallUpdate(const string downloadUrl, const string installerFile, const bool silent = false) {
     // Download the installer to the temporary path created above.
     download(downloadUrl, installerFile);
 
     // This executable should already be running as admin so no verb should be necessary.
-    spawnShell(
-        `"{{installerFile}}" {{otherArgs}} /components="main, updater" /dir="{{installPath}}"`
-        .formatString([
-            "installerFile": installerFile,
-            "installPath": thisExePath().dirName(),
-            "otherArgs": silent ? "/verysilent" : ""
-        ]), null, Config.detached);
+    spawnShell(`"{{installerFile}}" {{otherArgs}} /components="main, updater" /dir="{{installPath}}"`.formatString(
+            ["installerFile" : installerFile,
+            "installPath" : thisExePath().dirName(), "otherArgs" : silent ? "/verysilent" : ""]), null,
+            Config.detached | Config.suppressConsole);
 
     exit(0);
 }
@@ -125,8 +42,7 @@ JSONValue getReleaseAsset(const JSONValue release, const string filename) {
 
 /// Return the latest release according to semantic versioning.
 JSONValue getLatestRelease(const string author, const string repository) {
-    const string apiReleases = "https://api.github.com/repos/" ~ author ~ "/" ~
-        repository ~ "/releases";
+    const string apiReleases = "https://api.github.com/repos/" ~ author ~ "/" ~ repository ~ "/releases";
 
     JSONValue releasesJson = get(apiReleases).parseJSON();
 
