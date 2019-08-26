@@ -28,7 +28,7 @@ ARGUMENTS = {
     "build": {
         "flags": ("-b", "--build"),
         "action": "append",
-        "choices": ("configure", "updater", "deflector", "installer", "package"),
+        "choices": ("configure", "deflector", "installer", "package"),
         "default": [],
         "help": "parts of the program to build",
     },
@@ -152,7 +152,7 @@ if __name__ == "__main__":
 
     if ARGS.mode == "classic" and not ARGS.clean:
         build_set = set(ARGS.build)
-        build_set.update(("configure", "updater", "deflector", "installer"))
+        build_set.update(("configure", "deflector", "installer"))
         ARGS.build = tuple(build_set)
 
         ARGS.clean = True
@@ -181,18 +181,6 @@ if __name__ == "__main__":
         compile_file(SOURCE_PATH + "/configure.d", SETUP_BIN, ARGS.debug)
 
         add_icon(SETUP_BIN)
-
-    if "updater" in ARGS.build:
-        create_directory(BIN_PATH)
-        create_directory(VARS_PATH)
-
-        UPDATER_BIN = BIN_PATH + "/updater.exe"
-        log_print("Building updater binary: " + UPDATER_BIN)
-
-        copy_files(ARGS.version)
-        compile_file(SOURCE_PATH + "/updater.d", UPDATER_BIN, ARGS.debug)
-
-        add_icon(UPDATER_BIN)
 
     if "deflector" in ARGS.build:
         create_directory(BIN_PATH)

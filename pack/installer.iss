@@ -74,28 +74,16 @@ Source: "build\vars\license.txt"; \
 Source: "build\bin\libcurl.dll"; \
     DestDir: "{app}"; \
     Components: updater
-Source: "build\bin\updater.exe"; \
-    DestDir: "{app}"; \
-    Components: updater
 Source: "pack\updatetask.xml"; \
     DestDir: "{tmp}"; \
     Components: updater
 
 [Icons]
 
-Name: "{group}\Configure"; \
+Name: "{commonprograms}\Search Deflector"; \
     Filename: "{app}\configure.exe"; \
-    Flags: excludefromshowinnewinstall preventpinning; \
+    Flags: preventpinning; \
     Components: main
-Name: "{group}\Visit Website"; \
-    Filename: "https://spikespaz.com/search-deflector"; \
-    Components: main
-
-
-Name: "{group}\Force Update"; \
-    Filename: "{app}\updater.exe"; \
-    Flags: excludefromshowinnewinstall preventpinning; \
-    Components: updater
 
 [Run]
 
@@ -108,7 +96,7 @@ Filename: "schtasks"; \
     Flags: runhidden; \
     Components: updater
 Filename: "schtasks"; \
-    Parameters: "/CHANGE /TN ""Search Deflector Updater"" /TR ""{app}\updater.exe -s"""; \
+    Parameters: "/CHANGE /TN ""Search Deflector Updater"" /TR ""{app}\configure.exe -u"""; \
     Flags: runhidden; \
     Components: updater
 
