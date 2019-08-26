@@ -176,11 +176,13 @@ struct ConfigApp {
 
         hSpacer = new HorizontalSpacer(hLayout1);
         hSpacer.setMaxWidth(4);
+        hSpacer.setMaxHeight(1);
 
         this.wikiButton = new Button("Website",hLayout1);
-        
+
         hSpacer = new HorizontalSpacer(hLayout1);
         hSpacer.setMaxWidth(4);
+        hSpacer.setMaxHeight(1);
 
         this.closeButton = new Button("Close", hLayout1);
     }
