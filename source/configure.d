@@ -6,7 +6,7 @@ import std.path: isValidFilename, buildNormalizedPath;
 import std.algorithm: endsWith, canFind, countUntil;
 import std.socket: SocketException, getAddress;
 import std.string: indexOf, strip;
-
+import std.datetime: SysTime;
 import std.json: JSONValue;
 import std.format: format;
 import std.stdio: writeln;
@@ -201,13 +201,8 @@ struct ConfigApp {
         label = new TextLabel("Current Version:", vLayout0);
         label = new TextLabel("Build Date:", vLayout0);
 
-        auto time = thisExePath.timeLastModified.toLocalTime();
-        auto hour = time.hour > 12 ? time.hour - 12 : time.hour;
-        auto amPm = time.hour > 12 ? "PM" : "AM";
-
         label = new TextLabel(PROJECT_VERSION, vLayout1);
-        label = new TextLabel("%02d/%02d/%0004d %02d:%02d %s".format(time.month, time.day, time.year, hour,
-                time.minute, amPm), vLayout1);
+        label = new TextLabel(thisExePath.timeLastModified.toLocalTime.toReadableTimestamp(), vLayout1);
 
         spacer = new VerticalSpacer(vLayout0);
         spacer.setMaxHeight(Window.lineHeight);
@@ -291,7 +286,7 @@ struct ConfigApp {
 
         this.versionLabel.label = releaseJson["tag_name"].str;
         this.uploaderLabel.label = releaseAsset["uploader"]["login"].str;
-        this.timestampLabel.label = releaseAsset["updated_at"].str;
+        this.timestampLabel.label = SysTime.fromISOExtString(releaseAsset["updated_at"].str).toReadableTimestamp();
         this.binarySizeLabel.label = format("%.2f MB", releaseAsset["size"].integer / 1_048_576f);
         this.downloadCountLabel.label = releaseAsset["download_count"].integer.to!string();
     }
@@ -471,4 +466,9 @@ bool validateEngineUrl(const string url) {
         return true;
     } catch (SocketException)
         return false;
+}
+
+string toReadableTimestamp(T)(T time) {
+    return "%02d-%02d-%0004d  %02d:%02d %s".format(time.month, time.day, time.year, (time.hour > 12 ?
+            time.hour - 12 : time.hour), time.minute, (time.hour > 12 ? "PM" : "AM"));
 }
