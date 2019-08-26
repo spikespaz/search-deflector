@@ -7,7 +7,7 @@ import std.socket: SocketException, getAddress;
 import std.file: exists, isFile, tempDir;
 import std.string: indexOf, strip;
 
-import std.json: JSONValue, JSONType;
+import std.json: JSONValue;
 import std.format: format;
 import std.stdio: writeln;
 import std.utf: toUTF16z;
@@ -86,6 +86,10 @@ struct ConfigApp {
         this.showDefaults();
         this.bindConfigPageListeners();
         this.bindUpdatePageListeners();
+
+        // Little hack to mitigate issue #51
+        this.tabs.setCurrentTab(1);
+        this.tabs.setCurrentTab(0);
     }
 
     bool shouldUpdate() {
