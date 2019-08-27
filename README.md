@@ -63,7 +63,7 @@ Get it at the Microsoft Store [here](https://www.microsoft.com/store/productId/9
 
 # Special thanks
 
-Thank you to [@da2x](https://github.com/da2x) and [@sylveon](https://github.com/sylveon) for the inspiration, their source code helped greatly as a reference during development of Search Deflector.
+Thank you to [@da2x](https://github.com/da2x) and [@sylveon](https://github.com/sylveon) for the inspiration, their source code helped greatly as a reference during development of Search Deflector, and [@adamdruppe](https://github.com/adamdruppe) for one-on-one help over IRC and his library, `minigui`, which makes this program's GUI possible.
 
 Additionally, thanks to all of the people below for reporting the first issues and providing useful information. These are the early-adopters, the first people to find and report the bugs, or suggest improvements.
 
