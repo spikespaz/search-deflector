@@ -93,6 +93,9 @@ struct ConfigApp {
         // Little hack to mitigate issue #51
         this.tabs.setCurrentTab(1);
         this.tabs.setCurrentTab(0);
+
+        // And this for good measure
+        this.browserPathButton.hide();
     }
 
     bool shouldUpdate() {
