@@ -77,6 +77,8 @@ struct ConfigApp {
     JSONValue releaseJson;
     JSONValue releaseAsset;
 
+    bool browserPathButtonHidden = true;
+
     void createWindow() {
         debug writeln("ConfigApp.createWindow()");
 
@@ -90,12 +92,27 @@ struct ConfigApp {
         this.bindConfigPageListeners();
         this.bindUpdatePageListeners();
 
+        // And a fix for the "..." button mysteriously appearing after switching tabs
+        this.tabs.addDirectEventListener(EventType.click, (Event event) {
+            auto t = (event.clientX / 80); // 80 = tab width
+            if (!(event.clientY < Window.lineHeight && t >= 0 && t < this.tabs.children.length))
+                return;
+            
+            debug writeln("Tabs changed");
+
+            if (this.browserPathButtonHidden)
+                this.browserPathButton.hide();
+            else
+                this.browserPathButton.show();
+        });
+
         // Little hack to mitigate issue #51
         this.tabs.setCurrentTab(1);
         this.tabs.setCurrentTab(0);
 
         // And this for good measure
         this.browserPathButton.hide();
+        this.browserPathButtonHidden = true;
     }
 
     bool shouldUpdate() {
@@ -156,6 +173,7 @@ struct ConfigApp {
         this.browserPathButton = new Button("...", hLayout0);
         this.browserPathButton.setMaxWidth(30);
         this.browserPathButton.hide();
+        this.browserPathButtonHidden = true;
 
         vSpacer = new VerticalSpacer(layout);
         vSpacer.setMaxHeight(8);
@@ -311,11 +329,13 @@ struct ConfigApp {
             if (this.browserSelect.currentText == "Custom") {
                 this.browserPath.setEnabled(true);
                 this.browserPathButton.show();
+                this.browserPathButtonHidden = true;
 
                 browserPath.content = "";
             } else {
                 this.browserPath.setEnabled(false);
                 this.browserPathButton.hide();
+                this.browserPathButtonHidden = true;
 
                 this.browserPath.content = this.browsers.get(this.browserSelect.currentText, "");
             }
