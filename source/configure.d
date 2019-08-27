@@ -6,6 +6,7 @@ import std.path: isValidFilename, buildNormalizedPath;
 import std.algorithm: endsWith, canFind, countUntil;
 import std.socket: SocketException, getAddress;
 import std.string: indexOf, strip;
+import std.traits: isPointer;
 import std.datetime: SysTime;
 import std.json: JSONValue;
 import std.format: format;
@@ -86,9 +87,8 @@ struct ConfigApp {
         this.window.win.setMinSize(300, 290);
 
         this.createWidgets();
-        this.fetchReleaseInfo();
         this.loadDefaults();
-        this.showDefaults();
+        this.showConfigPageDefaults();
         this.bindConfigPageListeners();
         this.bindUpdatePageListeners();
 
@@ -104,6 +104,13 @@ struct ConfigApp {
                 this.browserPathButton.hide();
             else
                 this.browserPathButton.show();
+
+            debug writeln(releaseJson);
+
+            if (releaseJson.isNull) {
+                this.fetchReleaseInfo();
+                this.showUpdatePageDefaults();
+            }
         });
 
         // Little hack to mitigate issue #51
@@ -267,10 +274,9 @@ struct ConfigApp {
         }
     }
 
-    void showDefaults() {
-        debug writeln("ConfigApp.showDefaults()");
+    void showConfigPageDefaults() {
+        debug writeln("ConfigApp.showConfigPageDefaults()");
 
-        // Config Page
         this.browserSelect.addOption("Custom");
         this.browserSelect.addOption("System Default");
         this.engineSelect.addOption("Custom");
@@ -300,8 +306,11 @@ struct ConfigApp {
 
         this.browserPath.content = this.browsers.get(this.browserSelect.currentText, "");
         this.engineUrl.content = engines.get(this.engineSelect.currentText, this.settings.engineURL);
+    }
 
-        // Update Page
+    void showUpdatePageDefaults() {
+        debug writeln("ConfigApp.showUpdatePageDefaults()");
+
         if (!this.shouldUpdate)
             this.updateButton.setEnabled(false);
 
@@ -494,4 +503,8 @@ bool validateEngineUrl(const string url) {
 string toReadableTimestamp(T)(T time) {
     return "%02d-%02d-%0004d  %02d:%02d %s".format(time.month, time.day, time.year, (time.hour > 12 ?
             time.hour - 12 : time.hour), time.minute, (time.hour > 12 ? "PM" : "AM"));
+}
+
+bool isNull(T)(T value) if (is(T == class) || isPointer!T) {
+	return value is null;
 }
