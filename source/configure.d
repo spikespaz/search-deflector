@@ -29,7 +29,7 @@ void main(string[] args) {
     try {
         auto app = ConfigApp();
 
-        version(updater_module)
+        version(update_module)
         if (forceUpdate) {
             app.fetchReleaseInfo();
 
@@ -54,11 +54,6 @@ struct ConfigApp {
     DeflectorSettings settings;
     Window window;
 
-    TabWidget tabs;
-
-    // All widgets for Settings tab
-    TabWidgetPage page0;
-
     DropDownSelection browserSelect;
     DropDownSelection engineSelect;
 
@@ -70,16 +65,26 @@ struct ConfigApp {
     Button wikiButton;
     Button closeButton;
 
-    // All widgets for Update tab
-    TabWidgetPage page1;
+    version(update_module) {
+        TabWidget tabs;
 
-    TextLabel versionLabel, uploaderLabel, timestampLabel, binarySizeLabel, downloadCountLabel;
+        // All widgets for Settings tab
+        TabWidgetPage page0;
 
-    Button updateButton;
-    Button detailsButton;
+        // All widgets for Update tab
+        TabWidgetPage page1;
 
-    JSONValue releaseJson;
-    JSONValue releaseAsset;
+        TextLabel versionLabel, uploaderLabel, timestampLabel, binarySizeLabel, downloadCountLabel;
+
+        Button updateButton;
+        Button detailsButton;
+
+        JSONValue releaseJson;
+        JSONValue releaseAsset;
+    } else {
+        VerticalLayout tabs;
+        VerticalLayout page0;
+    }
 
     bool browserPathButtonHidden = true;
 
@@ -94,7 +99,7 @@ struct ConfigApp {
         this.showConfigPageDefaults();
         this.bindConfigPageListeners();
 
-        version(updater_module) {
+        version(update_module) {
             this.bindUpdatePageListeners();
 
             // And a fix for the "..." button mysteriously appearing after switching tabs
@@ -128,6 +133,7 @@ struct ConfigApp {
         this.browserPathButtonHidden = true;
     }
 
+    version(update_module)
     bool shouldUpdate() {
         debug writeln("ConfigApp.shouldUpdate()");
 
@@ -151,17 +157,24 @@ struct ConfigApp {
 
         auto layout = new VerticalLayout(this.window);
 
-        this.tabs = new TabWidget(layout);
-        this.tabs.setMargins(0, 0, 0, 0);
+        version(update_module) {
+            this.tabs = new TabWidget(layout);
+            this.tabs.setMargins(0, 0, 0, 0);
 
-        this.page0 = this.tabs.addPage("Settings");
-        this.page0.setPadding(4, 4, 4, 4);
-        this.page1 = this.tabs.addPage("Update");
-        this.page1.setPadding(4, 4, 4, 4);
+            this.page0 = this.tabs.addPage("Settings");
+            this.page0.setPadding(4, 4, 4, 4);
+
+            this.page1 = this.tabs.addPage("Update");
+            this.page1.setPadding(4, 4, 4, 4);
+        } else {
+            this.tabs = layout;
+            this.page0 = layout;
+            this.page0.setPadding(4, 8, 0, 8);
+        }
 
         createConfigPageWidgets();
 
-        version(updater_module)
+        version(update_module)
         createUpdatePageWidgets();
 
         TextLabel label = new TextLabel("Version: " ~ PROJECT_VERSION ~ ", Author: " ~ PROJECT_AUTHOR, layout);
@@ -223,7 +236,7 @@ struct ConfigApp {
         this.closeButton = new Button("Close", hLayout1);
     }
 
-    version(updater_module)
+    version(update_module)
     void createUpdatePageWidgets() {
         debug writeln("ConfigApp.createUpdatePageWidgets()");
 
@@ -317,7 +330,7 @@ struct ConfigApp {
         this.engineUrl.content = engines.get(this.engineSelect.currentText, this.settings.engineURL);
     }
 
-    version(updater_module)
+    version(update_module)
     void showUpdatePageDefaults() {
         debug writeln("ConfigApp.showUpdatePageDefaults()");
 
@@ -426,7 +439,7 @@ struct ConfigApp {
         this.closeButton.addEventListener(EventType.triggered, { exit(0); });
     }
 
-    version(updater_module)
+    version(update_module)
     void bindUpdatePageListeners() {
         debug writeln("ConfigApp.bindUpdatePageListeners()");
 
@@ -441,7 +454,7 @@ struct ConfigApp {
         });
     }
 
-    version(updater_module)
+    version(update_module)
     void fetchReleaseInfo() {
         debug writeln("ConfigApp.fetchReleaseInfo()");
 
@@ -449,7 +462,7 @@ struct ConfigApp {
         this.releaseAsset = getReleaseAsset(releaseJson, SETUP_FILENAME);
     }
 
-    version(updater_module)
+    version(update_module)
     void installUpdate(const bool silent) {
         debug writeln("ConfigApp.installUpdate()");
 
