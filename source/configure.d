@@ -276,6 +276,7 @@ struct ConfigApp {
         HorizontalSpacer hSpacer;
 
         this.updateButton = new Button("Update", hLayout0);
+        this.updateButton.setEnabled(false);
 
         hSpacer = new HorizontalSpacer(hLayout0);
         hSpacer.setMaxWidth(4);
@@ -335,8 +336,8 @@ struct ConfigApp {
     void showUpdatePageDefaults() {
         debug writeln("ConfigApp.showUpdatePageDefaults()");
 
-        if (!this.shouldUpdate)
-            this.updateButton.setEnabled(false);
+        if (this.shouldUpdate)
+            this.updateButton.setEnabled(true);
 
         this.versionLabel.label = releaseJson["tag_name"].str;
         this.uploaderLabel.label = releaseAsset["uploader"]["login"].str;
