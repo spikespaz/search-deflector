@@ -90,7 +90,7 @@ def delete_directory(directory):
         rmtree(directory, ignore_errors=True)
 
 
-def compile_file(source, binary, debug=True, console=False):
+def compile_file(source, binary, debug=True, console=False, args=None):
     log_print("Compiling binary: " + binary)
 
     command = ["ldc2", source, "-i", "-I", dirname(source), "-J", VARS_PATH, "-of", binary, "-m32"]
@@ -102,6 +102,9 @@ def compile_file(source, binary, debug=True, console=False):
 
         if not console:
             command.extend(["-L/subsystem:windows", "-L/entry:mainCRTStartup"])
+
+    if args:
+        command.extend(args)
 
     log_print(">", *command)
     call(command)
@@ -178,7 +181,12 @@ if __name__ == "__main__":
         log_print("Building configure binary: " + SETUP_BIN)
 
         copy_files(ARGS.version)
-        compile_file(SOURCE_PATH + "/configure.d", SETUP_BIN, ARGS.debug)
+        compile_file(
+            SOURCE_PATH + "/configure.d",
+            SETUP_BIN,
+            ARGS.debug,
+            args=None if "package" in ARGS.build else ["-d-version", "update_module"],
+        )
 
         add_icon(SETUP_BIN)
 
