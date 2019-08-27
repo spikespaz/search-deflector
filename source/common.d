@@ -9,9 +9,10 @@ import std.uri: encodeComponent;
 import std.algorithm: canFind;
 import std.process: browse;
 import std.format: format;
-import std.stdio: writeln;
 import std.utf: toUTF16z;
 import std.conv: to;
+
+debug import std.stdio: writeln;
 
 /// File name of the executable to download and run to install an update.
 enum string SETUP_FILENAME = "SearchDeflector-Installer.exe";

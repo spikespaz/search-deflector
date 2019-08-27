@@ -10,7 +10,6 @@ import std.traits: isPointer;
 import std.datetime: SysTime;
 import std.json: JSONValue;
 import std.format: format;
-import std.stdio: writeln;
 import std.utf: toUTF16z;
 import std.conv: to;
 
@@ -22,6 +21,8 @@ import common: mergeAAs, openUri, parseConfig, createErrorDialog, createWarningD
     writeSettings, getConsoleArgs,
     DeflectorSettings, PROJECT_NAME, PROJECT_VERSION, PROJECT_AUTHOR, SETUP_FILENAME, ENGINE_TEMPLATES, WIKI_URL;
 import updater: compareVersions, startInstallUpdate, compareVersions, getReleaseAsset, getLatestRelease;
+
+debug import std.stdio: writeln;
 
 void main(string[] args) {
     const bool forceUpdate = args.canFind("--update") || args.canFind("-u");

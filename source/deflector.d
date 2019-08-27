@@ -8,6 +8,8 @@ import std.regex: matchFirst;
 import std.array: split;
 import std.conv: to;
 
+debug import std.stdio: writeln;
+
 void main(string[] args) {
     if (args.length > 1) {
         try {
@@ -21,10 +23,11 @@ void main(string[] args) {
                 openUri(settings.browserPath, WIKI_THANKS_URL);
 
             writeSettings(settings);
-        } catch (Exception error)
+        } catch (Exception error) {
             createErrorDialog(error);
 
-        debug writeln(error);
+            debug writeln(error);
+        }
     } else {
         createErrorDialog(new Exception(
                 "Expected one URI argument, recieved: \n" ~ args.to!string()));

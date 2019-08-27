@@ -13,6 +13,8 @@ import std.conv: to;
 
 import core.stdc.stdlib: exit;
 
+debug import std.stdio: writeln;
+
 void startInstallUpdate(const string downloadUrl, const string installerFile, const bool silent = false) {
     // Download the installer to the temporary path created above.
     download(downloadUrl, installerFile);
