@@ -117,6 +117,27 @@ struct DeflectorSettings {
     }
 }
 
+struct WindowsVersion {
+    string release, build, edition;
+
+    static WindowsVersion get() {
+        try {
+            Key currentVersion = Registry.localMachine.getKey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", REGSAM.KEY_READ);
+
+            // dfmt off
+            return WindowsVersion(
+                currentVersion.getValue("ReleaseId").value_SZ,
+                currentVersion.getValue("CurrentBuildNumber").value_SZ,
+                currentVersion.getValue("EditionID").value_SZ,
+            );
+            // dfmt on
+        } catch (RegistryException error) {
+            debug writeln(error.message);
+            return WindowsVersion("unknown", "unknown", "unknown");
+        }
+    }
+}
+
 /// Get a config in the pattern of "^(?<key>[^:]+)\s*:\s*(?<value>.+)$" from a string.
 string[string] parseConfig(const string config) {
     string[string] data;
