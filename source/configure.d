@@ -1,10 +1,10 @@
 module configure;
 
 import std.file: exists, isFile, tempDir, thisExePath, timeLastModified;
-import std.windows.registry: Registry, Key, RegistryException;
-import std.path: isValidFilename, buildNormalizedPath;
 import std.algorithm: endsWith, canFind, countUntil;
 import std.socket: SocketException, getAddress;
+import std.windows.registry: RegistryException;
+import std.path: buildNormalizedPath;
 import std.string: indexOf, strip;
 import std.traits: isPointer;
 import std.datetime: SysTime;
@@ -17,7 +17,7 @@ import core.stdc.stdlib: exit;
 
 import arsd.minigui;
 
-import common: mergeAAs, openUri, parseConfig, createErrorDialog, createWarningDialog, getConsoleArgs,
+import common: mergeAAs, openUri, parseConfig, createErrorDialog, createWarningDialog, getConsoleArgs, getAvailableBrowsers,
     DeflectorSettings, PROJECT_NAME, PROJECT_VERSION, PROJECT_AUTHOR, SETUP_FILENAME, ENGINE_TEMPLATES, WIKI_URL;
 import updater: compareVersions, startInstallUpdate, compareVersions, getReleaseAsset, getLatestRelease;
 
@@ -469,40 +469,6 @@ struct ConfigApp {
 
         startInstallUpdate(this.releaseAsset["browser_download_url"].str, this.getInstallerPath(), silent);
     }
-}
-
-/// Fetch a list of available browsers from the Windows registry along with their paths.
-/// Use the names as the keys in an associative array containing the browser executable paths.
-string[string] getAvailableBrowsers(const bool currentUser = false) {
-    string[string] availableBrowsers;
-    Key startMenuInternetKey;
-
-    if (currentUser)
-        startMenuInternetKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\StartMenuInternet");
-    else
-        startMenuInternetKey = Registry.localMachine.getKey("SOFTWARE\\Clients\\StartMenuInternet");
-
-    foreach (key; startMenuInternetKey.keys) {
-        string browserName;
-
-        try
-            browserName = key.getValue("").value_SZ;
-        catch (RegistryException)
-            continue;
-
-        string browserPath = key.getKey("shell\\open\\command").getValue("").value_SZ;
-
-        if (!isValidFilename(browserPath) && !exists(browserPath)) {
-            browserPath = getConsoleArgs(browserPath.toUTF16z())[0];
-
-            if (!isValidFilename(browserPath) && !exists(browserPath))
-                continue;
-        }
-
-        availableBrowsers[browserName] = browserPath;
-    }
-
-    return availableBrowsers;
 }
 
 bool validateExecutablePath(const string path) {

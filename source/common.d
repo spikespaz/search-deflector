@@ -5,11 +5,13 @@ import core.sys.windows.windows: CommandLineToArgvW, GetCommandLineW,
 import std.windows.registry: Registry, RegistryException, Key, REGSAM;
 import std.process: browse, spawnProcess, Config, ProcessException;
 import std.string: strip, splitLines, indexOf, stripLeft, replace;
+import std.path: isValidFilename;
 import std.uri: encodeComponent;
 import std.algorithm: canFind;
 import std.process: browse;
 import std.format: format;
 import std.utf: toUTF16z;
+import std.file: exists;
 import std.conv: to;
 
 debug import std.stdio: writeln;
@@ -208,4 +210,38 @@ S formatString(S)(const S input, const S[S] replacements) {
         output = output.replace("{{" ~ variable.key ~ "}}", variable.value);
 
     return output;
+}
+
+/// Fetch a list of available browsers from the Windows registry along with their paths.
+/// Use the names as the keys in an associative array containing the browser executable paths.
+string[string] getAvailableBrowsers(const bool currentUser = false) {
+    string[string] availableBrowsers;
+    Key startMenuInternetKey;
+
+    if (currentUser)
+        startMenuInternetKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\StartMenuInternet");
+    else
+        startMenuInternetKey = Registry.localMachine.getKey("SOFTWARE\\Clients\\StartMenuInternet");
+
+    foreach (key; startMenuInternetKey.keys) {
+        string browserName;
+
+        try
+            browserName = key.getValue("").value_SZ;
+        catch (RegistryException)
+            continue;
+
+        string browserPath = key.getKey("shell\\open\\command").getValue("").value_SZ;
+
+        if (!isValidFilename(browserPath) && !exists(browserPath)) {
+            browserPath = getConsoleArgs(browserPath.toUTF16z())[0];
+
+            if (!isValidFilename(browserPath) && !exists(browserPath))
+                continue;
+        }
+
+        availableBrowsers[browserName] = browserPath;
+    }
+
+    return availableBrowsers;
 }
