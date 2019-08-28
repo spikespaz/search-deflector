@@ -73,9 +73,8 @@ def assemble_args(parser, arguments):
 
 
 def copy_file(from_file, to_file):
-    if not exists(to_file):
-        log_print("Copying file: " + to_file)
-        copyfile(from_file, to_file)
+    log_print("Copying file: " + to_file)
+    copyfile(from_file, to_file)
 
 
 def create_directory(directory):
