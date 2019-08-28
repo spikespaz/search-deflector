@@ -83,38 +83,38 @@ struct DeflectorSettings {
     string browserPath; /// ditto
     uint searchCount; /// Counter for how many times the user has made a search query.
     bool freeVersion; /// Flag to determine if this is the classic version from GitHub.
-}
 
-/// Read the settings from the registry.
-DeflectorSettings readSettings() {
-    try {
-        Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector",
-                REGSAM.KEY_READ);
+    static DeflectorSettings get() {
+        try {
+            Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector",
+                    REGSAM.KEY_READ);
 
-        // dfmt off
-        return DeflectorSettings(
-            deflectorKey.getValue("EngineURL").value_SZ,
-            deflectorKey.getValue("BrowserPath").value_SZ,
-            deflectorKey.getValue("SearchCount").value_DWORD,
-            deflectorKey.getValue("FreeVersion").value_DWORD.to!bool(),
-        );
-        // dfmt on
-    } catch (RegistryException)
-        return DeflectorSettings("google.com/search?q={{query}}", "system_default", 0, false);
-}
+            // dfmt off
+            return DeflectorSettings(
+                deflectorKey.getValue("EngineURL").value_SZ,
+                deflectorKey.getValue("BrowserPath").value_SZ,
+                deflectorKey.getValue("SearchCount").value_DWORD,
+                deflectorKey.getValue("FreeVersion").value_DWORD.to!bool(),
+            );
+            // dfmt on
+        } catch (RegistryException error) {
+            debug writeln(error.message);
+            return DeflectorSettings("google.com/search?q={{query}}", "system_default", 0, false);
+        }
+    }
 
-/// Write settings to registry.
-void writeSettings(const DeflectorSettings settings) {
-    Key deflectorKey = Registry.currentUser.createKey(
+    void dump() {
+        Key deflectorKey = Registry.currentUser.createKey(
             "SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
 
-    // Write necessary changes.
-    deflectorKey.setValue("EngineURL", settings.engineURL);
-    deflectorKey.setValue("BrowserPath", settings.browserPath);
-    deflectorKey.setValue("SearchCount", settings.searchCount);
-    deflectorKey.setValue("FreeVersion", settings.freeVersion.to!uint());
+        // Write necessary changes.
+        deflectorKey.setValue("EngineURL", this.engineURL);
+        deflectorKey.setValue("BrowserPath", this.browserPath);
+        deflectorKey.setValue("SearchCount", this.searchCount);
+        deflectorKey.setValue("FreeVersion", this.freeVersion.to!uint());
 
-    deflectorKey.flush();
+        deflectorKey.flush();
+    }
 }
 
 /// Get a config in the pattern of "^(?<key>[^:]+)\s*:\s*(?<value>.+)$" from a string.

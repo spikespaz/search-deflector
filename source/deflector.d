@@ -1,7 +1,6 @@
 module deflector;
 
-import common: getConsoleArgs, openUri, createErrorDialog, readSettings,
-    writeSettings, DeflectorSettings, WIKI_THANKS_URL;
+import common: getConsoleArgs, openUri, createErrorDialog, DeflectorSettings, WIKI_THANKS_URL;
 import std.string: replace, indexOf, toLower, startsWith;
 import std.uri: decodeComponent, encodeComponent;
 import std.regex: matchFirst;
@@ -13,7 +12,7 @@ debug import std.stdio: writeln;
 void main(string[] args) {
     if (args.length > 1) {
         try {
-            DeflectorSettings settings = readSettings();
+            auto settings = DeflectorSettings.get();
 
             openUri(settings.browserPath, rewriteUri(args[1], settings.engineURL));
 
@@ -22,7 +21,7 @@ void main(string[] args) {
             if (settings.freeVersion && settings.searchCount == 10)
                 openUri(settings.browserPath, WIKI_THANKS_URL);
 
-            writeSettings(settings);
+            settings.dump()
         } catch (Exception error) {
             createErrorDialog(error);
 

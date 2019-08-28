@@ -17,8 +17,7 @@ import core.stdc.stdlib: exit;
 
 import arsd.minigui;
 
-import common: mergeAAs, openUri, parseConfig, createErrorDialog, createWarningDialog, readSettings,
-    writeSettings, getConsoleArgs,
+import common: mergeAAs, openUri, parseConfig, createErrorDialog, createWarningDialog, getConsoleArgs,
     DeflectorSettings, PROJECT_NAME, PROJECT_VERSION, PROJECT_AUTHOR, SETUP_FILENAME, ENGINE_TEMPLATES, WIKI_URL;
 import updater: compareVersions, startInstallUpdate, compareVersions, getReleaseAsset, getLatestRelease;
 
@@ -288,7 +287,7 @@ struct ConfigApp {
     void loadDefaults() {
         debug writeln("ConfigApp.loadDefaults()");
 
-        this.settings = readSettings();
+        this.settings = DeflectorSettings.get();
         this.browsers = getAvailableBrowsers(false);
         this.engines = parseConfig(ENGINE_TEMPLATES);
 
@@ -429,7 +428,7 @@ struct ConfigApp {
                 return;
             }
 
-            writeSettings(this.settings);
+            this.settings.dump();
 
             this.applyButton.setEnabled(false);
 
