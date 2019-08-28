@@ -62,7 +62,24 @@ void createWarningDialog(const string message, HWND hWnd = null) nothrow {
 
 /// Creates a GitHub issue body with the data from an Exception.
 string createIssueMessage(const Throwable error) {
-    return ISSUE_TEMPLATE.strip().format(error.file, error.line, error.msg, error.info);
+    auto winVer = WindowsVersion.get();
+    auto settings = DeflectorSettings.get();
+
+    return ISSUE_TEMPLATE.strip().formatString([
+        "errorFile": error.file,
+        "errorLine": error.line.to!string(),
+        "errorMessage": error.message,
+        "browserName": "",
+        "browserPath": settings.browserPath,
+        "engineName": "",
+        "engineUrl": settings.engineURL,
+        "queryString": "",
+        "queryUrl": "",
+        "windowsRelease": winVer.release,
+        "windowsBuild": winVer.build,
+        "windowsEdition": winVer.edition,
+        "insidersPreview": ""
+    ]).to!string();
 }
 
 /// Return a string array of arguments that are parsed in ArgV style from a string.
