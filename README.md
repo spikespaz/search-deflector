@@ -65,17 +65,18 @@ Get it at the Microsoft Store [here](https://www.microsoft.com/store/productId/9
 
 Thank you to [@da2x](https://github.com/da2x) and [@sylveon](https://github.com/sylveon) for the inspiration, their source code helped greatly as a reference during development of Search Deflector, and [@adamdruppe](https://github.com/adamdruppe) for one-on-one help over IRC and his library, `minigui`, which makes this program's GUI possible.
 
-Additionally, thanks to all of the people below for reporting the first issues and providing useful information. These are the early-adopters, the first people to find and report the bugs, or suggest improvements.
+Additionally, thanks to all of following early-adopters who reported the first issues and helped in the early days:
 
- - [@elliottedward327](https://github.com/elliottedward327)
- - [@maxloh](https://github.com/maxloh)
- - [@Thomas-QM](https://github.com/Thomas-QM)
- - [@loganran](https://github.com/loganran)
- - [@loginnotsecure](https://github.com/loginnotsecure)
- - [@shalvah](https://github.com/shalvah)
- - [@TruckMangione](https://github.com/TruckMangione)
- - [@lordvlad](https://github.com/lordvlad)
- - [@tango409](https://github.com/tango409)
- - [@Freyam](https://github.com/Freyam)
- - [@MulverineX](https://github.com/MulverineX)
- - [@fernandex00](https://github.com/fernandex00)
+[@elliottedward327](https://github.com/elliottedward327),
+[@maxloh](https://github.com/maxloh),
+[@Thomas-QM](https://github.com/Thomas-QM),
+[@loganran](https://github.com/loganran),
+[@loginnotsecure](https://github.com/loginnotsecure),
+[@shalvah](https://github.com/shalvah),
+[@TruckMangione](https://github.com/TruckMangione),
+[@lordvlad](https://github.com/lordvlad),
+[@tango409](https://github.com/tango409),
+[@Freyam](https://github.com/Freyam),
+[@MulverineX](https://github.com/MulverineX),
+[@fernandex00](https://github.com/fernandex00),
+and others.
