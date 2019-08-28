@@ -3,15 +3,17 @@ module updater;
 import std.process: Config, spawnShell;
 import std.json: JSONValue, parseJSON;
 import std.net.curl: get, download;
-import std.string: split, replace;
 import std.range: zip, popFront;
 import std.file: thisExePath;
 import std.algorithm: sort;
 import std.stdio: writeln;
+import std.string: split;
 import std.path: dirName;
 import std.conv: to;
 
 import core.stdc.stdlib: exit;
+
+import common: formatString;
 
 debug import std.stdio: writeln;
 
@@ -49,16 +51,6 @@ JSONValue getLatestRelease(const string author, const string repository) {
     releasesJson.array.sort!((a, b) => compareVersions(a["tag_name"].str, b["tag_name"].str))();
 
     return releasesJson.array[0];
-}
-
-/// Format a string by replacing each key with a value in replacements.
-string formatString(const string input, const string[string] replacements) {
-    string output = input;
-
-    foreach (variable; replacements.byKeyValue())
-        output = output.replace("{{" ~ variable.key ~ "}}", variable.value);
-
-    return output;
 }
 
 /// Compare two semantic versions, returning true if the first version is newer, false otherwise.

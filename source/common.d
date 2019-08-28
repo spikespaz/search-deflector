@@ -4,7 +4,7 @@ import core.sys.windows.windows: CommandLineToArgvW, GetCommandLineW,
     MessageBox, MB_ICONERROR, MB_ICONWARNING, MB_YESNO, IDYES, MB_OK, HWND;
 import std.windows.registry: Registry, RegistryException, Key, REGSAM;
 import std.process: browse, spawnProcess, Config, ProcessException;
-import std.string: strip, splitLines, indexOf, stripLeft;
+import std.string: strip, splitLines, indexOf, stripLeft, replace;
 import std.uri: encodeComponent;
 import std.algorithm: canFind;
 import std.process: browse;
@@ -181,4 +181,14 @@ void openUri(const string browserPath, const string url) {
             if (messageId == IDYES)
                 createErrorDialog(error);
         }
+}
+
+/// Format a string by replacing each key with a value in replacements.
+S formatString(S)(const S input, const S[S] replacements) {
+    S output = input;
+
+    foreach (variable; replacements.byKeyValue())
+        output = output.replace("{{" ~ variable.key ~ "}}", variable.value);
+
+    return output;
 }
