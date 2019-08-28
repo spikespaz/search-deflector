@@ -25,7 +25,7 @@ enum string PROJECT_VERSION = import("version.txt");
 /// String of search engine templates.
 enum string ENGINE_TEMPLATES = import("engines.txt");
 /// String of the GitHub issue template.
-enum string ISSUE_TEMPLATE = import("issue.txt");
+enum string ISSUE_TEMPLATE = import("issue.md");
 
 /// URL of the Search Deflector Wiki home page.
 enum string WIKI_URL = "https://github.com/spikespaz/search-deflector/wiki";

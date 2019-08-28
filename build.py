@@ -119,7 +119,7 @@ def copy_files(version):
     copy_file(LIBS_PATH + "/libcurl.dll", BIN_PATH + "/libcurl.dll")
 
     copy_file(LIBS_PATH + "/engines.txt", VARS_PATH + "/engines.txt")
-    copy_file(LIBS_PATH + "/issue.txt", VARS_PATH + "/issue.txt")
+    copy_file(LIBS_PATH + "/issue.md", VARS_PATH + "/issue.md")
 
     version_file = VARS_PATH + "/version.txt"
     log_print("Creating file: " + version_file)
