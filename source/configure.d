@@ -48,11 +48,8 @@ void main(string[] args) {
 }
 
 struct ConfigApp {
-    string[string] browsers;
-    string[string] engines;
-
-    DeflectorSettings settings;
     Window window;
+    SettingsSyncApi syncApi;
 
     DropDownSelection browserSelect;
     DropDownSelection engineSelect;
@@ -114,8 +111,6 @@ struct ConfigApp {
                     this.browserPathButton.hide();
                 else
                     this.browserPathButton.show();
-
-                debug writeln(releaseJson);
 
                 if (releaseJson.isNull) {
                     this.fetchReleaseInfo();
@@ -287,12 +282,12 @@ struct ConfigApp {
     void loadDefaults() {
         debug writeln("ConfigApp.loadDefaults()");
 
-        this.settings = DeflectorSettings.get();
-        this.browsers = getAvailableBrowsers(false);
-        this.engines = parseConfig(ENGINE_TEMPLATES);
+        this.syncApi = SettingsSyncApi(&this);
+        this.syncApi.browsers = getAvailableBrowsers(false);
+        this.syncApi.engines = parseConfig(ENGINE_TEMPLATES);
 
         try
-            this.browsers = mergeAAs(this.browsers, getAvailableBrowsers(true));
+            this.syncApi.browsers = mergeAAs(this.syncApi.browsers, getAvailableBrowsers(true));
         catch (RegistryException) {
         }
     }
@@ -304,20 +299,20 @@ struct ConfigApp {
         this.browserSelect.addOption("System Default");
         this.engineSelect.addOption("Custom");
 
-        int browserIndex = ["system_default", ""].canFind(settings.browserPath) ? 1 : -1;
-        int engineIndex = !this.browsers.values.canFind(settings.engineURL) ? 0 : -1;
+        int browserIndex = ["system_default", ""].canFind(this.syncApi.browserPath) ? 1 : -1;
+        int engineIndex = !this.syncApi.engines.values.canFind(this.syncApi.engineUrl) ? 0 : -1;
 
-        foreach (uint index, string browser; this.browsers.keys) {
+        foreach (uint index, string browser; this.syncApi.browsers.keys) {
             this.browserSelect.addOption(browser);
 
-            if (this.browsers[browser] == this.settings.browserPath)
+            if (this.syncApi.browsers[browser] == this.syncApi.browserPath)
                 browserIndex = index + 2;
         }
 
-        foreach (uint index, string engine; engines.keys) {
+        foreach (uint index, string engine; this.syncApi.engines.keys) {
             this.engineSelect.addOption(engine);
 
-            if (engines[engine] == this.settings.engineURL)
+            if (this.syncApi.engines[engine] == this.syncApi.engineUrl)
                 engineIndex = index + 1;
         }
 
@@ -327,8 +322,8 @@ struct ConfigApp {
         if (this.browserSelect.currentText == "Custom")
             this.engineUrl.setEnabled(true);
 
-        this.browserPath.content = this.browsers.get(this.browserSelect.currentText, "");
-        this.engineUrl.content = engines.get(this.engineSelect.currentText, this.settings.engineURL);
+        this.browserPath.content = this.syncApi.browsers.get(this.browserSelect.currentText, "");
+        this.engineUrl.content = this.syncApi.engines.get(this.engineSelect.currentText, this.syncApi.engineUrl);
     }
 
     version(update_module)
@@ -351,7 +346,7 @@ struct ConfigApp {
         this.browserPathButton.addEventListener(EventType.triggered, {
             getOpenFileName(&this.browserPath.content, this.browserPath.content, null);
 
-            this.settings.browserPath = this.browserPath.content.strip();
+            this.syncApi.browserPath = this.browserPath.content.strip();
             this.applyButton.setEnabled(true);
         });
 
@@ -370,15 +365,15 @@ struct ConfigApp {
                 this.browserPathButton.hide();
                 this.browserPathButtonHidden = true;
 
-                this.browserPath.content = this.browsers.get(this.browserSelect.currentText, "");
+                this.browserPath.content = this.syncApi.browsers.get(this.browserSelect.currentText, "");
             }
 
-            this.settings.browserPath = this.browserPath.content;
+            this.syncApi.browserPath = this.browserPath.content;
             this.applyButton.setEnabled(true);
         });
 
         this.browserPath.addEventListener(EventType.keyup, {
-            this.settings.engineURL = this.engineUrl.content.strip();
+            this.syncApi.engineUrl = this.engineUrl.content.strip();
             this.applyButton.setEnabled(true);
         });
 
@@ -393,25 +388,25 @@ struct ConfigApp {
             } else {
                 this.engineUrl.setEnabled(false);
 
-                this.engineUrl.content = engines[this.engineSelect.currentText];
+                this.engineUrl.content = this.syncApi.engines[this.engineSelect.currentText];
             }
 
-            this.settings.engineURL = this.engineUrl.content;
+            this.syncApi.engineUrl = this.engineUrl.content;
             this.applyButton.setEnabled(true);
 
             debug writeln(this.engineUrl.content);
         });
 
         this.engineUrl.addEventListener(EventType.keyup, {
-            this.settings.engineURL = this.engineUrl.content.strip();
+            this.syncApi.engineUrl = this.engineUrl.content.strip();
             this.applyButton.setEnabled(true);
         });
 
         this.applyButton.addEventListener(EventType.triggered, {
-            debug writeln("Valid Browser: ", validateExecutablePath(this.settings.browserPath));
+            debug writeln("Valid Browser: ", validateExecutablePath(this.syncApi.browserPath));
 
-            if (this.browserSelect.currentText != "System Default" && !validateExecutablePath(this.settings.browserPath)) {
-                debug writeln(this.settings.browserPath);
+            if (this.browserSelect.currentText != "System Default" && !validateExecutablePath(this.syncApi.browserPath)) {
+                debug writeln(this.syncApi.browserPath);
 
                 createWarningDialog("Custom browser path is invalid.\nCheck the wiki for more information.", this.window
                     .hwnd);
@@ -419,8 +414,8 @@ struct ConfigApp {
                 return;
             }
 
-            if (!validateEngineUrl(this.settings.engineURL)) {
-                debug writeln(this.settings.engineURL);
+            if (!validateEngineUrl(this.syncApi.engineUrl)) {
+                debug writeln(this.syncApi.engineURL);
 
                 createWarningDialog("Custom search engine URL is invalid.\nCheck the wiki for more information.",
                     this.window.hwnd);
@@ -428,14 +423,14 @@ struct ConfigApp {
                 return;
             }
 
-            this.settings.dump();
+            this.syncApi.dump();
 
             this.applyButton.setEnabled(false);
 
-            debug writeln(this.settings);
+            debug writeln(this.syncApi);
         });
 
-        this.wikiButton.addEventListener(EventType.triggered, { openUri(this.settings.browserPath, WIKI_URL); });
+        this.wikiButton.addEventListener(EventType.triggered, { openUri(this.syncApi.browserPath, WIKI_URL); });
 
         this.closeButton.addEventListener(EventType.triggered, { exit(0); });
     }
@@ -451,7 +446,7 @@ struct ConfigApp {
         });
 
         this.detailsButton.addEventListener(EventType.triggered, {
-            openUri(this.settings.browserPath, this.releaseJson["html_url"].str);
+            openUri(this.syncApi.browserPath, this.releaseJson["html_url"].str);
         });
     }
 
@@ -468,6 +463,118 @@ struct ConfigApp {
         debug writeln("ConfigApp.installUpdate()");
 
         startInstallUpdate(this.releaseAsset["browser_download_url"].str, this.getInstallerPath(), silent);
+    }
+}
+
+struct SettingsSyncApi {
+    private ConfigApp* parent;
+    private DeflectorSettings settings;
+    private string[string] engines;
+    private string[string] browsers;
+
+    this(ConfigApp* parent) {
+        this.parent = parent;
+    }
+
+    void dump() {
+        this.settings.dump();
+    }
+
+    void browserPath(const string value) {
+        if (value == "" || validateExecutablePath(value)) {
+            this.settings.browserPath = value;
+            this.parent.browserPath.content = value;
+        }
+    }
+
+    void browserName(const string value) {
+        assert((["Custom", "System Default", ""] ~ this.browsers.keys).canFind(value),
+            "Browser name is an unexpected value: " ~ value);
+
+        switch (value) {
+            case "Custom":
+                goto case "";
+            case "System Default":
+                goto case "";
+            case "":
+                this.browserPath = "";
+                break;
+            default:
+                foreach(string name; this.browsers.keys)
+                    if (value == name) {
+                        this.browserPath = this.browsers[name];
+                        break;
+                    }
+        }
+
+        int browserIndex = ["system_default", ""].canFind(this.browserPath) ? 1 : -1;
+
+        foreach (uint index, string browser; this.browsers.keys)
+            if (this.browsers[browser] == this.browserPath)
+                browserIndex = index + 2;
+
+        this.parent.browserSelect.setSelection(browserIndex);
+    }
+
+    void engineUrl(const string value) {
+        if (validateEngineUrl(value)) {
+            this.settings.engineURL = value;
+            this.parent.engineUrl.content = value;
+        }
+    }
+
+    void engineName(const string value) {
+        assert((["Custom", ""] ~ this.engines.keys).canFind(value),
+            "Search engine name is an unexpected value: " ~ value);
+
+        switch (value) {
+            case "Custom":
+                goto case "";
+            case "":
+                this.engineUrl = "";
+                break;
+            default:
+                foreach(string name; this.engines.keys)
+                    if (value == name) {
+                        this.engineUrl = this.engines[name];
+                        break;
+                    }
+        }
+
+        int engineIndex = !this.engines.values.canFind(this.engineUrl) ? 0 : -1;
+
+        foreach (uint index, string engine; this.engines.keys)
+            if (this.engines[engine] == this.engineUrl)
+                engineIndex = index + 1;
+
+        this.parent.engineSelect.setSelection(engineIndex);
+    }
+
+    string browserPath() {
+        return this.settings.browserPath;
+    }
+
+    string browserName() {
+        if (this.browserPath == "")
+            return "System Default";
+
+        foreach (string item; this.browsers.keys)
+            if (this.browsers[item] == this.browserPath)
+                return item;
+        
+        return "Custom";
+    }
+
+    string engineUrl() {
+        return this.settings.engineURL;
+    }
+
+    string engineName() {
+        foreach (string item; this.engines.keys)
+            if (this.engines[item] == this.engineUrl)
+                return item;
+
+        return "Custom";
     }
 }
 
