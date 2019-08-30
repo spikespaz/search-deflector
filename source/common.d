@@ -245,3 +245,33 @@ string[string] getAvailableBrowsers(const bool currentUser = false) {
 
     return availableBrowsers;
 }
+
+string[string] getAllAvailableBrowsers() {
+    auto browsers = getAvailableBrowsers(false);
+
+    try
+        return mergeAAs(browsers, getAvailableBrowsers(true));
+    catch (RegistryException) {
+    }
+
+    return browsers;
+}
+
+string nameFromPath(const string[string] browsers, const string path) {
+    if (["", "system_default"].canFind(path))
+        return "System Default";
+
+    foreach (browser; browsers.byKeyValue)
+        if (browser.value == path)
+            return browser.key;
+
+    return "Custom";
+}
+
+string nameFromUrl(const string[string] engines, const string url) {
+    foreach (engine; engines.byKeyValue)
+        if (engine.value == url)
+            return engine.key;
+
+    return "Custom";
+}
