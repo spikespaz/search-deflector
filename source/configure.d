@@ -17,9 +17,8 @@ import core.stdc.stdlib: exit;
 
 import arsd.minigui;
 
-import common: mergeAAs, openUri, parseConfig, createErrorDialog, createWarningDialog, getConsoleArgs, getAvailableBrowsers,
-    DeflectorSettings, PROJECT_NAME, PROJECT_VERSION, PROJECT_AUTHOR, SETUP_FILENAME, ENGINE_TEMPLATES, WIKI_URL;
-import updater: compareVersions, startInstallUpdate, compareVersions, getReleaseAsset, getLatestRelease;
+import common;
+import updater;
 
 debug import std.stdio: writeln;
 
@@ -283,48 +282,24 @@ struct ConfigApp {
     void loadDefaults() {
         debug writeln("ConfigApp.loadDefaults()");
 
-        this.syncApi = SettingsSyncApi(&this);
-        this.syncApi.browsers = getAvailableBrowsers(false);
+        this.syncApi = SettingsSyncApi();
+        this.syncApi.parent = &this;
+        this.syncApi.settings = DeflectorSettings();
+        this.syncApi.browsers = getAllAvailableBrowsers();
         this.syncApi.engines = parseConfig(ENGINE_TEMPLATES);
 
-        try
-            this.syncApi.browsers = mergeAAs(this.syncApi.browsers, getAvailableBrowsers(true));
-        catch (RegistryException) {
-        }
+        foreach (browser; this.syncApi.browsers.byKey)
+            this.browserSelect.addOption(browser);
+
+        foreach (engine; this.syncApi.engines.byKey)
+            this.engineSelect.addOption(engine);    
     }
 
     void showConfigPageDefaults() {
         debug writeln("ConfigApp.showConfigPageDefaults()");
 
-        this.browserSelect.addOption("Custom");
-        this.browserSelect.addOption("System Default");
-        this.engineSelect.addOption("Custom");
-
-        int browserIndex = ["system_default", ""].canFind(this.syncApi.browserPath) ? 1 : -1;
-        int engineIndex = !this.syncApi.engines.values.canFind(this.syncApi.engineUrl) ? 0 : -1;
-
-        foreach (uint index, string browser; this.syncApi.browsers.keys) {
-            this.browserSelect.addOption(browser);
-
-            if (this.syncApi.browsers[browser] == this.syncApi.browserPath)
-                browserIndex = index + 2;
-        }
-
-        foreach (uint index, string engine; this.syncApi.engines.keys) {
-            this.engineSelect.addOption(engine);
-
-            if (this.syncApi.engines[engine] == this.syncApi.engineUrl)
-                engineIndex = index + 1;
-        }
-
-        this.browserSelect.setSelection(browserIndex);
-        this.engineSelect.setSelection(engineIndex);
-
-        if (this.browserSelect.currentText == "Custom")
-            this.engineUrl.setEnabled(true);
-
-        this.browserPath.content = this.syncApi.browsers.get(this.browserSelect.currentText, "");
-        this.engineUrl.content = this.syncApi.engines.get(this.engineSelect.currentText, this.syncApi.engineUrl);
+        this.syncApi.browserName = this.syncApi.browsers.nameFromPath(this.syncApi.settings.browserPath);
+        this.syncApi.engineName = this.syncApi.engines.nameFromUrl(this.syncApi.settings.engineURL);
     }
 
     version(update_module)
@@ -353,53 +328,27 @@ struct ConfigApp {
 
         this.browserSelect.addEventListener(EventType.change, {
             debug writeln(this.browserSelect.currentText);
-            debug writeln(this.browserPath.content);
-
-            if (this.browserSelect.currentText == "Custom") {
-                this.browserPath.setEnabled(true);
-                this.browserPathButton.show();
-                this.browserPathButtonHidden = true;
-
-                browserPath.content = "";
-            } else {
-                this.browserPath.setEnabled(false);
-                this.browserPathButton.hide();
-                this.browserPathButtonHidden = true;
-
-                this.browserPath.content = this.syncApi.browsers.get(this.browserSelect.currentText, "");
-            }
-
-            this.syncApi.browserPath = this.browserPath.content;
+            this.syncApi.browserName = this.browserSelect.currentText;
             this.applyButton.setEnabled(true);
         });
 
         this.browserPath.addEventListener(EventType.keyup, {
-            this.syncApi.engineUrl = this.engineUrl.content.strip();
+            string value = this.browserPath.content.strip(); // Santitize
+            debug writeln("Browser path changed: ", value);
+            this.syncApi.settings.browserPath = value;
             this.applyButton.setEnabled(true);
         });
 
         this.engineSelect.addEventListener(EventType.change, {
             debug writeln(this.engineSelect.currentText);
-            debug writeln(this.engineUrl.content);
-
-            if (this.engineSelect.currentText == "Custom") {
-                this.engineUrl.setEnabled(true);
-
-                this.engineUrl.content = "";
-            } else {
-                this.engineUrl.setEnabled(false);
-
-                this.engineUrl.content = this.syncApi.engines[this.engineSelect.currentText];
-            }
-
-            this.syncApi.engineUrl = this.engineUrl.content;
+            this.syncApi.engineName = this.engineSelect.currentText;
             this.applyButton.setEnabled(true);
-
-            debug writeln(this.engineUrl.content);
         });
 
         this.engineUrl.addEventListener(EventType.keyup, {
-            this.syncApi.engineUrl = this.engineUrl.content.strip();
+            string value = this.engineUrl.content.strip(); // Sanitize
+            debug writeln("Engine URL changed: ", value);
+            this.syncApi.settings.engineURL = value;
             this.applyButton.setEnabled(true);
         });
 
@@ -470,95 +419,114 @@ struct SettingsSyncApi {
     }
 
     void browserPath(const string value) {
+        debug writeln("SettingsSyncApi.browserPath(value)");
+
         if (value == "" || validateExecutablePath(value)) {
             this.settings.browserPath = value;
-            this.parent.browserPath.content = value;
+            
+            if (value != this.parent.browserPath.content)
+                this.parent.browserPath.content = value;
         }
     }
 
     void browserName(const string value) {
+        debug writeln("SettingsSyncApi.browserName(value)");
+
         assert((["Custom", "System Default", ""] ~ this.browsers.keys).canFind(value),
             "Browser name is an unexpected value: " ~ value);
 
+        int browserIndex = -1;
+
         switch (value) {
             case "Custom":
-                goto case "";
-            case "System Default":
-                goto case "";
+                this.parent.browserPath.setEnabled(true);
+                this.parent.browserPathButton.show();
+                this.browserPath = "";
+                break;
             case "":
+            case "System Default":
+                this.parent.browserPath.setEnabled(false);
+                this.parent.browserPathButton.hide();
                 this.browserPath = "";
                 break;
             default:
-                foreach(string name; this.browsers.keys)
-                    if (value == name) {
-                        this.browserPath = this.browsers[name];
+                this.parent.browserPath.setEnabled(false);
+                this.parent.browserPathButton.hide();
+
+                foreach (browser; this.browsers.byKeyValue)
+                    if (browser.key == value) {
+                        this.browserPath = browser.value;
                         break;
                     }
         }
 
-        int browserIndex = ["system_default", ""].canFind(this.browserPath) ? 1 : -1;
-
-        foreach (uint index, string browser; this.browsers.keys)
-            if (this.browsers[browser] == this.browserPath)
-                browserIndex = index + 2;
-
-        this.parent.browserSelect.setSelection(browserIndex);
+        if (this.parent.browserSelect.currentText != value)
+            this.parent.browserSelect.currentText = value;
     }
 
     void engineUrl(const string value) {
+        debug writeln("SettingsSyncApi.engineUrl(value)");
+        
         if (validateEngineUrl(value)) {
             this.settings.engineURL = value;
-            this.parent.engineUrl.content = value;
+
+            if (value != this.parent.engineUrl.content)
+                this.parent.engineUrl.content = value;
         }
     }
 
     void engineName(const string value) {
+        debug writeln("SettingsSyncApi.engineName(value)");
+
         assert((["Custom", ""] ~ this.engines.keys).canFind(value),
             "Search engine name is an unexpected value: " ~ value);
 
         switch (value) {
-            case "Custom":
-                goto case "";
             case "":
+            case "Custom":
+                this.parent.engineUrl.setEnabled(true);
                 this.engineUrl = "";
                 break;
             default:
-                foreach(string name; this.engines.keys)
-                    if (value == name) {
-                        this.engineUrl = this.engines[name];
+                this.parent.engineUrl.setEnabled(false);
+
+                foreach (engine; this.engines.byKeyValue)
+                    if (engine.key == value) {
+                        this.engineUrl = engine.value;
                         break;
                     }
         }
 
-        int engineIndex = !this.engines.values.canFind(this.engineUrl) ? 0 : -1;
-
-        foreach (uint index, string engine; this.engines.keys)
-            if (this.engines[engine] == this.engineUrl)
-                engineIndex = index + 1;
-
-        this.parent.engineSelect.setSelection(engineIndex);
+        if (this.parent.engineSelect.currentText != value)
+            this.parent.engineSelect.currentText = value;
     }
 
     string browserPath() {
+        debug writeln("SettingsSyncApi.browserPath()");
         return this.settings.browserPath;
     }
 
     string browserName() {
-        if (this.browserPath == "")
+        debug writeln("SettingsSyncApi.browserName()");
+
+        if (["", "system_default"].canFind(this.browserPath))
             return "System Default";
 
-        foreach (string item; this.browsers.keys)
-            if (this.browsers[item] == this.browserPath)
-                return item;
+        foreach (browser; this.browsers.byKeyValue)
+            if (browser.value == this.browserPath)
+                return browser.key;
         
         return "Custom";
     }
 
     string engineUrl() {
+        debug writeln("SettingsSyncApi.engineUrl()");
         return this.settings.engineURL;
     }
 
     string engineName() {
+        debug writeln("SettingsSyncApi.browserName()");
+
         foreach (string item; this.engines.keys)
             if (this.engines[item] == this.engineUrl)
                 return item;
