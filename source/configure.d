@@ -91,9 +91,6 @@ struct ConfigApp {
         this.window.win.setMinSize(300, 290);
 
         this.createWidgets();
-        this.createConfigPageWidgets();
-        version(update_module)
-        this.createUpdatePageWidgets();
         this.loadDefaults();
         this.showConfigPageDefaults();
         this.bindConfigPageListeners();
@@ -166,11 +163,18 @@ struct ConfigApp {
         } else {
             this.tabs = layout;
             this.page0 = layout;
-            this.page0.setPadding(4, 8, 0, 8);
+            this.page0.setPadding(8, 8, 0, 8);
         }
 
+        version(update_module)
+            this.createUpdatePageWidgets();
+        this.createConfigPageWidgets();
+
         TextLabel label = new TextLabel("Version: " ~ PROJECT_VERSION ~ ", Author: " ~ PROJECT_AUTHOR, layout);
-        label.setMargins(4, 8, 2, 8);
+        version(update_module)
+            label.setMargins(6, 8, 4, 8);
+        else
+            label.setMargins(6, 0, 4, 0);
     }
 
     void createConfigPageWidgets() {
