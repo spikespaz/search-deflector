@@ -92,6 +92,9 @@ struct ConfigApp {
         this.window.win.setMinSize(300, 290);
 
         this.createWidgets();
+        this.createConfigPageWidgets();
+        version(update_module)
+        this.createUpdatePageWidgets();
         this.loadDefaults();
         this.showConfigPageDefaults();
         this.bindConfigPageListeners();
@@ -167,11 +170,6 @@ struct ConfigApp {
             this.page0.setPadding(4, 8, 0, 8);
         }
 
-        createConfigPageWidgets();
-
-        version(update_module)
-        createUpdatePageWidgets();
-
         TextLabel label = new TextLabel("Version: " ~ PROJECT_VERSION ~ ", Author: " ~ PROJECT_AUTHOR, layout);
         label.setMargins(4, 8, 2, 8);
     }
@@ -186,6 +184,8 @@ struct ConfigApp {
 
         label = new TextLabel("Preferred Browser", layout);
         this.browserSelect = new DropDownSelection(layout);
+        this.browserSelect.addOption("Custom");
+        this.browserSelect.addOption("System Default");
         vSpacer = new VerticalSpacer(layout);
         vSpacer.setMaxHeight(8);
 
@@ -203,6 +203,7 @@ struct ConfigApp {
 
         label = new TextLabel("Preferred Search Engine", layout);
         this.engineSelect = new DropDownSelection(layout);
+        this.engineSelect.addOption("Custom");
         vSpacer = new VerticalSpacer(layout);
         vSpacer.setMaxHeight(8);
 
