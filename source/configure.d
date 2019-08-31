@@ -404,31 +404,9 @@ struct ConfigApp {
         });
 
         this.applyButton.addEventListener(EventType.triggered, {
-            debug writeln("Valid Browser: ", validateExecutablePath(this.syncApi.browserPath));
-
-            if (this.browserSelect.currentText != "System Default" && !validateExecutablePath(this.syncApi.browserPath)) {
-                debug writeln(this.syncApi.browserPath);
-
-                createWarningDialog("Custom browser path is invalid.\nCheck the wiki for more information.", this.window
-                    .hwnd);
-
-                return;
-            }
-
-            if (!validateEngineUrl(this.syncApi.engineUrl)) {
-                debug writeln(this.syncApi.engineURL);
-
-                createWarningDialog("Custom search engine URL is invalid.\nCheck the wiki for more information.",
-                    this.window.hwnd);
-
-                return;
-            }
-
+            debug writeln(this.syncApi.settings);
             this.syncApi.dump();
-
             this.applyButton.setEnabled(false);
-
-            debug writeln(this.syncApi);
         });
 
         this.wikiButton.addEventListener(EventType.triggered, { openUri(this.syncApi.browserPath, WIKI_URL); });
@@ -473,11 +451,21 @@ struct SettingsSyncApi {
     private string[string] engines;
     private string[string] browsers;
 
-    this(ConfigApp* parent) {
-        this.parent = parent;
-    }
-
     void dump() {
+        debug writeln("SettingsSyncApi.dump()");
+
+        if (this.parent.browserSelect.currentText != "System Default" && !validateExecutablePath(this.browserPath)) {
+            debug writeln("Bad browser path: ", this.browserPath);
+            createWarningDialog("Custom browser path is invalid.\nCheck the wiki for more information.", this.parent.window.hwnd);
+            return;
+        }
+
+        if (!validateEngineUrl(this.engineUrl)) {
+            debug writeln("Bad engine URL: ", this.engineUrl);
+            createWarningDialog("Custom search engine URL is invalid.\nCheck the wiki for more information.", this.parent.window.hwnd);
+            return;
+        }
+
         this.settings.dump();
     }
 
