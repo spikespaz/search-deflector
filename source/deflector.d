@@ -21,7 +21,7 @@ void main(string[] args) {
             if (settings.freeVersion && settings.searchCount == 10)
                 openUri(settings.browserPath, WIKI_THANKS_URL);
 
-            settings.dump()
+            settings.dump();
         } catch (Exception error) {
             createErrorDialog(error);
 
