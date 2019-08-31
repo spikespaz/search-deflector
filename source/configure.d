@@ -284,7 +284,7 @@ struct ConfigApp {
 
         this.syncApi = SettingsSyncApi();
         this.syncApi.parent = &this;
-        this.syncApi.settings = DeflectorSettings();
+        this.syncApi.settings = DeflectorSettings.get();
         this.syncApi.browsers = getAllAvailableBrowsers();
         this.syncApi.engines = parseConfig(ENGINE_TEMPLATES);
 
@@ -434,8 +434,6 @@ struct SettingsSyncApi {
 
         assert((["Custom", "System Default", ""] ~ this.browsers.keys).canFind(value),
             "Browser name is an unexpected value: " ~ value);
-
-        int browserIndex = -1;
 
         switch (value) {
             case "Custom":

@@ -118,7 +118,7 @@ struct DeflectorSettings {
             // dfmt on
         } catch (RegistryException error) {
             debug writeln(error.message);
-            return DeflectorSettings("google.com/search?q={{query}}", "system_default", 0, false);
+            return DeflectorSettings("google.com/search?q={{query}}", "", 0, false);
         }
     }
 
