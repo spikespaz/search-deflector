@@ -13,7 +13,7 @@ AppSupportURL=https://github.com/spikespaz/search-deflector/issues
 AppUpdatesURL=https://github.com/spikespaz/search-deflector/releases
 AppVerName=Search Deflector {#AppVersion}
 AppVersion={#AppVersion}
-AppModifyPath={app}\setup.exe
+AppModifyPath={app}\configure.exe
 ChangesAssociations=yes
 Compression=lzma
 DefaultDirName={pf32}\Search Deflector
@@ -26,7 +26,7 @@ OutputBaseFilename=SearchDeflector-Installer
 SetupIconFile=assets\logo.ico
 Uninstallable=yes
 UninstallDisplayName=Search Deflector
-UninstallDisplayIcon={app}\setup.exe
+UninstallDisplayIcon={app}\configure.exe
 VersionInfoVersion={#AppVersion}
 VersionInfoDescription=Search Deflector {#AppVersion} Installer
 WizardSmallImageFile=assets\logo.bmp
@@ -60,7 +60,7 @@ Name: "localmachine"; \
 
 [Files]
 
-Source: "build\bin\setup.exe"; \
+Source: "build\bin\configure.exe"; \
     DestDir: "{app}"; \
     Components: main
 Source: "build\bin\deflector.exe"; \
@@ -74,32 +74,20 @@ Source: "build\vars\license.txt"; \
 Source: "build\bin\libcurl.dll"; \
     DestDir: "{app}"; \
     Components: updater
-Source: "build\bin\updater.exe"; \
-    DestDir: "{app}"; \
-    Components: updater
 Source: "pack\updatetask.xml"; \
     DestDir: "{tmp}"; \
     Components: updater
 
 [Icons]
 
-Name: "{group}\Configure"; \
-    Filename: "{app}\setup.exe"; \
-    Flags: excludefromshowinnewinstall preventpinning; \
+Name: "{commonprograms}\Search Deflector"; \
+    Filename: "{app}\configure.exe"; \
+    Flags: preventpinning; \
     Components: main
-Name: "{group}\Visit Website"; \
-    Filename: "https://spikespaz.com/search-deflector"; \
-    Components: main
-
-
-Name: "{group}\Force Update"; \
-    Filename: "{app}\updater.exe"; \
-    Flags: excludefromshowinnewinstall preventpinning; \
-    Components: updater
 
 [Run]
 
-Filename: "{app}\setup.exe"; \
+Filename: "{app}\configure.exe"; \
     Flags: hidewizard skipifsilent; \
     Components: main
 
@@ -108,7 +96,7 @@ Filename: "schtasks"; \
     Flags: runhidden; \
     Components: updater
 Filename: "schtasks"; \
-    Parameters: "/CHANGE /TN ""Search Deflector Updater"" /TR ""{app}\updater.exe"""; \
+    Parameters: "/CHANGE /TN ""Search Deflector Updater"" /TR ""{app}\configure.exe -u"""; \
     Flags: runhidden; \
     Components: updater
 

@@ -23,34 +23,31 @@ ARGUMENTS = {
     "mode": {
         "flags": ("-m", "--mode"),
         "choices": ("classic", "store"),
-        "help": "preset of things to build"
+        "help": "preset of things to build",
     },
     "build": {
         "flags": ("-b", "--build"),
         "action": "append",
-        "choices": ("setup", "updater", "deflector", "installer", "package"),
+        "choices": ("configure", "deflector", "installer", "package"),
         "default": [],
-        "help": "parts of the program to build"
+        "help": "parts of the program to build",
     },
     "debug": {
         "flags": ("-d", "--debug"),
         "action": "store_true",
-        "help": "enable compiler debug flags"
+        "help": "enable compiler debug flags",
     },
     "clean": {
         "flags": ("-c", "--clean"),
         "action": "store_true",
-        "help": "clean up temporary files"
+        "help": "clean up temporary files",
     },
-    "version": {
-        "flags": ("-v", "--version"),
-        "help": "version string to use in build"
-    },
+    "version": {"flags": ("-v", "--version"), "help": "version string to use in build"},
     "silent": {
         "flags": ("-s", "--silent"),
         "action": "store_true",
-        "help": "only print errors to console"
-    }
+        "help": "only print errors to console",
+    },
 }
 
 LOG_VERBOSE = True
@@ -76,9 +73,8 @@ def assemble_args(parser, arguments):
 
 
 def copy_file(from_file, to_file):
-    if not exists(to_file):
-        log_print("Copying file: " + to_file)
-        copyfile(from_file, to_file)
+    log_print("Copying file: " + to_file)
+    copyfile(from_file, to_file)
 
 
 def create_directory(directory):
@@ -93,15 +89,21 @@ def delete_directory(directory):
         rmtree(directory, ignore_errors=True)
 
 
-def compile_file(source, binary, debug=True):
+def compile_file(source, binary, debug=True, console=False, args=None):
     log_print("Compiling binary: " + binary)
 
     command = ["ldc2", source, "-i", "-I", dirname(source), "-J", VARS_PATH, "-of", binary, "-m32"]
 
     if debug:
-        command.append("-g")
+        command.extend(["-gc", "-d-debug", "-L/subsystem:console"])
     else:
         command.extend(["-O3", "-ffast-math", "-release"])
+
+        if not console:
+            command.extend(["-L/subsystem:windows", "-L/entry:mainCRTStartup"])
+
+    if args:
+        command.extend(args)
 
     log_print(">", *command)
     call(command)
@@ -117,7 +119,7 @@ def copy_files(version):
     copy_file(LIBS_PATH + "/libcurl.dll", BIN_PATH + "/libcurl.dll")
 
     copy_file(LIBS_PATH + "/engines.txt", VARS_PATH + "/engines.txt")
-    copy_file(LIBS_PATH + "/issue.txt", VARS_PATH + "/issue.txt")
+    copy_file(LIBS_PATH + "/issue.md", VARS_PATH + "/issue.md")
 
     version_file = VARS_PATH + "/version.txt"
     log_print("Creating file: " + version_file)
@@ -152,7 +154,7 @@ if __name__ == "__main__":
 
     if ARGS.mode == "classic" and not ARGS.clean:
         build_set = set(ARGS.build)
-        build_set.update(("setup", "updater", "deflector", "installer"))
+        build_set.update(("configure", "deflector", "installer"))
         ARGS.build = tuple(build_set)
 
         ARGS.clean = True
@@ -161,7 +163,7 @@ if __name__ == "__main__":
         delete_directory("build/vars")
     elif ARGS.mode == "store" and not ARGS.clean:
         build_set = set(ARGS.build)
-        build_set.update(("setup", "deflector", "package"))
+        build_set.update(("configure", "deflector", "package"))
         ARGS.build = tuple(build_set)
 
         ARGS.clean = True
@@ -170,29 +172,22 @@ if __name__ == "__main__":
         delete_directory("build/vars")
         delete_directory("build/store")
 
-    if "setup" in ARGS.build:
+    if "configure" in ARGS.build:
         create_directory(BIN_PATH)
         create_directory(VARS_PATH)
 
-        SETUP_BIN = BIN_PATH + "/setup.exe"
-        log_print("Building setup binary: " + SETUP_BIN)
+        SETUP_BIN = BIN_PATH + "/configure.exe"
+        log_print("Building configure binary: " + SETUP_BIN)
 
         copy_files(ARGS.version)
-        compile_file(SOURCE_PATH + "/setup.d", SETUP_BIN, ARGS.debug)
+        compile_file(
+            SOURCE_PATH + "/configure.d",
+            SETUP_BIN,
+            ARGS.debug,
+            args=None if "package" in ARGS.build else ["-d-version", "update_module"],
+        )
 
         add_icon(SETUP_BIN)
-
-    if "updater" in ARGS.build:
-        create_directory(BIN_PATH)
-        create_directory(VARS_PATH)
-
-        UPDATER_BIN = BIN_PATH + "/updater.exe"
-        log_print("Building updater binary: " + UPDATER_BIN)
-
-        copy_files(ARGS.version)
-        compile_file(SOURCE_PATH + "/updater.d", UPDATER_BIN, ARGS.debug)
-
-        add_icon(UPDATER_BIN)
 
     if "deflector" in ARGS.build:
         create_directory(BIN_PATH)
@@ -220,7 +215,9 @@ if __name__ == "__main__":
 
         log_print("Making installer executable: " + DIST_PATH + "/SearchDeflector-Installer.exe")
 
-        command = "iscc \"/O{}\" /Q \"/DAppVersion={}\" \"{}/installer.iss\"".format(DIST_PATH, ARGS.version, PACK_PATH)
+        command = 'iscc "/O{}" /Q "/DAppVersion={}" "{}/installer.iss"'.format(
+            DIST_PATH, ARGS.version, PACK_PATH
+        )
 
         log_print("> " + command)
         call(command)
@@ -238,7 +235,7 @@ if __name__ == "__main__":
         copy_file(ASSETS_PATH + "/logo_44.png", STORE_PATH + "/Assets/Logo-44.png")
         copy_file(ASSETS_PATH + "/logo_150.png", STORE_PATH + "/Assets/Logo-150.png")
 
-        copy_file(BIN_PATH + "/setup.exe", STORE_PATH + "/setup.exe")
+        copy_file(BIN_PATH + "/configure.exe", STORE_PATH + "/configure.exe")
         copy_file(BIN_PATH + "/deflector.exe", STORE_PATH + "/deflector.exe")
 
         manifest_file = STORE_PATH + "/AppxManifest.xml"
@@ -250,7 +247,7 @@ if __name__ == "__main__":
 
         log_print("Packing file: " + PACKAGE_FILE)
 
-        command = "MakeAppx pack /d \"{}\" /p \"{}\" /o".format(STORE_PATH, PACKAGE_FILE)
+        command = 'MakeAppx pack /d "{}" /p "{}" /o'.format(STORE_PATH, PACKAGE_FILE)
         log_print("> " + command)
 
         call(command)

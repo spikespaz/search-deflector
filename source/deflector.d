@@ -1,24 +1,18 @@
 module deflector;
 
-import core.sys.windows.windows: GetCommandLineW, MessageBox, MB_ICONWARNING, MB_YESNO, IDYES;
-import common: getConsoleArgs, createErrorDialog, readSettings, writeSettings, DeflectorSettings, WIKI_THANKS_URL;
-import std.process: browse, spawnProcess, Config, ProcessException;
+import common: getConsoleArgs, openUri, createErrorDialog, DeflectorSettings, WIKI_THANKS_URL;
 import std.string: replace, indexOf, toLower, startsWith;
 import std.uri: decodeComponent, encodeComponent;
-import core.runtime: Runtime;
 import std.regex: matchFirst;
 import std.array: split;
 import std.conv: to;
 
-/// Entry to call the deflection, or error out.
-extern (Windows) int WinMain(void*, void*, void*, int) {
-    Runtime.initialize();
+debug import std.stdio: writeln;
 
-    string[] args = getConsoleArgs(GetCommandLineW());
-
+void main(string[] args) {
     if (args.length > 1) {
         try {
-            DeflectorSettings settings = readSettings();
+            auto settings = DeflectorSettings.get();
 
             openUri(settings.browserPath, rewriteUri(args[1], settings.engineURL));
 
@@ -27,17 +21,16 @@ extern (Windows) int WinMain(void*, void*, void*, int) {
             if (settings.freeVersion && settings.searchCount == 10)
                 openUri(settings.browserPath, WIKI_THANKS_URL);
 
-            writeSettings(settings);
-        } catch (Exception error)
+            settings.dump();
+        } catch (Exception error) {
             createErrorDialog(error);
+
+            debug writeln(error);
+        }
     } else {
-        createErrorDialog(new Exception("Expected one URI argument, recieved: \n" ~ args.to!string()));
-        return 1;
+        createErrorDialog(new Exception(
+                "Expected one URI argument, recieved: \n" ~ args.to!string()));
     }
-
-    Runtime.terminate();
-
-    return 0;
 }
 
 /// Reqrites a "microsoft-edge" URI to something browsers can use.
@@ -56,24 +49,6 @@ string rewriteUri(const string uri, const string engineUrl) {
             return engineUrl.replace("{{query}}", uri[15 .. $].encodeComponent());
     } else
         throw new Exception("Not a 'microsoft-edge' URI: " ~ uri);
-}
-
-/// Open a URL by spawning a shell process to the browser executable, or system default.
-void openUri(const string browserPath, const string url) {
-    if (browserPath == "system_default")
-        browse(url); // Automatically calls the system default browser.
-    else
-        try
-            spawnProcess([browserPath, url], null, Config.detached); // Uses a specific executable.
-        catch (ProcessException error) {
-            const uint messageId = MessageBox(null, "Search Deflector could not deflect the URI to your browser." ~
-                    "\nMake sure that the browser is still installed and that the executable still exists." ~
-                    "\n\nWould you like to see the full error message online?", "Search Deflector",
-                    MB_ICONWARNING | MB_YESNO);
-
-            if (messageId == IDYES)
-                createErrorDialog(error);
-        }
 }
 
 /// Parse the query parameters from a URI and return as an associative array.

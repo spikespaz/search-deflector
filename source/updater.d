@@ -1,64 +1,36 @@
 module updater;
 
-import common: SETUP_FILENAME, PROJECT_AUTHOR, PROJECT_NAME, PROJECT_VERSION;
-import std.json: JSONValue, JSONType, parseJSON;
-import std.path: buildNormalizedPath, dirName;
 import std.process: Config, spawnShell;
-import std.file: tempDir, thisExePath;
+import std.json: JSONValue, parseJSON;
 import std.net.curl: get, download;
-import std.string: split, replace;
 import std.range: zip, popFront;
+import std.file: thisExePath;
 import std.algorithm: sort;
 import std.stdio: writeln;
+import std.string: split;
+import std.path: dirName;
 import std.conv: to;
 
-/* NOTE:
-    I was going to use the Windows API to hide and show the console window
-    based on a "-silent" flag, but that quickly got too complicated and the
-    implimentation was fragile. This comment is here as a reminder to myself
-    to either finish that in the most correct way, or (since this will be run
-    by the Task Scheduler) set the user running the process to "SYSTEM".
-    I found this on Stack Overflow, and it seems to be the best option.
-    https://stackoverflow.com/a/6568823/2512078
-    It also needs to be run with highest privileges, not sure if the user
-    being set to "SYSTEM" will take care of that for me.
-*/
+import core.stdc.stdlib: exit;
 
-void main() {
-    writeln("Search Deflector " ~ PROJECT_VERSION);
+import common: formatString;
 
-    const JSONValue releaseJson = getLatestRelease(PROJECT_AUTHOR, PROJECT_NAME);
-    const JSONValue releaseAsset = getReleaseAsset(releaseJson, SETUP_FILENAME);
+debug import std.stdio: writeln;
 
-    if (!compareVersions(releaseJson["tag_name"].str, PROJECT_VERSION.split('-')[0]))
-        return;
-
-    // dfmt off
-    writeln(
-        "\nNew update information:",
-        "\n=======================",
-        "\nName: " ~ releaseJson["name"].str,
-        "\nTag name: " ~ releaseJson["tag_name"].str,
-        "\nAuthor: " ~ releaseJson["author"]["login"].str,
-        "\nPrerelease: " ~ (releaseJson["prerelease"].type == JSONType.TRUE ? "Yes" : "No"),
-        "\nPublish date: " ~ releaseJson["published_at"].str,
-        "\nPatch notes: " ~ releaseJson["html_url"].str,
-        "\nInstaller URL: " ~ releaseAsset["browser_download_url"].str
-    );
-    // dfmt on
-
-    const string installerFile = buildNormalizedPath(tempDir(), SETUP_FILENAME);
-
+void startInstallUpdate(const string downloadUrl, const string installerFile, const bool silent = false) {
     // Download the installer to the temporary path created above.
-    download(releaseAsset["browser_download_url"].str, installerFile);
+    download(downloadUrl, installerFile);
+
+    auto launchArgs = `"{{installerFile}}" {{otherArgs}} /components="main, updater" /dir="{{installPath}}"`
+        .formatString(["installerFile" : installerFile,
+                "installPath" : thisExePath().dirName(), "otherArgs" : silent ? "/verysilent" : ""]);
+    
+    debug writeln(launchArgs);
 
     // This executable should already be running as admin so no verb should be necessary.
-    // dfmt off
-    spawnShell(`"{{installerFile}}" /VERYSILENT /COMPONENTS="main, updater" /DIR="{{installPath}}"`.formatString([
-        "installerFile": installerFile,
-        "installPath": thisExePath().dirName()
-    ]), null, Config.detached);
-    // dfmt on
+    spawnShell(launchArgs, null, Config.detached | Config.suppressConsole);
+
+    exit(0);
 }
 
 /// Iterate through a release's assets and return the one that matches the filename given.
@@ -79,16 +51,6 @@ JSONValue getLatestRelease(const string author, const string repository) {
     releasesJson.array.sort!((a, b) => compareVersions(a["tag_name"].str, b["tag_name"].str))();
 
     return releasesJson.array[0];
-}
-
-/// Format a string by replacing each key with a value in replacements.
-string formatString(const string input, const string[string] replacements) {
-    string output = input;
-
-    foreach (variable; replacements.byKeyValue())
-        output = output.replace("{{" ~ variable.key ~ "}}", variable.value);
-
-    return output;
 }
 
 /// Compare two semantic versions, returning true if the first version is newer, false otherwise.
@@ -117,21 +79,3 @@ public bool compareVersions(const string firstVer, const string secondVer) {
 
     return false;
 }
-
-/* TODO:
-    Abstract the shell command replacement into the setup executable,
-    since this file changed to only execute the installer.
-
-    That post-install functionality needs to be moved into the setup
-    so that when the installer calls it, it can fix the registry settings
-    to point to the new location or version folder autonomously.
-
-    This should work by checking if the config key in the registry exists.
-    If it does, make sure the "shell open" command points to the latest deflector.
-
-    Also, once the setup is rewritten to use the Task Scheduler to run the updater,
-    update that task to point to the new updater.
-
-    Should be ported from the old code. For reference, I'll link it.
-    https://github.com/spikespaz/search-deflector/blob/0.2.3/source/updater.d
-*/
