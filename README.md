@@ -2,7 +2,7 @@
 
 [![Latest Version](https://img.shields.io/github/release/spikespaz/search-deflector/all.svg?style=for-the-badge)](https://github.com/spikespaz/search-deflector/releases/latest)
 [![Project License](https://img.shields.io/github/license/spikespaz/search-deflector.svg?style=for-the-badge)](https://github.com/spikespaz/search-deflector/blob/master/LICENSE)
-[![Total Downloads](https://img.shields.io/github/downloads/spikespaz/search-deflector/total.svg?style=for-the-badge)](https://spikespaz.com/tools/repo-dl/?user=spikespaz&repo=search-deflector&file=SearchDeflector-Installer.exe)
+[![Latest Release Downloads](https://img.shields.io/github/downloads/spikespaz/search-deflector/latest/total?label=RELEASE%20DOWNLOADS&style=for-the-badge)](http://tiny.cc/get-search-deflector)
 [![Project Stars](https://img.shields.io/github/stars/spikespaz/search-deflector.svg?style=for-the-badge)](https://github.com/spikespaz/search-deflector/stargazers)
 
 ### **Search Deflector** is a small system utility that redirects searches made from the start menu or Cortana to whatever browser and search engine you prefer, removing ties with Microsoft Edge and Bing.
@@ -54,7 +54,7 @@ Get it at the Microsoft Store [here](https://www.microsoft.com/store/productId/9
 | Name | Link |
 | ---- | ---- |
 | Homepage | https://spikespaz.com/search-deflector                                    |
-| Download | http://dapalan.com/8173370/search-deflector-download                      |
+| Download | http://tiny.cc/get-search-deflector                                       |
 | Store    | https://www.microsoft.com/store/productId/9P8ZJJ80RZ2K                    |
 | Wiki     | https://github.com/spikespaz/search-deflector/wiki                        |
 | Issues   | https://github.com/spikespaz/search-deflector/issues                      |
