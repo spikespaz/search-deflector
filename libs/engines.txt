@@ -6,7 +6,7 @@ DuckDuckGo:      duckduckgo.com/?q={{query}}
 Bing:            bing.com/search?q={{query}}
 Yahoo:           search.yahoo.com/search?p={{query}}
 Wikipedia:       wikipedia.org/wiki/Special:Search?search={{query}}
-Dictionary.com:  dictionary.com/search?q={{query}}
+Dictionary.com:  dictionary.com/browse/{{query}}
 Thesaurus.com:   thesaurus.com/browse/{{query}}
 GitHub:          github.com/search?q={{query}}
 Wolfram Alpha:   wolframalpha.com/input/?i={{query}}
