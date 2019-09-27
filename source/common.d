@@ -178,14 +178,14 @@ string[string] parseConfig(const string config) {
 
 /// Try to fetch the engine presets from the repository, if it fails, read from local.
 string[string] getEnginePresets() {
-    string enginesText;
+    string[string] engines = parseConfig(readText(buildPath(thisExePath().dirName(), "engines.txt")));
 
     try
-        enginesText = get(ENGINE_TEMPLATES_URL).idup; // Get the string of the resource content.
-    catch (CurlException)
-        enginesText = readText(buildPath(thisExePath().dirName(), "engines.txt"));
+        engines = mergeAAs(engines, parseConfig(get(ENGINE_TEMPLATES_URL).idup)); // Get the string of the resource content.
+    catch (CurlException) {
+    }
 
-    return parseConfig(enginesText);
+    return engines;
 }
 
 /// Merge two associative arrays, updating existing values in "baseAA" with new ones from "updateAA".

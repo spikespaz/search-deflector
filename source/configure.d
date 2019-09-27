@@ -290,7 +290,7 @@ struct ConfigApp {
         this.syncApi.parent = &this;
         this.syncApi.settings = DeflectorSettings.get();
         this.syncApi.browsers = getAllAvailableBrowsers();
-        this.syncApi.engines = parseConfig(ENGINE_TEMPLATES);
+        this.syncApi.engines = getEnginePresets();
 
         foreach (browser; this.syncApi.browsers.byKey)
             this.browserSelect.addOption(browser);
