@@ -66,6 +66,9 @@ Source: "build\bin\configure.exe"; \
 Source: "build\bin\deflector.exe"; \
     DestDir: "{app}"; \
     Components: main
+Source: "build\bin\engines.txt"; \
+    DestDir: "{app}"; \
+    Components: main
 Source: "build\vars\license.txt"; \
     DestDir: "{app}"; \
     Components: main

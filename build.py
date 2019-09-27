@@ -117,8 +117,8 @@ def add_icon(binary):
 
 def copy_files(version):
     copy_file(LIBS_PATH + "/libcurl.dll", BIN_PATH + "/libcurl.dll")
+    copy_file(LIBS_PATH + "/engines.txt", BIN_PATH + "/engines.txt")
 
-    copy_file(LIBS_PATH + "/engines.txt", VARS_PATH + "/engines.txt")
     copy_file(LIBS_PATH + "/issue.md", VARS_PATH + "/issue.md")
 
     version_file = VARS_PATH + "/version.txt"
@@ -237,7 +237,8 @@ if __name__ == "__main__":
 
         copy_file(BIN_PATH + "/configure.exe", STORE_PATH + "/configure.exe")
         copy_file(BIN_PATH + "/deflector.exe", STORE_PATH + "/deflector.exe")
-
+        copy_file(BIN_PATH + "/engines.txt", STORE_PATH + "/engines.txt")
+        
         manifest_file = STORE_PATH + "/AppxManifest.xml"
         log_print("Creating file: " + manifest_file)
 
