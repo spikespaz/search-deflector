@@ -5,13 +5,14 @@ import core.sys.windows.windows: CommandLineToArgvW, GetCommandLineW,
 import std.windows.registry: Registry, RegistryException, Key, REGSAM;
 import std.process: browse, spawnProcess, Config, ProcessException;
 import std.string: strip, splitLines, indexOf, stripLeft, replace;
-import std.path: isValidFilename;
+import std.path: isValidFilename, buildPath, dirName;
+import std.file: exists, readText, thisExePath;
+import std.net.curl: get, CurlException;
 import std.uri: encodeComponent;
 import std.algorithm: canFind;
 import std.process: browse;
 import std.format: format;
 import std.utf: toUTF16z;
-import std.file: exists;
 import std.conv: to;
 
 debug import std.stdio: writeln;
@@ -23,9 +24,8 @@ enum string PROJECT_AUTHOR = "spikespaz";
 enum string PROJECT_NAME = "search-deflector"; /// ditto
 /// Current version of the Search Deflector binaries.
 enum string PROJECT_VERSION = import("version.txt");
-
-/// String of search engine templates.
-enum string ENGINE_TEMPLATES = import("engines.txt");
+/// Online version of the engine templates that will be accessed when internet is available.
+enum string ENGINE_TEMPLATES_URL = "https://raw.githubusercontent.com/spikespaz/search-deflector/release/libs/engines.txt";
 /// String of the GitHub issue template.
 enum string ISSUE_TEMPLATE = import("issue.md");
 
@@ -174,6 +174,18 @@ string[string] parseConfig(const string config) {
     }
 
     return data;
+}
+
+/// Try to fetch the engine presets from the repository, if it fails, read from local.
+string[string] getEnginePresets() {
+    string enginesText;
+
+    try
+        enginesText = get(ENGINE_TEMPLATES_URL).idup; // Get the string of the resource content.
+    catch (CurlException)
+        enginesText = readText(buildPath(thisExePath().dirName(), "engines.txt"));
+
+    return parseConfig(enginesText);
 }
 
 /// Merge two associative arrays, updating existing values in "baseAA" with new ones from "updateAA".
