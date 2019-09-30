@@ -1,5 +1,5 @@
 The libcurl.dll library is provided by dlang.org.
-File: libcurl-7.57.0-WinSSL-zlib-x86-x64.zip
+File: libcurl-7.65.3-2-WinSSL-zlib-x86-x64.zip
 The Curl License permits binary redistribution with attribution.
 
 http://downloads.dlang.org/other/
