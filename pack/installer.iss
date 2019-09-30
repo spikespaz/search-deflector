@@ -76,7 +76,7 @@ Source: "build\vars\license.txt"; \
 
 Source: "build\bin\libcurl.dll"; \
     DestDir: "{app}"; \
-    Components: updater
+    Components: main
 Source: "pack\updatetask.xml"; \
     DestDir: "{tmp}"; \
     Components: updater
