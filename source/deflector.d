@@ -18,7 +18,8 @@ void main(string[] args) {
 
             settings.searchCount++;
 
-            if (settings.freeVersion && settings.searchCount == 10)
+            version(free_version)
+            if (settings.searchCount == 10)
                 openUri(settings.browserPath, WIKI_THANKS_URL);
 
             settings.dump();

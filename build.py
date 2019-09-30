@@ -184,7 +184,7 @@ if __name__ == "__main__":
             SOURCE_PATH + "/configure.d",
             SETUP_BIN,
             ARGS.debug,
-            args=None if "package" in ARGS.build else ["-d-version", "update_module"],
+            args=None if "package" in ARGS.build else ["-d-version", "free_version"],
         )
 
         add_icon(SETUP_BIN)

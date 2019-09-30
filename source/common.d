@@ -103,7 +103,6 @@ struct DeflectorSettings {
     string engineURL; /// ditto
     string browserPath; /// ditto
     uint searchCount; /// Counter for how many times the user has made a search query.
-    bool freeVersion; /// Flag to determine if this is the classic version from GitHub.
 
     static DeflectorSettings get() {
         try {
@@ -114,7 +113,6 @@ struct DeflectorSettings {
                 deflectorKey.getValue("EngineURL").value_SZ,
                 deflectorKey.getValue("BrowserPath").value_SZ,
                 deflectorKey.getValue("SearchCount").value_DWORD,
-                deflectorKey.getValue("FreeVersion").value_DWORD.to!bool(),
             );
             // dfmt on
         } catch (RegistryException error) {
@@ -130,7 +128,6 @@ struct DeflectorSettings {
         deflectorKey.setValue("EngineURL", this.engineURL);
         deflectorKey.setValue("BrowserPath", this.browserPath);
         deflectorKey.setValue("SearchCount", this.searchCount);
-        deflectorKey.setValue("FreeVersion", this.freeVersion.to!uint());
 
         deflectorKey.flush();
     }

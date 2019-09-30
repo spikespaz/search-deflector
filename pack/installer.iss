@@ -241,13 +241,6 @@ Root: HKCU; \
     ValueType: dword; \
     Flags: createvalueifdoesntexist; \
     Components: main
-Root: HKCU; \
-    Subkey: "Software\Clients\SearchDeflector"; \
-    ValueName: "FreeVersion"; \
-    ValueData: 1; \
-    ValueType: dword; \
-    Flags: createvalueifdoesntexist; \
-    Components: main
 
 [Code]
 

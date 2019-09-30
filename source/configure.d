@@ -28,7 +28,7 @@ void main(string[] args) {
     try {
         auto app = ConfigApp();
 
-        version (update_module)
+        version (free_version)
             if (forceUpdate) {
                 app.fetchReleaseInfo();
 
@@ -61,7 +61,7 @@ struct ConfigApp {
     Button wikiButton;
     Button closeButton;
 
-    version (update_module) {
+    version (free_version) {
         TabWidget tabs;
 
         // All widgets for Settings tab
@@ -95,7 +95,7 @@ struct ConfigApp {
         this.showConfigPageDefaults();
         this.bindConfigPageListeners();
 
-        version (update_module) {
+        version (free_version) {
             this.bindUpdatePageListeners();
 
             // And a fix for the "..." button mysteriously appearing after switching tabs
@@ -127,7 +127,7 @@ struct ConfigApp {
         this.browserPathButtonHidden = true;
     }
 
-    version (update_module) bool shouldUpdate() {
+    version (free_version) bool shouldUpdate() {
         debug writeln("ConfigApp.shouldUpdate()");
 
         return compareVersions(this.releaseJson["tag_name"].str, PROJECT_VERSION);
@@ -150,7 +150,7 @@ struct ConfigApp {
 
         auto layout = new VerticalLayout(this.window);
 
-        version (update_module) {
+        version (free_version) {
             this.tabs = new TabWidget(layout);
             this.tabs.setMargins(0, 0, 0, 0);
 
@@ -165,12 +165,12 @@ struct ConfigApp {
             this.page0.setPadding(8, 8, 0, 8);
         }
 
-        version (update_module)
+        version (free_version)
             this.createUpdatePageWidgets();
         this.createConfigPageWidgets();
 
         TextLabel label = new TextLabel("Version: " ~ PROJECT_VERSION ~ ", Author: " ~ PROJECT_AUTHOR, layout);
-        version (update_module)
+        version (free_version)
             label.setMargins(6, 8, 4, 8);
         else
             label.setMargins(6, 0, 4, 0);
@@ -234,7 +234,7 @@ struct ConfigApp {
         this.closeButton = new Button("Close", hLayout1);
     }
 
-    version (update_module) void createUpdatePageWidgets() {
+    version (free_version) void createUpdatePageWidgets() {
         debug writeln("ConfigApp.createUpdatePageWidgets()");
 
         auto layout = new VerticalLayout(this.page1);
@@ -304,7 +304,7 @@ struct ConfigApp {
         this.syncApi.engineName = this.syncApi.engines.nameFromUrl(this.syncApi.settings.engineURL);
     }
 
-    version (update_module) void showUpdatePageDefaults() {
+    version (free_version) void showUpdatePageDefaults() {
         debug writeln("ConfigApp.showUpdatePageDefaults()");
 
         if (this.shouldUpdate)
@@ -364,7 +364,7 @@ struct ConfigApp {
         this.closeButton.addEventListener(EventType.triggered, { exit(0); });
     }
 
-    version (update_module) void bindUpdatePageListeners() {
+    version (free_version) void bindUpdatePageListeners() {
         debug writeln("ConfigApp.bindUpdatePageListeners()");
 
         this.updateButton.addEventListener(EventType.triggered, {
@@ -378,14 +378,14 @@ struct ConfigApp {
         });
     }
 
-    version (update_module) void fetchReleaseInfo() {
+    version (free_version) void fetchReleaseInfo() {
         debug writeln("ConfigApp.fetchReleaseInfo()");
 
         this.releaseJson = getLatestRelease(PROJECT_AUTHOR, PROJECT_NAME);
         this.releaseAsset = getReleaseAsset(releaseJson, SETUP_FILENAME);
     }
 
-    version (update_module) void installUpdate(const bool silent) {
+    version (free_version) void installUpdate(const bool silent) {
         debug writeln("ConfigApp.installUpdate()");
 
         startInstallUpdate(this.releaseAsset["browser_download_url"].str, this.getInstallerPath(), silent);
