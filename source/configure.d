@@ -28,15 +28,15 @@ void main(string[] args) {
     try {
         auto app = ConfigApp();
 
-        version(update_module)
-        if (forceUpdate) {
-            app.fetchReleaseInfo();
+        version (free_version)
+            if (forceUpdate) {
+                app.fetchReleaseInfo();
 
-            if (app.shouldUpdate())
-                app.installUpdate(true);
+                if (app.shouldUpdate())
+                    app.installUpdate(true);
 
-            return;
-        }
+                return;
+            }
 
         app.createWindow();
         app.loopWindow();
@@ -61,7 +61,7 @@ struct ConfigApp {
     Button wikiButton;
     Button closeButton;
 
-    version(update_module) {
+    version (free_version) {
         TabWidget tabs;
 
         // All widgets for Settings tab
@@ -95,7 +95,7 @@ struct ConfigApp {
         this.showConfigPageDefaults();
         this.bindConfigPageListeners();
 
-        version(update_module) {
+        version (free_version) {
             this.bindUpdatePageListeners();
 
             // And a fix for the "..." button mysteriously appearing after switching tabs
@@ -103,7 +103,7 @@ struct ConfigApp {
                 auto t = (event.clientX / 80); // 80 = tab width
                 if (!(event.clientY < Window.lineHeight && t >= 0 && t < this.tabs.children.length))
                     return;
-                
+
                 debug writeln("Tabs changed");
 
                 if (this.browserPathButtonHidden)
@@ -127,8 +127,7 @@ struct ConfigApp {
         this.browserPathButtonHidden = true;
     }
 
-    version(update_module)
-    bool shouldUpdate() {
+    version (free_version) bool shouldUpdate() {
         debug writeln("ConfigApp.shouldUpdate()");
 
         return compareVersions(this.releaseJson["tag_name"].str, PROJECT_VERSION);
@@ -151,7 +150,7 @@ struct ConfigApp {
 
         auto layout = new VerticalLayout(this.window);
 
-        version(update_module) {
+        version (free_version) {
             this.tabs = new TabWidget(layout);
             this.tabs.setMargins(0, 0, 0, 0);
 
@@ -166,12 +165,12 @@ struct ConfigApp {
             this.page0.setPadding(8, 8, 0, 8);
         }
 
-        version(update_module)
+        version (free_version)
             this.createUpdatePageWidgets();
         this.createConfigPageWidgets();
 
         TextLabel label = new TextLabel("Version: " ~ PROJECT_VERSION ~ ", Author: " ~ PROJECT_AUTHOR, layout);
-        version(update_module)
+        version (free_version)
             label.setMargins(6, 8, 4, 8);
         else
             label.setMargins(6, 0, 4, 0);
@@ -235,8 +234,7 @@ struct ConfigApp {
         this.closeButton = new Button("Close", hLayout1);
     }
 
-    version(update_module)
-    void createUpdatePageWidgets() {
+    version (free_version) void createUpdatePageWidgets() {
         debug writeln("ConfigApp.createUpdatePageWidgets()");
 
         auto layout = new VerticalLayout(this.page1);
@@ -290,13 +288,13 @@ struct ConfigApp {
         this.syncApi.parent = &this;
         this.syncApi.settings = DeflectorSettings.get();
         this.syncApi.browsers = getAllAvailableBrowsers();
-        this.syncApi.engines = parseConfig(ENGINE_TEMPLATES);
+        this.syncApi.engines = getEnginePresets();
 
         foreach (browser; this.syncApi.browsers.byKey)
             this.browserSelect.addOption(browser);
 
         foreach (engine; this.syncApi.engines.byKey)
-            this.engineSelect.addOption(engine);    
+            this.engineSelect.addOption(engine);
     }
 
     void showConfigPageDefaults() {
@@ -306,8 +304,7 @@ struct ConfigApp {
         this.syncApi.engineName = this.syncApi.engines.nameFromUrl(this.syncApi.settings.engineURL);
     }
 
-    version(update_module)
-    void showUpdatePageDefaults() {
+    version (free_version) void showUpdatePageDefaults() {
         debug writeln("ConfigApp.showUpdatePageDefaults()");
 
         if (this.shouldUpdate)
@@ -367,8 +364,7 @@ struct ConfigApp {
         this.closeButton.addEventListener(EventType.triggered, { exit(0); });
     }
 
-    version(update_module)
-    void bindUpdatePageListeners() {
+    version (free_version) void bindUpdatePageListeners() {
         debug writeln("ConfigApp.bindUpdatePageListeners()");
 
         this.updateButton.addEventListener(EventType.triggered, {
@@ -382,16 +378,14 @@ struct ConfigApp {
         });
     }
 
-    version(update_module)
-    void fetchReleaseInfo() {
+    version (free_version) void fetchReleaseInfo() {
         debug writeln("ConfigApp.fetchReleaseInfo()");
 
         this.releaseJson = getLatestRelease(PROJECT_AUTHOR, PROJECT_NAME);
         this.releaseAsset = getReleaseAsset(releaseJson, SETUP_FILENAME);
     }
 
-    version(update_module)
-    void installUpdate(const bool silent) {
+    version (free_version) void installUpdate(const bool silent) {
         debug writeln("ConfigApp.installUpdate()");
 
         startInstallUpdate(this.releaseAsset["browser_download_url"].str, this.getInstallerPath(), silent);
@@ -409,13 +403,15 @@ struct SettingsSyncApi {
 
         if (this.parent.browserSelect.currentText != "System Default" && !validateExecutablePath(this.browserPath)) {
             debug writeln("Bad browser path: ", this.browserPath);
-            createWarningDialog("Custom browser path is invalid.\nCheck the wiki for more information.", this.parent.window.hwnd);
+            createWarningDialog("Custom browser path is invalid.\nCheck the wiki for more information.", this.parent
+                    .window.hwnd);
             return;
         }
 
         if (!validateEngineUrl(this.engineUrl)) {
             debug writeln("Bad engine URL: ", this.engineUrl);
-            createWarningDialog("Custom search engine URL is invalid.\nCheck the wiki for more information.", this.parent.window.hwnd);
+            createWarningDialog("Custom search engine URL is invalid.\nCheck the wiki for more information.",
+                    this.parent.window.hwnd);
             return;
         }
 
@@ -427,7 +423,7 @@ struct SettingsSyncApi {
 
         if (value == "" || validateExecutablePath(value)) {
             this.settings.browserPath = value;
-            
+
             if (value != this.parent.browserPath.content)
                 this.parent.browserPath.content = value;
         }
@@ -437,29 +433,29 @@ struct SettingsSyncApi {
         debug writeln("SettingsSyncApi.browserName(value)");
 
         assert((["Custom", "System Default", ""] ~ this.browsers.keys).canFind(value),
-            "Browser name is an unexpected value: " ~ value);
+                "Browser name is an unexpected value: " ~ value);
 
         switch (value) {
-            case "Custom":
-                this.parent.browserPath.setEnabled(true);
-                this.parent.browserPathButton.show();
-                this.browserPath = "";
-                break;
-            case "":
-            case "System Default":
-                this.parent.browserPath.setEnabled(false);
-                this.parent.browserPathButton.hide();
-                this.browserPath = "";
-                break;
-            default:
-                this.parent.browserPath.setEnabled(false);
-                this.parent.browserPathButton.hide();
+        case "Custom":
+            this.parent.browserPath.setEnabled(true);
+            this.parent.browserPathButton.show();
+            this.browserPath = "";
+            break;
+        case "":
+        case "System Default":
+            this.parent.browserPath.setEnabled(false);
+            this.parent.browserPathButton.hide();
+            this.browserPath = "";
+            break;
+        default:
+            this.parent.browserPath.setEnabled(false);
+            this.parent.browserPathButton.hide();
 
-                foreach (browser; this.browsers.byKeyValue)
-                    if (browser.key == value) {
-                        this.browserPath = browser.value;
-                        break;
-                    }
+            foreach (browser; this.browsers.byKeyValue)
+                if (browser.key == value) {
+                    this.browserPath = browser.value;
+                    break;
+                }
         }
 
         if (this.parent.browserSelect.currentText != value)
@@ -468,7 +464,7 @@ struct SettingsSyncApi {
 
     void engineUrl(const string value) {
         debug writeln("SettingsSyncApi.engineUrl(value)");
-        
+
         if (validateEngineUrl(value)) {
             this.settings.engineURL = value;
 
@@ -480,23 +476,22 @@ struct SettingsSyncApi {
     void engineName(const string value) {
         debug writeln("SettingsSyncApi.engineName(value)");
 
-        assert((["Custom", ""] ~ this.engines.keys).canFind(value),
-            "Search engine name is an unexpected value: " ~ value);
+        assert((["Custom", ""] ~ this.engines.keys).canFind(value), "Search engine name is an unexpected value: " ~ value);
 
         switch (value) {
-            case "":
-            case "Custom":
-                this.parent.engineUrl.setEnabled(true);
-                this.engineUrl = "";
-                break;
-            default:
-                this.parent.engineUrl.setEnabled(false);
+        case "":
+        case "Custom":
+            this.parent.engineUrl.setEnabled(true);
+            this.engineUrl = "";
+            break;
+        default:
+            this.parent.engineUrl.setEnabled(false);
 
-                foreach (engine; this.engines.byKeyValue)
-                    if (engine.key == value) {
-                        this.engineUrl = engine.value;
-                        break;
-                    }
+            foreach (engine; this.engines.byKeyValue)
+                if (engine.key == value) {
+                    this.engineUrl = engine.value;
+                    break;
+                }
         }
 
         if (this.parent.engineSelect.currentText != value)
@@ -517,7 +512,7 @@ struct SettingsSyncApi {
         foreach (browser; this.browsers.byKeyValue)
             if (browser.value == this.browserPath)
                 return browser.key;
-        
+
         return "Custom";
     }
 
@@ -565,5 +560,5 @@ string toReadableTimestamp(T)(T time) {
 }
 
 bool isNull(T)(T value) if (is(T == class) || isPointer!T) {
-	return value is null;
+    return value is null;
 }

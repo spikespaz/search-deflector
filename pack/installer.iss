@@ -66,6 +66,9 @@ Source: "build\bin\configure.exe"; \
 Source: "build\bin\deflector.exe"; \
     DestDir: "{app}"; \
     Components: main
+Source: "build\bin\engines.txt"; \
+    DestDir: "{app}"; \
+    Components: main
 Source: "build\vars\license.txt"; \
     DestDir: "{app}"; \
     Components: main
@@ -235,13 +238,6 @@ Root: HKCU; \
     Subkey: "Software\Clients\SearchDeflector"; \
     ValueName: "SearchCount"; \
     ValueData: 0; \
-    ValueType: dword; \
-    Flags: createvalueifdoesntexist; \
-    Components: main
-Root: HKCU; \
-    Subkey: "Software\Clients\SearchDeflector"; \
-    ValueName: "FreeVersion"; \
-    ValueData: 1; \
     ValueType: dword; \
     Flags: createvalueifdoesntexist; \
     Components: main
