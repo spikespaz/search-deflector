@@ -1,7 +1,7 @@
 module common;
 
-import core.sys.windows.windows: CommandLineToArgvW, GetCommandLineW,
-    MessageBox, MB_ICONERROR, MB_ICONWARNING, MB_YESNO, IDYES, MB_OK, HWND;
+import core.sys.windows.windows: CommandLineToArgvW, GetCommandLineW, MessageBox, MB_ICONERROR,
+    MB_ICONWARNING, MB_YESNO, IDYES, MB_OK, HWND;
 import std.windows.registry: Registry, RegistryException, Key, REGSAM;
 import std.process: browse, spawnProcess, Config, ProcessException;
 import std.string: strip, splitLines, indexOf, stripLeft, replace;
@@ -55,7 +55,7 @@ void createErrorDialog(const Throwable error, HWND hWnd = null) nothrow {
 void createWarningDialog(const string message, HWND hWnd = null) nothrow {
     try {
         debug writeln(message);
-    
+
         MessageBox(hWnd, message.toUTF16z, "Search Deflector", MB_ICONWARNING | MB_OK);
     } catch (Throwable error) // @suppress(dscanner.suspicious.catch_em_all)
         createErrorDialog(error);
@@ -67,6 +67,7 @@ string createIssueMessage(const Throwable error) {
     auto winVer = WindowsVersion.get();
     auto settings = DeflectorSettings.get();
 
+    // dfmt off
     return ISSUE_TEMPLATE.strip().formatString([
         "errorFile": error.file,
         "errorLine": error.line.to!string(),
@@ -82,6 +83,7 @@ string createIssueMessage(const Throwable error) {
         "windowsEdition": winVer.edition,
         "insidersPreview": ""
     ]).to!string();
+    // dfmt on
 }
 
 /// Return a string array of arguments that are parsed in ArgV style from a string.
@@ -105,8 +107,7 @@ struct DeflectorSettings {
 
     static DeflectorSettings get() {
         try {
-            Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector",
-                    REGSAM.KEY_READ);
+            Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
 
             // dfmt off
             return DeflectorSettings(
@@ -123,8 +124,7 @@ struct DeflectorSettings {
     }
 
     void dump() {
-        Key deflectorKey = Registry.currentUser.createKey(
-            "SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
+        Key deflectorKey = Registry.currentUser.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
 
         // Write necessary changes.
         deflectorKey.setValue("EngineURL", this.engineURL);
@@ -141,7 +141,8 @@ struct WindowsVersion {
 
     static WindowsVersion get() {
         try {
-            Key currentVersion = Registry.localMachine.getKey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", REGSAM.KEY_READ);
+            Key currentVersion = Registry.localMachine.getKey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", REGSAM
+                    .KEY_READ);
 
             // dfmt off
             return WindowsVersion(
@@ -206,8 +207,9 @@ void openUri(const string browserPath, const string url) {
         try
             spawnProcess([browserPath, url], null, Config.detached); // Uses a specific executable.
         catch (ProcessException error) {
-            const uint messageId = MessageBox(null, "Search Deflector could not deflect the URI to your browser." ~ "\nMake sure that the browser is still installed and that the executable still exists." ~ "\n\nWould you like to see the full error message online?",
-                    "Search Deflector", MB_ICONWARNING | MB_YESNO);
+            const uint messageId = MessageBox(null, "Search Deflector could not deflect the URI to your browser." ~
+                    "\nMake sure that the browser is still installed and that the executable still exists." ~
+                    "\n\nWould you like to see the full error message online?", "Search Deflector", MB_ICONWARNING | MB_YESNO);
 
             if (messageId == IDYES)
                 createErrorDialog(error);

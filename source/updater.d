@@ -22,9 +22,9 @@ void startInstallUpdate(const string downloadUrl, const string installerFile, co
     download(downloadUrl, installerFile);
 
     auto launchArgs = `"{{installerFile}}" {{otherArgs}} /components="main, updater" /dir="{{installPath}}"`
-        .formatString(["installerFile" : installerFile,
-                "installPath" : thisExePath().dirName(), "otherArgs" : silent ? "/verysilent" : ""]);
-    
+        .formatString(["installerFile"
+                : installerFile, "installPath" : thisExePath().dirName(), "otherArgs" : silent ? "/verysilent" : ""]);
+
     debug writeln(launchArgs);
 
     // This executable should already be running as admin so no verb should be necessary.
