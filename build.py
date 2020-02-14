@@ -197,7 +197,12 @@ if __name__ == "__main__":
         log_print("Building deflector binary: " + DEFLECTOR_BIN)
 
         copy_files(ARGS.version)
-        compile_file(SOURCE_PATH + "/deflector.d", DEFLECTOR_BIN, ARGS.debug)
+        compile_file(
+            SOURCE_PATH + "/deflector.d",
+            DEFLECTOR_BIN,
+            ARGS.debug,
+            args=None if "package" in ARGS.build else ["-d-version", "free_version"],
+        )
 
         add_icon(DEFLECTOR_BIN)
 
