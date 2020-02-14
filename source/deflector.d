@@ -18,11 +18,16 @@ void main(string[] args) {
 
             settings.searchCount++;
 
-            version(free_version)
-            if (settings.searchCount == 10)
-                openUri(settings.browserPath, WIKI_THANKS_URL);
-
             settings.dump();
+
+            version (free_version) // Makes the donation prompt open on the 10th search and every 25 afterward
+            if ((settings.searchCount - 10) % 25 == 0 || settings.searchCount == 10) {
+                import core.thread: Thread;
+                import core.time: seconds;
+
+                Thread.sleep(seconds(5));
+                openUri(settings.browserPath, WIKI_THANKS_URL);
+            }
         } catch (Exception error) {
             createErrorDialog(error);
 
