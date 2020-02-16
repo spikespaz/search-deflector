@@ -103,16 +103,25 @@ struct DeflectorSettings {
     string engineURL; /// ditto
     string browserPath; /// ditto
     uint searchCount; /// Counter for how many times the user has made a search query.
+    bool disableNag = false; /// Flag to disable the reditection to the nag message.
 
     static DeflectorSettings get() {
         try {
             Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
+            bool disableNag2;
+            
+            try {
+                disableNag2 = cast(bool) deflectorKey.getValue("DisableNag").value_DWORD;
+            } catch (RegistryException) {
+                disableNag2 = false;
+            }
 
             // dfmt off
             return DeflectorSettings(
                 deflectorKey.getValue("EngineURL").value_SZ,
                 deflectorKey.getValue("BrowserPath").value_SZ,
                 deflectorKey.getValue("SearchCount").value_DWORD,
+                disableNag2,
             );
             // dfmt on
         } catch (RegistryException error) {
@@ -128,6 +137,9 @@ struct DeflectorSettings {
         deflectorKey.setValue("EngineURL", this.engineURL);
         deflectorKey.setValue("BrowserPath", this.browserPath);
         deflectorKey.setValue("SearchCount", this.searchCount);
+
+        if (this.disableNag)
+            deflectorKey.setValue("DisableNag", true);
 
         deflectorKey.flush();
     }
