@@ -20,8 +20,8 @@ void main(string[] args) {
 
             settings.dump();
 
-            version (free_version) // Makes the donation prompt open on the 10th search and every 25 afterward
-            if ((settings.searchCount - 10) % 25 == 0 || settings.searchCount == 10) {
+            version (free_version) // Makes the donation prompt open on the 10th search and every 20 afterward
+            if ((!settings.disableNag && (settings.searchCount - 10) % 20 == 0) || settings.searchCount == 10) {
                 import core.thread: Thread;
                 import core.time: seconds;
 
