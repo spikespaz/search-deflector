@@ -37,9 +37,25 @@ void main(string[] args) {
         createErrorDialog(new Exception(
                 "Expected one URI argument, recieved: \n" ~ args.to!string()));
     }
+
+string getSearchTerm(const string uri) {
+    if (!uri.toLower().startsWith("microsoft-edge:"))
+        throw new Exception("Not a 'microsoft-edge' URI: " ~ uri);
+
+    const string[string] queryParams = getQueryParams(uri);
+
+    if (queryParams is null || "url" !in queryParams)
+        return null;
+
+    const string url = queryParams["url"].decodeComponent();
+
+    if (url.matchFirst(`^https:\/\/.+\.bing.com`))
+        return getQueryParams(url)["q"].decodeComponent();
+    
+    return null;
 }
 
-/// Reqrites a "microsoft-edge" URI to something browsers can use.
+/// Rewrites a "microsoft-edge" URI to something browsers can use.
 string rewriteUri(const string uri, const string engineUrl) {
     if (uri.toLower().startsWith("microsoft-edge:")) {
         const string[string] queryParams = getQueryParams(uri);
