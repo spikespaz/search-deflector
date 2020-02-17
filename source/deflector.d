@@ -10,33 +10,44 @@ import std.conv: to;
 debug import std.stdio: writeln;
 
 void main(string[] args) {
-    if (args.length > 1) {
-        try {
-            auto settings = DeflectorSettings.get();
-
-            openUri(settings.browserPath, rewriteUri(args[1], settings.engineURL));
-
-            settings.searchCount++;
-
-            settings.dump();
-
-            version (free_version) // Makes the donation prompt open on the 10th search and every 20 afterward
-            if ((!settings.disableNag && (settings.searchCount - 10) % 20 == 0) || settings.searchCount == 10) {
-                import core.thread: Thread;
-                import core.time: seconds;
-
-                Thread.sleep(seconds(5));
-                openUri(settings.browserPath, WIKI_THANKS_URL);
-            }
-        } catch (Exception error) {
-            createErrorDialog(error);
-
-            debug writeln(error);
-        }
-    } else {
+    if (args.length <= 1) {
         createErrorDialog(new Exception(
-                "Expected one URI argument, recieved: \n" ~ args.to!string()));
+            "Expected one URI argument, recieved: \n" ~ args.to!string()));
+
+        return;
     }
+
+    try {
+        auto settings = DeflectorSettings.get();
+        const string searchTerm = getSearchTerm(args[1]);
+
+        switch (searchTerm) {
+            case "!DisableDonationRequest":
+                settings.disableNag = true;
+                settings.dump();
+
+                break;
+            default:
+                openUri(settings.browserPath, rewriteUri(args[1], settings.engineURL));
+                settings.searchCount++;
+                settings.dump();
+
+                version (free_version) // Makes the donation prompt open on the 10th search and every 20 afterward
+                if ((!settings.disableNag && (settings.searchCount - 10) % 20 == 0) || settings.searchCount == 10) {
+                    import core.thread: Thread;
+                    import core.time: seconds;
+
+                    Thread.sleep(seconds(5));
+                    openUri(settings.browserPath, WIKI_THANKS_URL);
+                }
+        }
+    } catch (Exception error) {
+        createErrorDialog(error);
+
+        debug writeln(error);
+    }
+
+}
 
 string getSearchTerm(const string uri) {
     if (!uri.toLower().startsWith("microsoft-edge:"))
