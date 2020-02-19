@@ -1,20 +1,21 @@
 // This file is parsed by each client using Search Deflector.
 // It serves as a way to always provide an updated list of search engines,
 // so the user doesn't have to update the executable to get the latest engine changes.
-Google:          google.com/search?q={{query}}
-Ecosia:          ecosia.org/search?q={{query}}
-DuckDuckGo:      duckduckgo.com/?q={{query}}
-Bing:            bing.com/search?q={{query}}
-Yahoo:           search.yahoo.com/search?p={{query}}
-Baidu:           baidu.com/s?wd={{query}}
-Yandex:          yandex.ru/search/?text={{query}}
-Startpage:       startpage.com/do/search?q={{query}}
-Ask:             ask.com/web?q={{query}}
-Wolfram Alpha:   wolframalpha.com/input/?i={{query}}
-Wikipedia:       wikipedia.org/wiki/Special:Search?search={{query}}
-Dictionary.com:  dictionary.com/browse/{{query}}
-Thesaurus.com:   thesaurus.com/browse/{{query}}
-GitHub:          github.com/search?q={{query}}
-Stack Overflow:  stackoverflow.com/search?q={{query}}
 Amazon:          amazon.com/s?k={{query}}
+Ask:             ask.com/web?q={{query}}
+Baidu:           baidu.com/s?wd={{query}}
+Bing:            bing.com/search?q={{query}}
+Dictionary.com:  dictionary.com/browse/{{query}}
+DuckDuckGo:      duckduckgo.com/?q={{query}}
+Ecosia:          ecosia.org/search?q={{query}}
+GitHub:          github.com/search?q={{query}}
+Google:          google.com/search?q={{query}}
+Qwant:           qwant.com/?q={{query}}
+Stack Overflow:  stackoverflow.com/search?q={{query}}
+Startpage:       startpage.com/do/search?q={{query}}
+Thesaurus.com:   thesaurus.com/browse/{{query}}
+Wikipedia:       wikipedia.org/wiki/Special:Search?search={{query}}
+Wolfram Alpha:   wolframalpha.com/input/?i={{query}}
+Yahoo:           search.yahoo.com/search?p={{query}}
+Yandex:          yandex.ru/search/?text={{query}}
 YouTube:         youtube.com/results?search_query={{query}}
