@@ -7,6 +7,11 @@ import std.regex: matchFirst;
 import std.array: split;
 import std.conv: to;
 
+version (free_version) {
+    import core.thread: Thread;
+    import core.time: seconds;
+}
+
 debug import std.stdio: writeln;
 
 void main(string[] args) {
@@ -22,7 +27,7 @@ void main(string[] args) {
         const string searchTerm = getSearchTerm(args[1]);
 
         switch (searchTerm) {
-            case "!DisableDonationRequest":
+            version (free_version) case "!DisableDonationRequest":
                 settings.disableNag = true;
                 settings.dump();
 
@@ -31,15 +36,12 @@ void main(string[] args) {
                 openUri(settings.browserPath, rewriteUri(args[1], settings.engineURL));
                 settings.searchCount++;
                 settings.dump();
+        }
 
-                version (free_version) // Makes the donation prompt open on the 10th search and every 20 afterward
-                if ((!settings.disableNag && (settings.searchCount - 10) % 20 == 0) || settings.searchCount == 10) {
-                    import core.thread: Thread;
-                    import core.time: seconds;
-
-                    Thread.sleep(seconds(5));
-                    openUri(settings.browserPath, WIKI_THANKS_URL);
-                }
+        version (free_version) // Makes the donation prompt open on the 10th search and every 20 afterward
+        if ((!settings.disableNag && (settings.searchCount - 10) % 20 == 0) || settings.searchCount == 10) {
+            Thread.sleep(seconds(5));
+            openUri(settings.browserPath, WIKI_THANKS_URL);
         }
     } catch (Exception error) {
         createErrorDialog(error);
