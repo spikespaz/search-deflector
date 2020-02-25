@@ -401,6 +401,17 @@ struct SettingsSyncApi {
     void dump() {
         debug writeln("SettingsSyncApi.dump()");
 
+        if (this.parent.browserSelect.currentText == "System Default") {
+            immutable auto defBrowser = getSysDefaultBrowser();
+            const string browserName = nameFromPath(this.browsers, defBrowser.path);
+
+            if (defBrowser.progID == "MSEdgeHTM") {
+                // Reset the path select button and path edit box according to "Custom"
+                this.browserName(browserName);
+                this.parent.browserPath.content = defBrowser.path;
+            }
+        }
+
         if (this.parent.browserSelect.currentText != "System Default" && !validateExecutablePath(this.browserPath)) {
             debug writeln("Bad browser path: ", this.browserPath);
             createWarningDialog("Custom browser path is invalid.\nCheck the wiki for more information.", this.parent
