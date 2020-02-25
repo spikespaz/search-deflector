@@ -12,7 +12,10 @@ version (free_version) {
     import core.time: seconds;
 }
 
-debug import std.stdio: writeln;
+debug {
+    import core.stdc.stdio: getchar;
+    import std.stdio: writeln;
+}
 
 void main(string[] args) {
     if (args.length <= 1) {
@@ -49,6 +52,7 @@ void main(string[] args) {
         debug writeln(error);
     }
 
+    debug getchar();
 }
 
 string getSearchTerm(const string uri) {
