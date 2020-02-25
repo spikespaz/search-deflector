@@ -11,7 +11,6 @@ import std.net.curl: get, CurlException;
 import std.typecons: Tuple, tuple;
 import std.uri: encodeComponent;
 import std.algorithm: canFind;
-import std.process: browse;
 import std.format: format;
 import std.utf: toUTF16z;
 import std.conv: to;
@@ -211,19 +210,21 @@ T[K] mergeAAs(T, K)(T[K] baseAA, T[K] updateAA) {
 
 /// Open a URL by spawning a shell process to the browser executable, or system default.
 void openUri(const string browserPath, const string url) {
-    if (["system_default", ""].canFind(browserPath))
-        browse(url); // Automatically calls the system default browser.
-    else
-        try
-            spawnProcess([browserPath, url], null, Config.detached); // Uses a specific executable.
-        catch (ProcessException error) {
-            const uint messageId = MessageBox(null, "Search Deflector could not deflect the URI to your browser." ~
-                    "\nMake sure that the browser is still installed and that the executable still exists." ~
-                    "\n\nWould you like to see the full error message online?", "Search Deflector", MB_ICONWARNING | MB_YESNO);
+    string execPath;
 
-            if (messageId == IDYES)
-                createErrorDialog(error);
-        }
+    if (["system_default", ""].canFind(browserPath))
+        execPath = getSysDefaultBrowser().path;
+
+    try
+        spawnProcess([execPath, url], null, Config.detached); // Uses a specific executable.
+    catch (ProcessException error) {
+        const uint messageId = MessageBox(null, "Search Deflector could not deflect the URI to your browser." ~
+                "\nMake sure that the browser is still installed and that the executable still exists." ~
+                "\n\nWould you like to see the full error message online?", "Search Deflector", MB_ICONWARNING | MB_YESNO);
+
+        if (messageId == IDYES)
+            createErrorDialog(error);
+    }
 }
 
 /// Format a string by replacing each key with a value in replacements.
