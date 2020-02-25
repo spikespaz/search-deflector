@@ -5,9 +5,10 @@ import core.sys.windows.windows: CommandLineToArgvW, GetCommandLineW, MessageBox
 import std.windows.registry: Registry, RegistryException, Key, REGSAM;
 import std.process: browse, spawnProcess, Config, ProcessException;
 import std.string: strip, splitLines, indexOf, stripLeft, replace;
+import std.file: FileException, exists, readText, thisExePath;
 import std.path: isValidFilename, buildPath, dirName;
-import std.file: exists, readText, thisExePath;
 import std.net.curl: get, CurlException;
+import std.typecons: Tuple, tuple;
 import std.uri: encodeComponent;
 import std.algorithm: canFind;
 import std.process: browse;
@@ -278,6 +279,22 @@ string[string] getAllAvailableBrowsers() {
     }
 
     return browsers;
+}
+
+Tuple!(string, "progID", string, "path") getSysDefaultBrowser() {
+    Key userChoiceKey = Registry.currentUser.getKey("SOFTWARE\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\https\\UserChoice");
+    const string progID = userChoiceKey.getValue("ProgID").value_SZ;
+    Key progCommandKey = Registry.localMachine.getKey("SOFTWARE\\Classes\\" ~ progID ~ "\\shell\\open\\command");
+    string browserPath = progCommandKey.getValue("").value_SZ;
+
+    if (!isValidFilename(browserPath) && !exists(browserPath)) {
+        browserPath = getConsoleArgs(browserPath.toUTF16z())[0];
+
+        if (!isValidFilename(browserPath) && !exists(browserPath))
+            throw new FileException(browserPath, "Browser executable path does not exist or is not valid.");
+    }
+
+    return tuple!("progID", "path")(progID, browserPath);
 }
 
 string nameFromPath(const string[string] browsers, const string path) {
