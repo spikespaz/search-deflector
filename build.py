@@ -111,7 +111,7 @@ def compile_file(source, binary, debug=True, console=False, args=None):
         command.extend(["-O3", "-ffast-math", "-release"])
 
         if not console:
-            command.extend(["-L/subsystem:windows", "-L/entry:mainCRTStartup"])
+            command.extend(["-L/subsystem:windows", "-L/entry:wmainCRTStartup"])
 
     if args:
         command.extend(args)
