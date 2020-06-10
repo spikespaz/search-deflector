@@ -56,6 +56,9 @@ struct ConfigApp {
     LineEdit browserPath;
     LineEdit engineUrl;
 
+    Checkbox useProfile;
+    LineEdit profileName;
+
     Button browserPathButton;
     Button applyButton;
     Button wikiButton;
@@ -87,8 +90,8 @@ struct ConfigApp {
     void createWindow() {
         debug writeln("ConfigApp.createWindow()");
 
-        this.window = new Window(400, 290, "Configure Search Deflector");
-        this.window.win.setMinSize(300, 290);
+        this.window = new Window(400, 340, "Configure Search Deflector");
+        this.window.win.setMinSize(300, 340);
 
         this.createWidgets();
         this.loadDefaults();
@@ -188,6 +191,7 @@ struct ConfigApp {
         this.browserSelect = new DropDownSelection(layout);
         this.browserSelect.addOption("Custom");
         this.browserSelect.addOption("System Default");
+
         vSpacer = new VerticalSpacer(layout);
         vSpacer.setMaxHeight(8);
 
@@ -206,32 +210,44 @@ struct ConfigApp {
         label = new TextLabel("Preferred Search Engine", layout);
         this.engineSelect = new DropDownSelection(layout);
         this.engineSelect.addOption("Custom");
+
         vSpacer = new VerticalSpacer(layout);
         vSpacer.setMaxHeight(8);
 
         label = new TextLabel("Custom Search Engine URL", layout);
         this.engineUrl = new LineEdit(layout);
         this.engineUrl.setEnabled(false);
+
+        vSpacer = new VerticalSpacer(layout);
+        vSpacer.setMaxHeight(8);
+
+        label = new TextLabel("Browser User Profile", layout);
+        auto hLayout1 = new HorizontalLayout(layout);
+        this.useProfile = new Checkbox("Enable", hLayout1);
+        this.useProfile.isChecked = false;
+        this.profileName = new LineEdit(hLayout1);
+        this.profileName.setEnabled(false);
+
         vSpacer = new VerticalSpacer(layout);
 
-        auto hLayout1 = new HorizontalLayout(layout);
+        auto hLayout2 = new HorizontalLayout(layout);
 
         HorizontalSpacer hSpacer;
 
-        this.applyButton = new Button("Apply", hLayout1);
+        this.applyButton = new Button("Apply", hLayout2);
         this.applyButton.setEnabled(false);
 
-        hSpacer = new HorizontalSpacer(hLayout1);
+        hSpacer = new HorizontalSpacer(hLayout2);
         hSpacer.setMaxWidth(4);
         hSpacer.setMaxHeight(1);
 
-        this.wikiButton = new Button("Website", hLayout1);
+        this.wikiButton = new Button("Website", hLayout2);
 
-        hSpacer = new HorizontalSpacer(hLayout1);
+        hSpacer = new HorizontalSpacer(hLayout2);
         hSpacer.setMaxWidth(4);
         hSpacer.setMaxHeight(1);
 
-        this.closeButton = new Button("Close", hLayout1);
+        this.closeButton = new Button("Close", hLayout2);
     }
 
     version (free_version) void createUpdatePageWidgets() {
@@ -295,6 +311,10 @@ struct ConfigApp {
 
         foreach (engine; this.syncApi.engines.byKey)
             this.engineSelect.addOption(engine);
+
+        this.useProfile.isChecked = this.syncApi.settings.useProfile;
+        this.profileName.content = this.syncApi.settings.profileName;
+        this.profileName.setEnabled(this.syncApi.settings.useProfile);
     }
 
     void showConfigPageDefaults() {
@@ -343,6 +363,21 @@ struct ConfigApp {
         this.engineSelect.addEventListener(EventType.change, {
             debug writeln(this.engineSelect.currentText);
             this.syncApi.engineName = this.engineSelect.currentText;
+            this.applyButton.setEnabled(true);
+        });
+
+        this.useProfile.addEventListener(EventType.change, {
+            debug writeln("Profile name enabled: ", this.useProfile.isChecked);
+            this.syncApi.settings.useProfile = this.useProfile.isChecked;
+            this.syncApi.dump();
+            this.profileName.setEnabled(this.useProfile.isChecked);
+        });
+
+        this.profileName.addEventListener(EventType.keyup, {
+            string value = this.profileName.content.strip(); // Sanitize
+            debug writeln("Profile name changed: ", value);
+            this.syncApi.profileName = value;
+            this.syncApi.dump();
             this.applyButton.setEnabled(true);
         });
 
@@ -496,6 +531,13 @@ struct SettingsSyncApi {
 
         if (this.parent.engineSelect.currentText != value)
             this.parent.engineSelect.currentText = value;
+    }
+
+    void profileName(const string value) {
+        if (value.length == 0)
+            this.settings.useProfile = false;
+
+        this.settings.profileName = value;
     }
 
     string browserPath() {
