@@ -46,47 +46,47 @@ void main(string[] args) {
     }
 }
 
+/// Main structure for user interface
 struct ConfigApp {
-    Window window;
-    SettingsSyncApi syncApi;
+    Window window; /// Main program window
+    SettingsSyncApi syncApi; /// Settings synchronization API instance for registry and UI
 
-    DropDownSelection browserSelect;
-    DropDownSelection engineSelect;
+    DropDownSelection browserSelect; /// Drop down selection for installed browsers
+    DropDownSelection engineSelect; /// Drop down selection for engines from engines.txt
 
-    LineEdit browserPath;
-    LineEdit engineUrl;
+    LineEdit browserPath; /// Browser Path Line Edit
+    LineEdit engineUrl; /// Engine URL Line Edit
 
-    Checkbox useProfile;
-    LineEdit profileName;
+    Checkbox useProfile; /// Enable/Disable Browser Profile Checkbox
+    LineEdit profileName; /// Profile Name Line Edit
 
-    Button browserPathButton;
-    Button applyButton;
-    Button wikiButton;
-    Button closeButton;
+    Button browserPathButton; /// Browser Path Selection Button
+    Button applyButton; /// Apply Settings Button
+    Button wikiButton; /// Open Website Button
+    Button closeButton; /// Close Interface Button
 
     version (free_version) {
-        TabWidget tabs;
+        TabWidget tabs; /// Main Tabs Widget
 
-        // All widgets for Settings tab
-        TabWidgetPage page0;
+        TabWidgetPage page0; /// Page for main settings
+        TabWidgetPage page1; /// Page for update information
 
-        // All widgets for Update tab
-        TabWidgetPage page1;
-
+        /// Labels for update information
         TextLabel versionLabel, uploaderLabel, timestampLabel, binarySizeLabel, downloadCountLabel;
 
-        Button updateButton;
-        Button detailsButton;
+        Button updateButton; /// Button to download and apply update
+        Button detailsButton; /// Button to open the latest release
 
-        JSONValue releaseJson;
-        JSONValue releaseAsset;
+        JSONValue releaseJson; /// Release JSON data from GitHub
+        JSONValue releaseAsset; /// Latest release JSOn asset data from GitHub
     } else {
-        VerticalLayout tabs;
-        VerticalLayout page0;
+        VerticalLayout tabs; /// Tabs as a vertical layout instead when updater is not compiled
+        VerticalLayout page0; /// Page for main settings as another layout
     }
 
-    bool browserPathButtonHidden = true;
+    bool browserPathButtonHidden = true; /// Flag whether or not the path selection button should be shown
 
+    /// Window construction main function
     void createWindow() {
         debug writeln("ConfigApp.createWindow()");
 
@@ -130,24 +130,28 @@ struct ConfigApp {
         this.browserPathButtonHidden = true;
     }
 
+    /// Checks whether or not the version online is newer by SemVer
     version (free_version) bool shouldUpdate() {
         debug writeln("ConfigApp.shouldUpdate()");
 
         return compareVersions(this.releaseJson["tag_name"].str, PROJECT_VERSION);
     }
 
+    /// Returns the path to the downloaded installer in TEMP
     string getInstallerPath() {
         debug writeln("ConfigApp.getInstallerPath()");
 
         return buildNormalizedPath(tempDir(), SETUP_FILENAME);
     }
 
+    /// Begin main window loop
     void loopWindow() {
         debug writeln("ConfigApp.loopWindow()");
 
         this.window.loop();
     }
 
+    /// Construct all of widgets in the interface
     void createWidgets() {
         debug writeln("ConfigApp.createWidgets()");
 
@@ -179,6 +183,7 @@ struct ConfigApp {
             label.setMargins(6, 0, 4, 0);
     }
 
+    /// Main interface (first page) widget construction
     void createConfigPageWidgets() {
         debug writeln("ConfigApp.createConfigPageWidgets()");
 
@@ -260,6 +265,7 @@ struct ConfigApp {
         this.closeButton = new Button("Close", hLayout);
     }
 
+    /// Updater page's widget construction
     version (free_version) void createUpdatePageWidgets() {
         debug writeln("ConfigApp.createUpdatePageWidgets()");
 
@@ -307,6 +313,7 @@ struct ConfigApp {
         this.detailsButton = new Button("Details", hLayout0);
     }
 
+    /// Load defaults from registry into UI
     void loadDefaults() {
         debug writeln("ConfigApp.loadDefaults()");
 
@@ -327,6 +334,7 @@ struct ConfigApp {
         this.profileName.setEnabled(this.syncApi.settings.useProfile);
     }
 
+    /// Set UI browser and engine names from the registry's values
     void showConfigPageDefaults() {
         debug writeln("ConfigApp.showConfigPageDefaults()");
 
@@ -334,6 +342,7 @@ struct ConfigApp {
         this.syncApi.engineName = this.syncApi.engines.nameFromUrl(this.syncApi.settings.engineURL);
     }
 
+    /// Set the updater page's information from latest GitHub release
     version (free_version) void showUpdatePageDefaults() {
         debug writeln("ConfigApp.showUpdatePageDefaults()");
 
@@ -347,6 +356,7 @@ struct ConfigApp {
         this.downloadCountLabel.label = releaseAsset["download_count"].integer.to!string();
     }
 
+    /// Bind listeners for every widget on the config page that needs actions handled
     void bindConfigPageListeners() {
         debug writeln("ConfigApp.bindConfigPageListeners()");
 
@@ -411,6 +421,7 @@ struct ConfigApp {
         this.closeButton.addEventListener(EventType.triggered, { exit(0); });
     }
 
+    /// Bind listeners for widgets on the update page
     version (free_version) void bindUpdatePageListeners() {
         debug writeln("ConfigApp.bindUpdatePageListeners()");
 
@@ -425,6 +436,7 @@ struct ConfigApp {
         });
     }
 
+    /// Fetch the latest release informatiion from GutHub
     version (free_version) void fetchReleaseInfo() {
         debug writeln("ConfigApp.fetchReleaseInfo()");
 
@@ -432,6 +444,7 @@ struct ConfigApp {
         this.releaseAsset = getReleaseAsset(releaseJson, SETUP_FILENAME);
     }
 
+    /// Begin installing the latest version of the program.
     version (free_version) void installUpdate(const bool silent) {
         debug writeln("ConfigApp.installUpdate()");
 
@@ -439,12 +452,14 @@ struct ConfigApp {
     }
 }
 
+/// Object to help keep both registry and interface up-to-date with eachother
 struct SettingsSyncApi {
     private ConfigApp* parent;
     private DeflectorSettings settings;
     private string[string] engines;
     private string[string] browsers;
 
+    /// Dump current settings to registry
     void dump() {
         debug writeln("SettingsSyncApi.dump()");
 
@@ -465,6 +480,7 @@ struct SettingsSyncApi {
         this.settings.dump();
     }
 
+    /// Set the browser path after validation
     void browserPath(const string value) {
         debug writeln("SettingsSyncApi.browserPath(value)");
 
@@ -476,6 +492,7 @@ struct SettingsSyncApi {
         }
     }
 
+    /// Set the browser name from the path provided
     void browserName(const string value) {
         debug writeln("SettingsSyncApi.browserName(value)");
 
@@ -509,6 +526,7 @@ struct SettingsSyncApi {
             this.parent.browserSelect.currentText = value;
     }
 
+    /// Set the engine URL after validation
     void engineUrl(const string value) {
         debug writeln("SettingsSyncApi.engineUrl(value)");
 
@@ -520,6 +538,7 @@ struct SettingsSyncApi {
         }
     }
 
+    /// Set the engine name in accordance to the URL
     void engineName(const string value) {
         debug writeln("SettingsSyncApi.engineName(value)");
 
@@ -545,6 +564,7 @@ struct SettingsSyncApi {
             this.parent.engineSelect.currentText = value;
     }
 
+    /// Set the profile name and disable if empty
     void profileName(const string value) {
         if (value.length == 0)
             this.settings.useProfile = false;
@@ -552,11 +572,13 @@ struct SettingsSyncApi {
         this.settings.profileName = value;
     }
 
+    /// Get the browser path
     string browserPath() {
         debug writeln("SettingsSyncApi.browserPath()");
         return this.settings.browserPath;
     }
 
+    /// Get the browser name from the current path
     string browserName() {
         debug writeln("SettingsSyncApi.browserName()");
 
@@ -570,11 +592,13 @@ struct SettingsSyncApi {
         return "Custom";
     }
 
+    /// Get the current engine URL
     string engineUrl() {
         debug writeln("SettingsSyncApi.engineUrl()");
         return this.settings.engineURL;
     }
 
+    /// Get the current engine name from path in settings
     string engineName() {
         debug writeln("SettingsSyncApi.browserName()");
 
@@ -586,6 +610,7 @@ struct SettingsSyncApi {
     }
 }
 
+/// Return true if the executable path is valid
 bool validateExecutablePath(const string path) {
     return path && path.exists() && path.isFile() && path.endsWith(".exe");
 }
@@ -608,11 +633,8 @@ bool validateEngineUrl(const string url) {
         return false;
 }
 
+/// Convert date from JSON API to human readable string
 string toReadableTimestamp(T)(T time) {
     return "%02d-%02d-%0004d  %02d:%02d %s".format(time.month, time.day, time.year, (time.hour > 12 ?
             time.hour - 12 : time.hour), time.minute, (time.hour > 12 ? "PM" : "AM"));
-}
-
-bool isNull(T)(T value) if (is(T == class) || isPointer!T) {
-    return value is null;
 }
