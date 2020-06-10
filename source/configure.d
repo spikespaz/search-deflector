@@ -186,7 +186,10 @@ struct ConfigApp {
 
         TextLabel label;
         VerticalSpacer vSpacer;
+        HorizontalSpacer hSpacer;
+        HorizontalLayout hLayout;
 
+        // Group for selecting from a list of installed browsers
         label = new TextLabel("Preferred Browser", layout);
         this.browserSelect = new DropDownSelection(layout);
         this.browserSelect.addOption("Custom");
@@ -195,11 +198,12 @@ struct ConfigApp {
         vSpacer = new VerticalSpacer(layout);
         vSpacer.setMaxHeight(8);
 
+        // Group for the browser path display/edit and a button to browse files
         label = new TextLabel("Browser Executable", layout);
-        auto hLayout0 = new HorizontalLayout(layout);
-        this.browserPath = new LineEdit(hLayout0);
+        hLayout = new HorizontalLayout(layout);
+        this.browserPath = new LineEdit(hLayout);
         this.browserPath.setEnabled(false);
-        this.browserPathButton = new Button("...", hLayout0);
+        this.browserPathButton = new Button("...", hLayout);
         this.browserPathButton.setMaxWidth(30);
         this.browserPathButton.hide();
         this.browserPathButtonHidden = true;
@@ -207,6 +211,7 @@ struct ConfigApp {
         vSpacer = new VerticalSpacer(layout);
         vSpacer.setMaxHeight(8);
 
+        // Group for selecting from a list of search engines
         label = new TextLabel("Preferred Search Engine", layout);
         this.engineSelect = new DropDownSelection(layout);
         this.engineSelect.addOption("Custom");
@@ -214,6 +219,7 @@ struct ConfigApp {
         vSpacer = new VerticalSpacer(layout);
         vSpacer.setMaxHeight(8);
 
+        // Group for editing the engine URL
         label = new TextLabel("Custom Search Engine URL", layout);
         this.engineUrl = new LineEdit(layout);
         this.engineUrl.setEnabled(false);
@@ -221,33 +227,37 @@ struct ConfigApp {
         vSpacer = new VerticalSpacer(layout);
         vSpacer.setMaxHeight(8);
 
-        label = new TextLabel("Browser User Profile", layout);
-        auto hLayout1 = new HorizontalLayout(layout);
-        this.useProfile = new Checkbox("Enable", hLayout1);
-        this.useProfile.isChecked = false;
-        this.profileName = new LineEdit(hLayout1);
+        // Group for enabling/disabling and naming the browser profile
+        label = new TextLabel("Chrome/Firefox User Profile", layout);
+        hLayout = new HorizontalLayout(layout);
+        this.profileName = new LineEdit(hLayout);
         this.profileName.setEnabled(false);
+        hSpacer = new HorizontalSpacer(hLayout);
+        hSpacer.setMaxWidth(2);
+        hSpacer.setMaxHeight(1);
+        this.useProfile = new Checkbox("Enable", hLayout);
+        this.useProfile.isChecked = false;
+        this.useProfile.setMargins(4, 4, 0, 0);
+        this.useProfile.setStretchiness(2, 4);
 
         vSpacer = new VerticalSpacer(layout);
 
-        auto hLayout2 = new HorizontalLayout(layout);
-
-        HorizontalSpacer hSpacer;
-
-        this.applyButton = new Button("Apply", hLayout2);
+        // Group for Apply, Website and Close buttons
+        hLayout = new HorizontalLayout(layout);
+        this.applyButton = new Button("Apply", hLayout);
         this.applyButton.setEnabled(false);
 
-        hSpacer = new HorizontalSpacer(hLayout2);
+        hSpacer = new HorizontalSpacer(hLayout);
         hSpacer.setMaxWidth(4);
         hSpacer.setMaxHeight(1);
 
-        this.wikiButton = new Button("Website", hLayout2);
+        this.wikiButton = new Button("Website", hLayout);
 
-        hSpacer = new HorizontalSpacer(hLayout2);
+        hSpacer = new HorizontalSpacer(hLayout);
         hSpacer.setMaxWidth(4);
         hSpacer.setMaxHeight(1);
 
-        this.closeButton = new Button("Close", hLayout2);
+        this.closeButton = new Button("Close", hLayout);
     }
 
     version (free_version) void createUpdatePageWidgets() {
@@ -394,7 +404,9 @@ struct ConfigApp {
             this.applyButton.setEnabled(false);
         });
 
-        this.wikiButton.addEventListener(EventType.triggered, { openUri(this.syncApi.browserPath, WIKI_URL); });
+        this.wikiButton.addEventListener(EventType.triggered, {
+            openUri(this.syncApi.browserPath, getBrowserArgs(this.syncApi.settings), WIKI_URL);
+        });
 
         this.closeButton.addEventListener(EventType.triggered, { exit(0); });
     }
@@ -409,7 +421,7 @@ struct ConfigApp {
         });
 
         this.detailsButton.addEventListener(EventType.triggered, {
-            openUri(this.syncApi.browserPath, this.releaseJson["html_url"].str);
+            openUri(this.syncApi.browserPath, getBrowserArgs(this.syncApi.settings), this.releaseJson["html_url"].str);
         });
     }
 
