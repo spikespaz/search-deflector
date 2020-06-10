@@ -236,6 +236,20 @@ Root: HKCU; \
     Components: main
 Root: HKCU; \
     Subkey: "Software\Clients\SearchDeflector"; \
+    ValueName: "UseProfile"; \
+    ValueData: 0; \
+    ValueType: dword; \
+    Flags: createvalueifdoesntexist; \
+    Components: main
+Root: HKCU; \
+    Subkey: "Software\Clients\SearchDeflector"; \
+    ValueName: "ProfileName"; \
+    ValueData: "Default"; \
+    ValueType: string; \
+    Flags: createvalueifdoesntexist; \
+    Components: main
+Root: HKCU; \
+    Subkey: "Software\Clients\SearchDeflector"; \
     ValueName: "SearchCount"; \
     ValueData: 0; \
     ValueType: dword; \
