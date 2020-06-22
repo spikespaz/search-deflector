@@ -242,6 +242,8 @@ void openUri(const string browserPath, const string args, const string url) {
 
     if (["system_default", ""].canFind(browserPath))
         execPath = getSysDefaultBrowser().path;
+    else
+        execPath = browserPath;
 
     try
         spawnProcess([execPath, args is null ? "" : args, url], null, Config.detached); // Uses a specific executable.
