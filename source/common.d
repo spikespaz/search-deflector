@@ -102,6 +102,49 @@ string[] getConsoleArgs(const wchar* commandLine = GetCommandLineW()) {
     return args;
 }
 
+/// Escape a command line argument according to the reference:
+/// https://web.archive.org/web/20190109172835/https://blogs.msdn.microsoft.com/twistylittlepassagesallalike/2011/04/23/everyone-quotes-command-line-arguments-the-wrong-way/
+string escapeShellArg(const string argument, bool force) {
+    if (argument.length == 0)
+        return "";
+
+    if (!force && argument.indexOfAny(" \t\n\v\"") == -1)
+        return argument;
+
+    string escapedArg = "\"";
+
+    for (uint pos = 0; pos < argument.length; pos++) {
+        uint backslashCount = 0;
+        
+        while (pos != argument.length && argument[pos] == '\\') {
+            pos++;
+            backslashCount++;
+        }
+
+        if (pos == argument.length) {
+            escapedArg ~= '\\'.repeat(backslashCount * 2).to!string();
+            break;
+        } else if (argument[pos] == '"')
+            escapedArg ~= '\\'.repeat(backslashCount * 2 + 1).to!string() ~ '"';
+        else
+            escapedArg ~= '\\'.repeat(backslashCount).to!string() ~ argument[pos];
+    }
+
+    escapedArg ~= '"';
+
+    return escapedArg;
+}
+
+/// Function to create a string from arguments that is properly escaped.
+string escapeShellArgs(const string[] arguments) {
+    string commandLine;
+
+    foreach(string argument; arguments)
+        commandLine ~= ' ' ~ escapeShellArg(argument, false);
+
+    return commandLine;
+}
+
 /// Struct representing the settings to use for deflection.
 struct DeflectorSettings {
     string engineURL; /// ditto
