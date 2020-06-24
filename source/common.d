@@ -1,14 +1,15 @@
 module common;
 
-import core.sys.windows.windows: CommandLineToArgvW, GetCommandLineW, MessageBox, MB_ICONERROR,
-    MB_ICONWARNING, MB_YESNO, IDYES, MB_OK, HWND;
-import std.string: strip, splitLines, indexOf, stripLeft, replace, endsWith;
+import core.sys.windows.windows: CommandLineToArgvW, GetCommandLineW, CreateProcessW, MessageBox,
+    MB_ICONERROR, MB_ICONWARNING, MB_YESNO, IDYES, MB_OK, HWND, DETACHED_PROCESS, CREATE_UNICODE_ENVIRONMENT, STARTUPINFO_W, PROCESS_INFORMATION;
+import std.string: strip, splitLines, indexOf, indexOfAny, stripLeft, replace, endsWith;
 import std.windows.registry: Registry, RegistryException, Key, REGSAM;
-import std.process: browse, spawnProcess, Config, ProcessException;
 import std.file: FileException, exists, readText, thisExePath;
 import std.path: isValidFilename, buildPath, dirName;
+import std.process: browse, ProcessException;
 import std.net.curl: get, CurlException;
 import std.typecons: Tuple, tuple;
+import std.utf: toUTF16z, toUTFz;
 import std.uri: encodeComponent;
 import std.algorithm: canFind;
 import std.format: format;
@@ -291,16 +292,34 @@ void openUri(const string browserPath, const string args, const string url) {
     else
         execPath = browserPath;
 
-    try
-        spawnProcess([execPath, args is null ? "" : args, url], null, Config.detached); // Uses a specific executable.
-    catch (ProcessException error) {
+    const string commandLine = "%s %s %s".format(escapeShellArg(execPath, false), args, escapeShellArg(url, false));
+
+    STARTUPINFO_W lpStartupInfo = { STARTUPINFO_W.sizeof };
+    PROCESS_INFORMATION lpProcessInformation;
+
+    debug writeln(commandLine);
+
+    const bool success = cast(bool) CreateProcessW(
+        execPath.toUTF16z(), /* lpApplicationName */
+        commandLine.toUTFz!(wchar*)(), /* lpCommandLine */
+        null, /* lpProcessAttributes */
+        null, /* lpThreadAttributes */
+        true, /* bInheritHandles */
+        CREATE_UNICODE_ENVIRONMENT | DETACHED_PROCESS, /* dwCreationFlags */
+        null, /* lpEnvironment */
+        null, /* lpCurrentDirectory */
+        &lpStartupInfo, /* lpStartupInfo */
+        &lpProcessInformation /* lpProcessInformation */
+    );
+
+    if (!success) {
         const uint messageId = MessageBox(null, "Search Deflector could not deflect the URI to your browser." ~
                 "\nMake sure that the browser is still installed and that the executable still exists." ~
                 "\n\nWould you like to see the full error message online?",
                 "Search Deflector", MB_ICONWARNING | MB_YESNO);
 
         if (messageId == IDYES)
-            createErrorDialog(error);
+            createErrorDialog(ProcessException.newFromLastError("Failed to spawn new process"));
     }
 }
 
