@@ -1,6 +1,6 @@
 module deflector;
 
-import common: getConsoleArgs, openUri, createErrorDialog, DeflectorSettings, WIKI_THANKS_URL;
+import common: getConsoleArgs, getBrowserArgs, openUri, createErrorDialog, DeflectorSettings, WIKI_THANKS_URL;
 import std.string: replace, indexOf, toLower, startsWith;
 import std.uri: decodeComponent, encodeComponent;
 import std.regex: matchFirst;
@@ -28,6 +28,7 @@ void main(string[] args) {
     try {
         auto settings = DeflectorSettings.get();
         const string searchTerm = getSearchTerm(args[1]);
+        const string browserArgs = getBrowserArgs(settings);
 
         switch (searchTerm) {
             version (free_version) case "!DisableDonationRequest":
@@ -36,7 +37,7 @@ void main(string[] args) {
 
                 break;
             default:
-                openUri(settings.browserPath, rewriteUri(args[1], settings.engineURL));
+                openUri(settings.browserPath, browserArgs, rewriteUri(args[1], settings.engineURL));
                 settings.searchCount++;
                 settings.dump();
         }
@@ -44,7 +45,7 @@ void main(string[] args) {
         version (free_version) // Makes the donation prompt open on the 10th search and every 20 afterward
         if ((!settings.disableNag && (settings.searchCount - 10) % 20 == 0) || settings.searchCount == 10) {
             Thread.sleep(seconds(5));
-            openUri(settings.browserPath, WIKI_THANKS_URL);
+            openUri(settings.browserPath, browserArgs, WIKI_THANKS_URL);
         }
     } catch (Exception error) {
         createErrorDialog(error);
