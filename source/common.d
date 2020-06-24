@@ -12,7 +12,8 @@ import std.typecons: Tuple, tuple;
 import std.uri: encodeComponent;
 import std.algorithm: canFind;
 import std.format: format;
-import std.utf: toUTF16z;
+import std.range: repeat;
+import std.array: join;
 import std.conv: to;
 
 debug import std.stdio: writeln;
@@ -256,17 +257,19 @@ string[string] getEnginePresets() {
 
 /// Constructs all browser arguments from a DeflectorSettings object.
 string getBrowserArgs(DeflectorSettings settings) {
-    string browserArgs;
+    string[] browserArgs;
 
-    if (!settings.useProfile) {}
-    else if (settings.browserPath.endsWith("chrome.exe"))
-        browserArgs ~= "--profile-directory='%s'".format(settings.profileName);
-    else if (settings.browserPath.endsWith("firefox.exe"))
-        browserArgs ~= "-P '%s'".format(settings.profileName);
+    const bool isChrome = settings.browserPath.endsWith("chrome.exe");
+    const bool isFirefox = settings.browserPath.endsWith("firefox.exe");
 
-    createWarningDialog(browserArgs);
+    if (settings.useProfile) {
+        if (isChrome)
+            browserArgs ~= "--profile-directory=" ~ escapeShellArg(settings.profileName, false);
+        else if (isFirefox)
+            browserArgs ~= ["-P", escapeShellArg(settings.profileName, false)];
+    }
 
-    return browserArgs;
+    return browserArgs.join(' ');
 }
 
 /// Merge two associative arrays, updating existing values in "baseAA" with new ones from "updateAA".
