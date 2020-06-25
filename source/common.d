@@ -1,18 +1,20 @@
 module common;
 
-import core.sys.windows.windows: CommandLineToArgvW, GetCommandLineW, MessageBox, MB_ICONERROR,
-    MB_ICONWARNING, MB_YESNO, IDYES, MB_OK, HWND;
+import core.sys.windows.windows: CommandLineToArgvW, GetCommandLineW, CreateProcessW, MessageBox,
+    MB_ICONERROR, MB_ICONWARNING, MB_YESNO, IDYES, MB_OK, HWND, DETACHED_PROCESS, CREATE_UNICODE_ENVIRONMENT, STARTUPINFO_W, PROCESS_INFORMATION;
+import std.string: strip, splitLines, indexOf, indexOfAny, stripLeft, replace, endsWith;
 import std.windows.registry: Registry, RegistryException, Key, REGSAM;
-import std.process: browse, spawnProcess, Config, ProcessException;
-import std.string: strip, splitLines, indexOf, stripLeft, replace;
+import std.file: FileException, exists, readText, thisExePath;
 import std.path: isValidFilename, buildPath, dirName;
-import std.file: exists, readText, thisExePath;
+import std.process: browse, ProcessException;
 import std.net.curl: get, CurlException;
+import std.typecons: Tuple, tuple;
+import std.utf: toUTF16z, toUTFz;
 import std.uri: encodeComponent;
 import std.algorithm: canFind;
-import std.process: browse;
 import std.format: format;
-import std.utf: toUTF16z;
+import std.range: repeat;
+import std.array: join;
 import std.conv: to;
 
 debug import std.stdio: writeln;
@@ -34,6 +36,7 @@ enum string WIKI_URL = "https://github.com/spikespaz/search-deflector/wiki";
 /// URL of the wiki's thank-you page.
 enum string WIKI_THANKS_URL = WIKI_URL ~ "/Thanks-for-using-Search-Deflector!";
 
+/// Create an error dialog from the given exception
 void createErrorDialog(const Throwable error, HWND hWnd = null) nothrow {
     // dfmt off
     try {
@@ -52,6 +55,7 @@ void createErrorDialog(const Throwable error, HWND hWnd = null) nothrow {
     // dfmt on
 }
 
+/// Create a warning dialog with given message content
 void createWarningDialog(const string message, HWND hWnd = null) nothrow {
     try {
         debug writeln(message);
@@ -74,6 +78,8 @@ string createIssueMessage(const Throwable error) {
         "errorMessage": error.message,
         "browserName": "",
         "browserPath": settings.browserPath,
+        "useProfile": settings.useProfile.to!string(),
+        "profileName": settings.profileName,
         "engineName": "",
         "engineUrl": settings.engineURL,
         "queryString": "",
@@ -98,13 +104,59 @@ string[] getConsoleArgs(const wchar* commandLine = GetCommandLineW()) {
     return args;
 }
 
+/// Escape a command line argument according to the reference:
+/// https://web.archive.org/web/20190109172835/https://blogs.msdn.microsoft.com/twistylittlepassagesallalike/2011/04/23/everyone-quotes-command-line-arguments-the-wrong-way/
+string escapeShellArg(const string argument, bool force) {
+    if (argument.length == 0)
+        return "";
+
+    if (!force && argument.indexOfAny(" \t\n\v\"") == -1)
+        return argument;
+
+    string escapedArg = "\"";
+
+    for (uint pos = 0; pos < argument.length; pos++) {
+        uint backslashCount = 0;
+        
+        while (pos != argument.length && argument[pos] == '\\') {
+            pos++;
+            backslashCount++;
+        }
+
+        if (pos == argument.length) {
+            escapedArg ~= '\\'.repeat(backslashCount * 2).to!string();
+            break;
+        } else if (argument[pos] == '"')
+            escapedArg ~= '\\'.repeat(backslashCount * 2 + 1).to!string() ~ '"';
+        else
+            escapedArg ~= '\\'.repeat(backslashCount).to!string() ~ argument[pos];
+    }
+
+    escapedArg ~= '"';
+
+    return escapedArg;
+}
+
+/// Function to create a string from arguments that is properly escaped.
+string escapeShellArgs(const string[] arguments) {
+    string commandLine;
+
+    foreach(string argument; arguments)
+        commandLine ~= ' ' ~ escapeShellArg(argument, false);
+
+    return commandLine;
+}
+
 /// Struct representing the settings to use for deflection.
 struct DeflectorSettings {
     string engineURL; /// ditto
     string browserPath; /// ditto
+    bool useProfile; /// Flag to enable or disable launching the browser with a profile.
+    string profileName; /// The name of the user profile to pass to the browser on launch.
     uint searchCount; /// Counter for how many times the user has made a search query.
     bool disableNag = false; /// Flag to disable the reditection to the nag message.
 
+    /// Fetch all settings from system registry
     static DeflectorSettings get() {
         try {
             Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
@@ -120,6 +172,8 @@ struct DeflectorSettings {
             return DeflectorSettings(
                 deflectorKey.getValue("EngineURL").value_SZ,
                 deflectorKey.getValue("BrowserPath").value_SZ,
+                cast(bool) deflectorKey.getValue("UseProfile").value_DWORD,
+                deflectorKey.getValue("ProfileName").value_SZ,
                 deflectorKey.getValue("SearchCount").value_DWORD,
                 disableNag2,
             );
@@ -130,6 +184,7 @@ struct DeflectorSettings {
         }
     }
 
+    /// Dump current settings to system registry
     void dump() {
         Key deflectorKey = Registry.currentUser.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
 
@@ -137,17 +192,20 @@ struct DeflectorSettings {
         deflectorKey.setValue("EngineURL", this.engineURL);
         deflectorKey.setValue("BrowserPath", this.browserPath);
         deflectorKey.setValue("SearchCount", this.searchCount);
-
-        if (this.disableNag)
-            deflectorKey.setValue("DisableNag", true);
+        deflectorKey.setValue("UseProfile", this.useProfile);
+        deflectorKey.setValue("ProfileName", this.profileName);
+        deflectorKey.setValue("DisableNag", this.disableNag);
 
         deflectorKey.flush();
     }
 }
 
+/// Structure containing Windows version information
 struct WindowsVersion {
+    /// ditto
     string release, build, edition;
 
+    /// Fetch all version info from registry
     static WindowsVersion get() {
         try {
             Key currentVersion = Registry.localMachine.getKey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", REGSAM
@@ -198,6 +256,23 @@ string[string] getEnginePresets() {
     return engines;
 }
 
+/// Constructs all browser arguments from a DeflectorSettings object.
+string getBrowserArgs(DeflectorSettings settings) {
+    string[] browserArgs;
+
+    const bool isChrome = settings.browserPath.endsWith("chrome.exe");
+    const bool isFirefox = settings.browserPath.endsWith("firefox.exe");
+
+    if (settings.useProfile) {
+        if (isChrome)
+            browserArgs ~= "--profile-directory=" ~ escapeShellArg(settings.profileName, false);
+        else if (isFirefox)
+            browserArgs ~= ["-P", escapeShellArg(settings.profileName, false)];
+    }
+
+    return browserArgs.join(' ');
+}
+
 /// Merge two associative arrays, updating existing values in "baseAA" with new ones from "updateAA".
 T[K] mergeAAs(T, K)(T[K] baseAA, T[K] updateAA) {
     T[K] newAA = baseAA;
@@ -209,20 +284,43 @@ T[K] mergeAAs(T, K)(T[K] baseAA, T[K] updateAA) {
 }
 
 /// Open a URL by spawning a shell process to the browser executable, or system default.
-void openUri(const string browserPath, const string url) {
-    if (["system_default", ""].canFind(browserPath))
-        browse(url); // Automatically calls the system default browser.
-    else
-        try
-            spawnProcess([browserPath, url], null, Config.detached); // Uses a specific executable.
-        catch (ProcessException error) {
-            const uint messageId = MessageBox(null, "Search Deflector could not deflect the URI to your browser." ~
-                    "\nMake sure that the browser is still installed and that the executable still exists." ~
-                    "\n\nWould you like to see the full error message online?", "Search Deflector", MB_ICONWARNING | MB_YESNO);
+void openUri(const string browserPath, const string args, const string url) {
+    string execPath;
 
-            if (messageId == IDYES)
-                createErrorDialog(error);
-        }
+    if (["system_default", ""].canFind(browserPath))
+        execPath = getSysDefaultBrowser().path;
+    else
+        execPath = browserPath;
+
+    const string commandLine = "%s %s %s".format(escapeShellArg(execPath, false), args, escapeShellArg(url, false));
+
+    STARTUPINFO_W lpStartupInfo = { STARTUPINFO_W.sizeof };
+    PROCESS_INFORMATION lpProcessInformation;
+
+    debug writeln(commandLine);
+
+    const bool success = cast(bool) CreateProcessW(
+        execPath.toUTF16z(), /* lpApplicationName */
+        commandLine.toUTFz!(wchar*)(), /* lpCommandLine */
+        null, /* lpProcessAttributes */
+        null, /* lpThreadAttributes */
+        true, /* bInheritHandles */
+        CREATE_UNICODE_ENVIRONMENT | DETACHED_PROCESS, /* dwCreationFlags */
+        null, /* lpEnvironment */
+        null, /* lpCurrentDirectory */
+        &lpStartupInfo, /* lpStartupInfo */
+        &lpProcessInformation /* lpProcessInformation */
+    );
+
+    if (!success) {
+        const uint messageId = MessageBox(null, "Search Deflector could not deflect the URI to your browser." ~
+                "\nMake sure that the browser is still installed and that the executable still exists." ~
+                "\n\nWould you like to see the full error message online?",
+                "Search Deflector", MB_ICONWARNING | MB_YESNO);
+
+        if (messageId == IDYES)
+            createErrorDialog(ProcessException.newFromLastError("Failed to spawn new process"));
+    }
 }
 
 /// Format a string by replacing each key with a value in replacements.
@@ -269,6 +367,7 @@ string[string] getAvailableBrowsers(const bool currentUser = false) {
     return availableBrowsers;
 }
 
+/// Get all of the installed browsers from system registry
 string[string] getAllAvailableBrowsers() {
     auto browsers = getAvailableBrowsers(false);
 
@@ -280,6 +379,24 @@ string[string] getAllAvailableBrowsers() {
     return browsers;
 }
 
+/// Fetch the system default browser's program ID and executable path
+Tuple!(string, "progID", string, "path") getSysDefaultBrowser() {
+    Key userChoiceKey = Registry.currentUser.getKey("SOFTWARE\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\https\\UserChoice");
+    const string progID = userChoiceKey.getValue("ProgID").value_SZ;
+    Key progCommandKey = Registry.localMachine.getKey("SOFTWARE\\Classes\\" ~ progID ~ "\\shell\\open\\command");
+    string browserPath = progCommandKey.getValue("").value_SZ;
+
+    if (!isValidFilename(browserPath) && !exists(browserPath)) {
+        browserPath = getConsoleArgs(browserPath.toUTF16z())[0];
+
+        if (!isValidFilename(browserPath) && !exists(browserPath))
+            throw new FileException(browserPath, "Browser executable path does not exist or is not valid.");
+    }
+
+    return tuple!("progID", "path")(progID, browserPath);
+}
+
+/// Get the browser name from known list of paths for installed browsers
 string nameFromPath(const string[string] browsers, const string path) {
     if (["", "system_default"].canFind(path))
         return "System Default";
@@ -291,10 +408,16 @@ string nameFromPath(const string[string] browsers, const string path) {
     return "Custom";
 }
 
+/// Get the engine name by an engine URL from the known list
 string nameFromUrl(const string[string] engines, const string url) {
     foreach (engine; engines.byKeyValue)
         if (engine.value == url)
             return engine.key;
 
     return "Custom";
+}
+
+/// Null comparison
+bool isNull(T)(T value) if (is(T == class) || isPointer!T) {
+    return value is null;
 }

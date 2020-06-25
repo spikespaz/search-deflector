@@ -17,6 +17,10 @@ DIST_PATH = "build/dist"
 VARS_PATH = "build/vars"
 STORE_PATH = "build/store"
 
+CONFIGURE_BIN = BIN_PATH + "/configure.exe"
+DEFLECTOR_BIN = BIN_PATH + "/deflector.exe"
+PACKAGE_FILE = DIST_PATH + "/SearchDeflector-Package.appx"
+
 PARSER = ArgumentParser(description="Search Deflector Build Script")
 
 ARGUMENTS = {
@@ -41,6 +45,13 @@ ARGUMENTS = {
         "flags": ("-c", "--clean"),
         "action": "store_true",
         "help": "clean up temporary files",
+    },
+    "icon": {
+        "flags": ("-i", "--icon"),
+        "action": "append",
+        "choices": ("configure", "deflector"),
+        "default": [],
+        "help": "add the icon to the binaries specified."
     },
     "version": {"flags": ("-v", "--version"), "help": "version string to use in build"},
     "silent": {
@@ -100,7 +111,7 @@ def compile_file(source, binary, debug=True, console=False, args=None):
         command.extend(["-O3", "-ffast-math", "-release"])
 
         if not console:
-            command.extend(["-L/subsystem:windows", "-L/entry:mainCRTStartup"])
+            command.extend(["-L/subsystem:windows", "-L/entry:wmainCRTStartup"])
 
     if args:
         command.extend(args)
@@ -152,7 +163,7 @@ if __name__ == "__main__":
 
     log_print("Using version number: " + ARGS.version)
 
-    if ARGS.mode == "classic" and not ARGS.clean:
+    if ARGS.mode == "classic" and not ARGS.clean and not ARGS.icon:
         build_set = set(ARGS.build)
         build_set.update(("configure", "deflector", "installer"))
         ARGS.build = tuple(build_set)
@@ -161,7 +172,7 @@ if __name__ == "__main__":
 
         delete_directory("build/bin")
         delete_directory("build/vars")
-    elif ARGS.mode == "store" and not ARGS.clean:
+    elif ARGS.mode == "store" and not ARGS.clean and not ARGS.icon:
         build_set = set(ARGS.build)
         build_set.update(("configure", "deflector", "package"))
         ARGS.build = tuple(build_set)
@@ -176,24 +187,22 @@ if __name__ == "__main__":
         create_directory(BIN_PATH)
         create_directory(VARS_PATH)
 
-        SETUP_BIN = BIN_PATH + "/configure.exe"
-        log_print("Building configure binary: " + SETUP_BIN)
+        log_print("Building configure binary: " + CONFIGURE_BIN)
 
         copy_files(ARGS.version)
         compile_file(
             SOURCE_PATH + "/configure.d",
-            SETUP_BIN,
+            CONFIGURE_BIN,
             ARGS.debug,
             args=None if "package" in ARGS.build else ["-d-version", "free_version"],
         )
 
-        add_icon(SETUP_BIN)
+        ARGS.icon.append("configure")
 
     if "deflector" in ARGS.build:
         create_directory(BIN_PATH)
         create_directory(VARS_PATH)
 
-        DEFLECTOR_BIN = BIN_PATH + "/deflector.exe"
         log_print("Building deflector binary: " + DEFLECTOR_BIN)
 
         copy_files(ARGS.version)
@@ -204,6 +213,12 @@ if __name__ == "__main__":
             args=None if "package" in ARGS.build else ["-d-version", "free_version"],
         )
 
+        ARGS.icon.append("deflector")
+
+    if "configure" in ARGS.icon:
+        add_icon(CONFIGURE_BIN)
+
+    if "deflector" in ARGS.icon:
         add_icon(DEFLECTOR_BIN)
 
     if ARGS.clean:
@@ -231,7 +246,6 @@ if __name__ == "__main__":
         create_directory(DIST_PATH)
         create_directory(STORE_PATH)
 
-        PACKAGE_FILE = DIST_PATH + "/SearchDeflector-Package.appx"
         log_print("Making store package: " + PACKAGE_FILE)
 
         create_directory(STORE_PATH + "/Assets")
