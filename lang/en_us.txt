@@ -1,0 +1,43 @@
+// All English US translations for the configuration user interface.
+
+// Page and window titles
+title.window:               Configure Search Deflector
+title.settings_page:        Settings
+title.update_page:          Update
+
+// Text fragments used in labels
+//// Settings page
+fragment.version:           Version
+fragment.author:            Author
+//// Update page
+fragment.current_version:   Current Version
+fragment.build_date:        Build Date
+fragment.latest_version:    Latest Version
+fragment.uploader:          Uploader
+fragment.timestamp:         Timestamp
+fragment.binary_size:       Binary Size
+fragment.download_count:    Download Count
+
+// Labels used for input fields and options
+//// Settings page
+label.browser_name:         Preferred Browser
+label.browser_path:         Browser Executable
+label.engine_name:          Preferred Search Engine
+label.engine_url:           Custom Search Engine URL
+label.profile_dir:          Chrome/Firefox User Profile
+label.enable_profile:       Enable
+
+// Static options in dropdown menus or radio button groups
+//// Settings page
+option.custom_browser:      Custom
+option.default_browser:     System Default
+option.custom_engine:       Custom
+
+// Button label text
+//// Settings page
+button.apply:               Apply
+button.website:             Website
+button.close:               Close
+//// Update page
+button.update:              Update
+button.details:             Details
