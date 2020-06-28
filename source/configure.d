@@ -98,32 +98,12 @@ struct ConfigApp {
         this.showConfigPageDefaults();
         this.bindConfigPageListeners();
 
-        version (free_version) {
+        version (free_version)
             this.bindUpdatePageListeners();
 
-            // And a fix for the "..." button mysteriously appearing after switching tabs
-            this.tabs.addDirectEventListener(EventType.click, (Event event) {
-                auto t = (event.clientX / 80); // 80 = tab width
-                if (!(event.clientY < Window.lineHeight && t >= 0 && t < this.tabs.children.length))
-                    return;
-
-                debug writeln("Tabs changed");
-
-                if (this.browserPathButtonHidden)
-                    this.browserPathButton.hide();
-                else
-                    this.browserPathButton.show();
-
-                if (releaseJson.isNull) {
-                    this.fetchReleaseInfo();
-                    this.showUpdatePageDefaults();
-                }
-            });
-
-            // Little hack to mitigate issue #51
-            this.tabs.setCurrentTab(1);
-            this.tabs.setCurrentTab(0);
-        }
+        // Little hack to mitigate issue #51
+        this.tabs.setCurrentTab(1);
+        this.tabs.setCurrentTab(0);
 
         // And this for good measure
         this.browserPathButton.hide();
@@ -359,6 +339,27 @@ struct ConfigApp {
     /// Bind listeners for every widget on the config page that needs actions handled
     void bindConfigPageListeners() {
         debug writeln("ConfigApp.bindConfigPageListeners()");
+
+        // And a fix for the "..." button mysteriously appearing after switching tabs
+        this.tabs.addDirectEventListener(EventType.click, (Event event) {
+            auto t = (event.clientX / 80); // 80 = tab width
+            if (!(event.clientY < Window.lineHeight && t >= 0 && t < this.tabs.children.length))
+                return;
+
+            debug writeln("Tabs changed");
+
+            if (this.browserPathButtonHidden)
+                this.browserPathButton.hide();
+            else
+                this.browserPathButton.show();
+
+            version (free_version) {
+                if (releaseJson.isNull) {
+                    this.fetchReleaseInfo();
+                    this.showUpdatePageDefaults();
+                }
+            }
+        });
 
         this.browserPathButton.addEventListener(EventType.triggered, {
             getOpenFileName(&this.browserPath.content, this.browserPath.content, null);
