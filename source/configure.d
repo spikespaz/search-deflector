@@ -26,6 +26,8 @@ void main(string[] args) {
     const bool forceUpdate = args.canFind("--update") || args.canFind("-u");
 
     try {
+        Translator.load(0);
+
         auto app = ConfigApp();
 
         version (free_version)
@@ -89,7 +91,7 @@ struct ConfigApp {
     void createWindow() {
         debug writeln("ConfigApp.createWindow()");
 
-        this.window = new Window(400, 340, "Configure Search Deflector");
+        this.window = new Window(400, 340, Translator.text("title.window"));
         this.window.win.setMinSize(300, 340);
 
         this.createWidgets();
@@ -139,11 +141,11 @@ struct ConfigApp {
         this.tabs = new TabWidget(layout);
         this.tabs.setMargins(0, 0, 0, 0);
 
-        this.settingsPage = this.tabs.addPage("Settings");
+        this.settingsPage = this.tabs.addPage(Translator.text("title.settings_page"));
         this.settingsPage.setPadding(4, 4, 4, 4);
 
         version (free_version) {
-            this.updatePage = this.tabs.addPage("Update");
+            this.updatePage = this.tabs.addPage(Translator.text("title.update_page"));
             this.updatePage.setPadding(4, 4, 4, 4);
 
             this.createUpdatePageWidgets();
@@ -151,7 +153,10 @@ struct ConfigApp {
 
         this.createConfigPageWidgets();
 
-        TextLabel label = new TextLabel("Version: " ~ PROJECT_VERSION ~ ", Author: " ~ PROJECT_AUTHOR, layout);
+        TextLabel label = new TextLabel("%s: %s, %s: %s".format(
+                Translator.text("fragment.version"), PROJECT_VERSION,
+                Translator.text("fragment.author"), PROJECT_AUTHOR
+            ), layout);
 
         label.setMargins(6, 8, 4, 8);
     }
@@ -168,16 +173,16 @@ struct ConfigApp {
         HorizontalLayout hLayout;
 
         // Group for selecting from a list of installed browsers
-        label = new TextLabel("Preferred Browser", layout);
+        label = new TextLabel(Translator.text("label.browser_name"), layout);
         this.browserSelect = new DropDownSelection(layout);
-        this.browserSelect.addOption("Custom");
-        this.browserSelect.addOption("System Default");
+        this.browserSelect.addOption(Translator.text("option.custom_browser"));
+        this.browserSelect.addOption(Translator.text("option.default_browser"));
 
         vSpacer = new VerticalSpacer(layout);
         vSpacer.setMaxHeight(8);
 
         // Group for the browser path display/edit and a button to browse files
-        label = new TextLabel("Browser Executable", layout);
+        label = new TextLabel(Translator.text("label.browser_path"), layout);
         hLayout = new HorizontalLayout(layout);
         this.browserPath = new LineEdit(hLayout);
         this.browserPath.setEnabled(false);
@@ -190,7 +195,7 @@ struct ConfigApp {
         vSpacer.setMaxHeight(8);
 
         // Group for selecting from a list of search engines
-        label = new TextLabel("Preferred Search Engine", layout);
+        label = new TextLabel(Translator.text("label.engine_name"), layout);
         this.engineSelect = new DropDownSelection(layout);
         this.engineSelect.addOption("Custom");
 
@@ -198,7 +203,7 @@ struct ConfigApp {
         vSpacer.setMaxHeight(8);
 
         // Group for editing the engine URL
-        label = new TextLabel("Custom Search Engine URL", layout);
+        label = new TextLabel(Translator.text("label.engine_url"), layout);
         this.engineUrl = new LineEdit(layout);
         this.engineUrl.setEnabled(false);
 
@@ -206,14 +211,14 @@ struct ConfigApp {
         vSpacer.setMaxHeight(8);
 
         // Group for enabling/disabling and naming the browser profile
-        label = new TextLabel("Chrome/Firefox User Profile", layout);
+        label = new TextLabel(Translator.text("label.profile_dir"), layout);
         hLayout = new HorizontalLayout(layout);
         this.profileName = new LineEdit(hLayout);
         this.profileName.setEnabled(false);
         hSpacer = new HorizontalSpacer(hLayout);
         hSpacer.setMaxWidth(2);
         hSpacer.setMaxHeight(1);
-        this.useProfile = new Checkbox("Enable", hLayout);
+        this.useProfile = new Checkbox(Translator.text("label.enable_profile"), hLayout);
         this.useProfile.isChecked = false;
         this.useProfile.setMargins(4, 4, 0, 0);
         this.useProfile.setStretchiness(2, 4);
@@ -222,20 +227,20 @@ struct ConfigApp {
 
         // Group for Apply, Website and Close buttons
         hLayout = new HorizontalLayout(layout);
-        this.applyButton = new Button("Apply", hLayout);
+        this.applyButton = new Button(Translator.text("button.apply"), hLayout);
         this.applyButton.setEnabled(false);
 
         hSpacer = new HorizontalSpacer(hLayout);
         hSpacer.setMaxWidth(4);
         hSpacer.setMaxHeight(1);
 
-        this.wikiButton = new Button("Website", hLayout);
+        this.wikiButton = new Button(Translator.text("button.website"), hLayout);
 
         hSpacer = new HorizontalSpacer(hLayout);
         hSpacer.setMaxWidth(4);
         hSpacer.setMaxHeight(1);
 
-        this.closeButton = new Button("Close", hLayout);
+        this.closeButton = new Button(Translator.text("button.close"), hLayout);
     }
 
     /// Updater page's widget construction
@@ -250,8 +255,8 @@ struct ConfigApp {
         TextLabel label;
         VerticalSpacer spacer;
 
-        label = new TextLabel("Current Version:", vLayout0);
-        label = new TextLabel("Build Date:", vLayout0);
+        label = new TextLabel(Translator.text("fragment.current_version") ~ ':', vLayout0);
+        label = new TextLabel(Translator.text("fragment.build_date") ~ ':', vLayout0);
 
         label = new TextLabel(PROJECT_VERSION, vLayout1);
         label = new TextLabel(thisExePath.timeLastModified.toLocalTime.toReadableTimestamp(), vLayout1);
@@ -261,11 +266,11 @@ struct ConfigApp {
         spacer = new VerticalSpacer(vLayout1);
         spacer.setMaxHeight(Window.lineHeight);
 
-        label = new TextLabel("Latest Version:", vLayout0);
-        label = new TextLabel("Uploader:", vLayout0);
-        label = new TextLabel("Timestamp:", vLayout0);
-        label = new TextLabel("Binary Size:", vLayout0);
-        label = new TextLabel("Download Count:", vLayout0);
+        label = new TextLabel(Translator.text("fragment.latest_version") ~ ':', vLayout0);
+        label = new TextLabel(Translator.text("fragment.uploader") ~ ':', vLayout0);
+        label = new TextLabel(Translator.text("fragment.timestamp") ~ ':', vLayout0);
+        label = new TextLabel(Translator.text("fragment.binary_size") ~ ':', vLayout0);
+        label = new TextLabel(Translator.text("fragment.download_count") ~ ':', vLayout0);
 
         this.versionLabel = new TextLabel("", vLayout1);
         this.uploaderLabel = new TextLabel("", vLayout1);
@@ -276,14 +281,14 @@ struct ConfigApp {
         auto hLayout0 = new HorizontalLayout(layout);
         HorizontalSpacer hSpacer;
 
-        this.updateButton = new Button("Update", hLayout0);
+        this.updateButton = new Button(Translator.text("button.update"), hLayout0);
         this.updateButton.setEnabled(false);
 
         hSpacer = new HorizontalSpacer(hLayout0);
         hSpacer.setMaxWidth(4);
         hSpacer.setMaxHeight(1);
 
-        this.detailsButton = new Button("Details", hLayout0);
+        this.detailsButton = new Button(Translator.text("button.details"), hLayout0);
     }
 
     /// Load defaults from registry into UI
@@ -457,7 +462,7 @@ struct SettingsSyncApi {
     void dump() {
         debug writeln("SettingsSyncApi.dump()");
 
-        if (this.parent.browserSelect.currentText != "System Default" && !validateExecutablePath(this.browserPath)) {
+        if (this.parent.browserSelect.currentText != Translator.text("option.default_browser") && !validateExecutablePath(this.browserPath)) {
             debug writeln("Bad browser path: ", this.browserPath);
             createWarningDialog("Custom browser path is invalid.\nCheck the wiki for more information.", this.parent
                     .window.hwnd);
@@ -490,22 +495,18 @@ struct SettingsSyncApi {
     void browserName(const string value) {
         debug writeln("SettingsSyncApi.browserName(value)");
 
-        assert((["Custom", "System Default", ""] ~ this.browsers.keys).canFind(value),
+        assert(([Translator.text("option.custom_browser"), Translator.text("option.default_browser"), ""] ~ this.browsers.keys).canFind(value),
                 "Browser name is an unexpected value: " ~ value);
 
-        switch (value) {
-        case "Custom":
-            this.parent.browserPath.setEnabled(true);
-            this.parent.browserPathButton.show();
-            this.browserPath = "";
-            break;
-        case "":
-        case "System Default":
+        if (value.length == 0 || value == Translator.text("option.default_browser")) {
             this.parent.browserPath.setEnabled(false);
             this.parent.browserPathButton.hide();
             this.browserPath = "";
-            break;
-        default:
+        } else if (value == Translator.text("option.custom_browser")) {
+            this.parent.browserPath.setEnabled(true);
+            this.parent.browserPathButton.show();
+            this.browserPath = "";
+        } else {
             this.parent.browserPath.setEnabled(false);
             this.parent.browserPathButton.hide();
 
@@ -538,13 +539,10 @@ struct SettingsSyncApi {
 
         assert((["Custom", ""] ~ this.engines.keys).canFind(value), "Search engine name is an unexpected value: " ~ value);
 
-        switch (value) {
-        case "":
-        case "Custom":
+        if (value.length == 0 || value == Translator.text("option.custom_engine")) {
             this.parent.engineUrl.setEnabled(true);
             this.engineUrl = "";
-            break;
-        default:
+        } else {
             this.parent.engineUrl.setEnabled(false);
 
             foreach (engine; this.engines.byKeyValue)
@@ -577,13 +575,13 @@ struct SettingsSyncApi {
         debug writeln("SettingsSyncApi.browserName()");
 
         if (["", "system_default"].canFind(this.browserPath))
-            return "System Default";
+            return Translator.text("option.default_browser");
 
         foreach (browser; this.browsers.byKeyValue)
             if (browser.value == this.browserPath)
                 return browser.key;
 
-        return "Custom";
+        return Translator.text("option.custom_browser");
     }
 
     /// Get the current engine URL
@@ -600,7 +598,7 @@ struct SettingsSyncApi {
             if (this.engines[item] == this.engineUrl)
                 return item;
 
-        return "Custom";
+        return Translator.text("option.custom_engine");
     }
 }
 
