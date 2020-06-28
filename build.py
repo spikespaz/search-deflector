@@ -3,6 +3,7 @@
 from subprocess import call, check_output
 from argparse import ArgumentParser
 from os.path import dirname, exists
+from os.path import join as path_join
 from shutil import rmtree, copyfile
 from os import remove, makedirs
 from glob import glob
@@ -11,6 +12,7 @@ ASSETS_PATH = "assets"
 SOURCE_PATH = "source"
 LIBS_PATH = "libs"
 PACK_PATH = "pack"
+LANG_PATH = "lang"
 
 BIN_PATH = "build/bin"
 DIST_PATH = "build/dist"
@@ -88,6 +90,11 @@ def copy_file(from_file, to_file):
     copyfile(from_file, to_file)
 
 
+def copy_dir(from_dir, to_dir):
+    for file in glob(path_join(from_dir, "*.*")):
+        copy_file(file, path_join(BIN_PATH, file))
+
+
 def create_directory(directory):
     if not exists(directory):
         log_print("Creating directory: " + directory)
@@ -131,6 +138,8 @@ def copy_files(version):
     copy_file(LIBS_PATH + "/engines.txt", BIN_PATH + "/engines.txt")
 
     copy_file(LIBS_PATH + "/issue.md", VARS_PATH + "/issue.md")
+
+    copy_dir(LANG_PATH, BIN_PATH + "/lang")
 
     version_file = VARS_PATH + "/version.txt"
     log_print("Creating file: " + version_file)
@@ -185,6 +194,7 @@ if __name__ == "__main__":
 
     if "configure" in ARGS.build:
         create_directory(BIN_PATH)
+        create_directory(path_join(BIN_PATH, "lang"))
         create_directory(VARS_PATH)
 
         log_print("Building configure binary: " + CONFIGURE_BIN)
