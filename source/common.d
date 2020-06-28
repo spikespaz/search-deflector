@@ -230,7 +230,9 @@ string[string] parseConfig(const string config) {
     string[string] data;
 
     foreach (line; config.splitLines()) {
-        if (line.stripLeft()[0 .. 2] == "//") // Ignore comments.
+        line = line.stripLeft();
+        
+        if (!line.length || line[0 .. 2] == "//") // Ignore comments.
             continue;
 
         const size_t sepIndex = line.indexOf(":");
