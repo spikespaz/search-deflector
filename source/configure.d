@@ -65,11 +65,13 @@ struct ConfigApp {
     Button wikiButton; /// Open Website Button
     Button closeButton; /// Close Interface Button
 
-    version (free_version) {
-        TabWidget tabs; /// Main Tabs Widget
+    TabWidget tabs; /// Main Tabs Widget
 
-        TabWidgetPage page0; /// Page for main settings
-        TabWidgetPage page1; /// Page for update information
+    TabWidgetPage settingsPage; /// Page for main settings
+    TabWidgetPage languagePage; /// Page for language options
+
+    version (free_version) {
+        TabWidgetPage updatePage; /// Page for update information
 
         /// Labels for update information
         TextLabel versionLabel, uploaderLabel, timestampLabel, binarySizeLabel, downloadCountLabel;
@@ -79,9 +81,6 @@ struct ConfigApp {
 
         JSONValue releaseJson; /// Release JSON data from GitHub
         JSONValue releaseAsset; /// Latest release JSOn asset data from GitHub
-    } else {
-        VerticalLayout tabs; /// Tabs as a vertical layout instead when updater is not compiled
-        VerticalLayout page0; /// Page for main settings as another layout
     }
 
     bool browserPathButtonHidden = true; /// Flag whether or not the path selection button should be shown
@@ -137,37 +136,31 @@ struct ConfigApp {
 
         auto layout = new VerticalLayout(this.window);
 
+        this.tabs = new TabWidget(layout);
+        this.tabs.setMargins(0, 0, 0, 0);
+
+        this.settingsPage = this.tabs.addPage("Settings");
+        this.settingsPage.setPadding(4, 4, 4, 4);
+
         version (free_version) {
-            this.tabs = new TabWidget(layout);
-            this.tabs.setMargins(0, 0, 0, 0);
+            this.updatePage = this.tabs.addPage("Update");
+            this.updatePage.setPadding(4, 4, 4, 4);
 
-            this.page0 = this.tabs.addPage("Settings");
-            this.page0.setPadding(4, 4, 4, 4);
-
-            this.page1 = this.tabs.addPage("Update");
-            this.page1.setPadding(4, 4, 4, 4);
-        } else {
-            this.tabs = layout;
-            this.page0 = layout;
-            this.page0.setPadding(8, 8, 0, 8);
+            this.createUpdatePageWidgets();
         }
 
-        version (free_version)
-            this.createUpdatePageWidgets();
         this.createConfigPageWidgets();
 
         TextLabel label = new TextLabel("Version: " ~ PROJECT_VERSION ~ ", Author: " ~ PROJECT_AUTHOR, layout);
-        version (free_version)
-            label.setMargins(6, 8, 4, 8);
-        else
-            label.setMargins(6, 0, 4, 0);
+
+        label.setMargins(6, 8, 4, 8);
     }
 
     /// Main interface (first page) widget construction
     void createConfigPageWidgets() {
         debug writeln("ConfigApp.createConfigPageWidgets()");
 
-        auto layout = new VerticalLayout(this.page0);
+        auto layout = new VerticalLayout(this.settingsPage);
 
         TextLabel label;
         VerticalSpacer vSpacer;
@@ -249,7 +242,7 @@ struct ConfigApp {
     version (free_version) void createUpdatePageWidgets() {
         debug writeln("ConfigApp.createUpdatePageWidgets()");
 
-        auto layout = new VerticalLayout(this.page1);
+        auto layout = new VerticalLayout(this.updatePage);
         auto hLayout = new HorizontalLayout(layout);
         auto vLayout0 = new VerticalLayout(hLayout);
         auto vLayout1 = new VerticalLayout(hLayout);
