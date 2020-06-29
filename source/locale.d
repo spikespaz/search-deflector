@@ -54,7 +54,14 @@ static struct Translator {
     /// Finds the user's current preferred language and loads the corresponding file
     static void load() {
         lang_key = getUserDefaultLangKey();
-        map = parseConfig(readText(getTranslationFilePath(lang_key)));
+        string file_path = getTranslationFilePath(lang_key);
+
+        if (file_path is null) {
+            debug writeln("Requested user default locale not found!");
+            file_path = getTranslationFilePath("en-US");
+        }
+
+        map = parseConfig(readText(file_path));
     }
 
     /// Return the translation by key
