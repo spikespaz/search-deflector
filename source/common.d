@@ -258,24 +258,6 @@ string[string] getEnginePresets() {
     return engines;
 }
 
-static struct Translator {
-    private static string[string] map;
-    private static int lcid;
-    private static string lang_key;
-
-    /// Takes an LCID and loads the ptoper language file.
-    static void load(int lcid) {
-        lang_key = "en_us";
-        map = parseConfig(readText(buildPath(thisExePath().dirName(), "lang", lang_key ~ ".txt")));
-    }
-
-    /// Return the translation by key
-    static string text(string key) {
-        debug writeln("Getting translation for key: " ~ key);
-        return map[key];
-    }
-}
-
 /// Constructs all browser arguments from a DeflectorSettings object.
 string getBrowserArgs(DeflectorSettings settings) {
     string[] browserArgs;

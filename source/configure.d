@@ -19,6 +19,7 @@ import arsd.minigui;
 
 import common;
 import updater;
+import locale: Translator;
 
 debug import std.stdio: writeln;
 
@@ -26,7 +27,7 @@ void main(string[] args) {
     const bool forceUpdate = args.canFind("--update") || args.canFind("-u");
 
     try {
-        Translator.load(0);
+        Translator.load();
 
         auto app = ConfigApp();
 
