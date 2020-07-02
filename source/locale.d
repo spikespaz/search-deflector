@@ -10,14 +10,14 @@ debug import std.stdio: writeln;
 
 
 extern (Windows) {
-    ///
+    /// https://docs.microsoft.com/en-us/windows/win32/api/winnls/nf-winnls-lcidtolocalename
     int LCIDToLocaleName(LCID, LPWSTR, int, DWORD);
-    ///
+    /// https://docs.microsoft.com/en-us/windows/win32/api/winnls/nf-winnls-getuserdefaultuilanguage
     LANGID GetUserDefaultUILanguage();
 
-    ///
+    /// https://www.magnumdb.com/search?q=LOCALE_NAME_MAX_LENGTH
     enum uint LOCALE_NAME_MAX_LENGTH = 0x55;
-    ///
+    /// https://docs.microsoft.com/en-us/windows/win32/intl/locale-allow-neutral-names
     enum uint LOCALE_ALLOW_NEUTRAL_NAMES = 0x08000000;
 }
 
