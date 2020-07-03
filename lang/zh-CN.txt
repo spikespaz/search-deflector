@@ -1,0 +1,48 @@
+// All English US translations for the configuration user interface.
+
+// Page and window titles
+title.window:               Search Deflector 设置
+title.settings_page:        设置
+title.language_page:        语言
+title.update_page:          更新
+
+// Text fragments used in labels
+//// Settings page
+fragment.version:           版本
+fragment.author:            开发者
+//// Update page
+fragment.current_version:   版本信息
+fragment.build_date:        安装时间
+fragment.latest_version:    最新版本
+fragment.uploader:          开发者
+fragment.timestamp:         更新时间
+fragment.binary_size:       占用空间
+fragment.download_count:    下载用时
+
+// Labels used for input fields and options
+//// Settings page
+label.browser_name:         设置开始菜单浏览器
+label.browser_path:         浏览器路径
+label.engine_name:          设置开始菜单搜索引擎
+label.engine_url:           自定义搜索引擎的 URL
+label.profile_dir:          Chrome/Firefox 用户界面
+label.enable_profile:       开启
+//// Language page
+label.language_select:      界面语言
+
+// Static options in dropdown menus or radio button groups
+//// Settings page
+option.custom_browser:      自定义
+option.default_browser:     系统默认
+option.custom_engine:       自定义
+//// Language page
+option.default_language:    系统默认
+
+// Button label text
+//// Settings page
+button.apply:               应用
+button.website:             项目网址
+button.close:               关闭
+//// Update page
+button.update:              更新 Search Deflector
+button.details:             更多信息
