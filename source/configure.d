@@ -56,6 +56,7 @@ struct ConfigApp {
 
     DropDownSelection browserSelect; /// Drop down selection for installed browsers
     DropDownSelection engineSelect; /// Drop down selection for engines from engines.txt
+    DropDownSelection languageSelection; /// Drop down selection for language translation
 
     LineEdit browserPath; /// Browser Path Line Edit
     LineEdit engineUrl; /// Engine URL Line Edit
@@ -144,6 +145,8 @@ struct ConfigApp {
 
         this.settingsPage = this.tabs.addPage(Translator.text("title.settings_page"));
         this.settingsPage.setPadding(4, 4, 4, 4);
+        this.languagePage = this.tabs.addPage(Translator.text("title.language_page"));
+        this.languagePage.setPadding(4, 4, 4, 4);
 
         version (free_version) {
             this.updatePage = this.tabs.addPage(Translator.text("title.update_page"));
@@ -153,6 +156,7 @@ struct ConfigApp {
         }
 
         this.createConfigPageWidgets();
+        this.createLanguagePageWidgets();
 
         TextLabel label = new TextLabel("%s: %s, %s: %s".format(
                 Translator.text("fragment.version"), PROJECT_VERSION,
@@ -242,6 +246,26 @@ struct ConfigApp {
         hSpacer.setMaxHeight(1);
 
         this.closeButton = new Button(Translator.text("button.close"), hLayout);
+    }
+
+    /// Language page widget construction
+    void createLanguagePageWidgets() {
+        debug writeln("ConfigApp.createLanguagePageWidgets()");
+
+        auto layout = new VerticalLayout(this.languagePage);
+
+        TextLabel label;
+
+        label = new TextLabel(Translator.text("label.language_select"), layout);
+
+        this.languageSelection = new DropDownSelection(layout);
+        this.languageSelection.addOption(Translator.text("option.default_language"));
+
+        foreach (string langKey; Translator.getLangKeys()) {
+            debug writeln(langKey);
+            debug writeln(Translator.getNameFromLangKey(langKey));
+            this.languageSelection.addOption(Translator.getNameFromLangKey(langKey));
+        }
     }
 
     /// Updater page's widget construction
