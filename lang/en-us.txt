@@ -36,7 +36,7 @@ option.custom_browser:      Custom
 option.default_browser:     System Default
 option.custom_engine:       Custom
 //// Language page
-option.default_language:    Default Account Language
+option.default_language:    System Default
 
 // Button label text
 //// Settings page
