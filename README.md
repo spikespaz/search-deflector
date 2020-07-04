@@ -9,7 +9,7 @@
 
 This software allows you to perform faster web searches by just tapping the Windows key, and typing your search. Hit enter, or click one of the results in the right panel. This is faster than opening your browser (if it isn't already), opening a new tab, and clicking the search bar.
 
-After a simple setup, you can use *any* browser (provided it is registered as a protocol handler) and *any* search engine. If you are having trouble getting either of these to work, send me an email at support@spikespaz.com or create an [issue](https://github.com/spikespaz/search-deflector/issues), and I will see what I can do to get your custom settings working.
+After a simple setup, you can use *any* browser (provided it is registered as a protocol handler) and *any* search engine. If you are having trouble getting either of these to work, send me an email at support@birkett.dev or create an [issue](https://github.com/spikespaz/search-deflector/issues), and I will see what I can do to get your custom settings working.
 
 [**Don't forget to check the wiki if you have any questions!**](https://github.com/spikespaz/search-deflector/wiki)
 
@@ -28,8 +28,8 @@ After a simple setup, you can use *any* browser (provided it is registered as a 
 **If you find this software useful and would like to show your appreciation, please consider making a small donation!**
 
 <h1>
-  <a href="https://spikespaz.com/donate">
-    <img src="https://spikespaz.com/images/donate/donate.svg" alt="Donate!" width="200"\>
+  <a href="https://birkett.dev/donate">
+    <img src="https://birkett.dev/images/donate/donate.svg" alt="Donate!" width="200"\>
   </a>
 </h1>
 
@@ -41,7 +41,7 @@ After using EdgeDeflector for quite some time, I noticed several issues with it.
 
 # How do I set it up?
 
-Get it at the Microsoft Store [here](https://www.microsoft.com/store/productId/9P8ZJJ80RZ2K) to support development or download the latest installer executable by clicking [here](https://spikespaz.com/tools/repo-dl/?user=spikespaz&repo=search-deflector&file=SearchDeflector-Installer.exe). Just follow the prompts.
+Get it at the Microsoft Store [here](https://www.microsoft.com/store/productId/9P8ZJJ80RZ2K) to support development or download the latest installer executable by clicking [here](https://birkett.dev/tools/repo-dl/?user=spikespaz&repo=search-deflector&file=SearchDeflector-Installer.exe). Just follow the prompts.
 
 **Take a look at the [Wiki page](https://github.com/spikespaz/search-deflector/wiki/Setup-&-Installing) if you're having trouble or need more information.**
 
@@ -53,13 +53,13 @@ Get it at the Microsoft Store [here](https://www.microsoft.com/store/productId/9
 
 | Name | Link |
 | ---- | ---- |
-| Homepage | https://spikespaz.com/search-deflector                                    |
+| Homepage | https://birkett.dev/search-deflector                                      |
 | Download | http://tiny.cc/get-search-deflector                                       |
 | Store    | https://www.microsoft.com/store/productId/9P8ZJJ80RZ2K                    |
 | Wiki     | https://github.com/spikespaz/search-deflector/wiki                        |
 | Issues   | https://github.com/spikespaz/search-deflector/issues                      |
 | License  | https://github.com/spikespaz/search-deflector/blob/master/LICENSE         |
-| Email    | support@spikespaz.com                                                     |
+| Email    | support@birkett.dev                                                       |
 
 # Special thanks
 
@@ -80,3 +80,5 @@ Additionally, thanks to all of following early-adopters who reported the first i
 [@MulverineX](https://github.com/MulverineX),
 [@fernandex00](https://github.com/fernandex00),
 and others.
+
+I owe all of the translators for this project a huge thanks. Currently there is only one, thank you [@linjiayinchn](https://github.com/linjiayinchn) for the Chinese translations!
