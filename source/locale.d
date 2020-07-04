@@ -65,8 +65,9 @@ static struct Translator {
             maxNameLen
         );
 
-        debug writeln("langName: " ~ langName);
-        return langName.ptr.fromStringz().to!string();
+        string langName0 = langName.ptr.fromStringz().to!string();
+        debug writeln("langName: " ~ langName0);
+        return langName0;
     }
 
     static string[] getLangKeys() {

@@ -52,6 +52,7 @@ void main(string[] args) {
 /// Main structure for user interface
 struct ConfigApp {
     Window window; /// Main program window
+    VerticalLayout mainLayout; /// Main window layout
     SettingsSyncApi syncApi; /// Settings synchronization API instance for registry and UI
 
     DropDownSelection browserSelect; /// Drop down selection for installed browsers
@@ -98,6 +99,7 @@ struct ConfigApp {
 
         this.createWidgets();
         this.loadDefaults();
+        this.bindCommonButtonListeners();
         this.showConfigPageDefaults();
         this.bindConfigPageListeners();
 
@@ -138,10 +140,15 @@ struct ConfigApp {
     void createWidgets() {
         debug writeln("ConfigApp.createWidgets()");
 
-        auto layout = new VerticalLayout(this.window);
+        this.mainLayout = new VerticalLayout(this.window);
 
-        this.tabs = new TabWidget(layout);
+        this.tabs = new TabWidget(this.mainLayout);
         this.tabs.setMargins(0, 0, 0, 0);
+
+        auto vSpacer = new VerticalSpacer(this.mainLayout);
+        vSpacer.setMaxHeight(4);
+
+        this.createCommonButtons();
 
         this.settingsPage = this.tabs.addPage(Translator.text("title.settings_page"));
         this.settingsPage.setPadding(4, 4, 4, 4);
@@ -161,9 +168,40 @@ struct ConfigApp {
         TextLabel label = new TextLabel("%s: %s, %s: %s".format(
                 Translator.text("fragment.version"), PROJECT_VERSION,
                 Translator.text("fragment.author"), PROJECT_AUTHOR
-            ), layout);
+            ), this.mainLayout);
 
         label.setMargins(6, 8, 4, 8);
+    }
+
+    void createCommonButtons() {
+        HorizontalSpacer hSpacer;
+        HorizontalLayout hLayout;
+
+        // Group for Apply, Website and Close buttons
+        hLayout = new HorizontalLayout(this.mainLayout);
+
+        hSpacer = new HorizontalSpacer(hLayout);
+        hSpacer.setMaxWidth(8);
+        hSpacer.setMaxHeight(1);
+
+        this.applyButton = new Button(Translator.text("button.apply"), hLayout);
+        this.applyButton.setEnabled(false);
+
+        hSpacer = new HorizontalSpacer(hLayout);
+        hSpacer.setMaxWidth(4);
+        hSpacer.setMaxHeight(1);
+
+        this.wikiButton = new Button(Translator.text("button.website"), hLayout);
+
+        hSpacer = new HorizontalSpacer(hLayout);
+        hSpacer.setMaxWidth(4);
+        hSpacer.setMaxHeight(1);
+
+        this.closeButton = new Button(Translator.text("button.close"), hLayout);
+
+        hSpacer = new HorizontalSpacer(hLayout);
+        hSpacer.setMaxWidth(8);
+        hSpacer.setMaxHeight(1);
     }
 
     /// Main interface (first page) widget construction
@@ -228,24 +266,7 @@ struct ConfigApp {
         this.useProfile.setMargins(4, 4, 0, 0);
         this.useProfile.setStretchiness(2, 4);
 
-        vSpacer = new VerticalSpacer(layout);
-
-        // Group for Apply, Website and Close buttons
-        hLayout = new HorizontalLayout(layout);
-        this.applyButton = new Button(Translator.text("button.apply"), hLayout);
-        this.applyButton.setEnabled(false);
-
-        hSpacer = new HorizontalSpacer(hLayout);
-        hSpacer.setMaxWidth(4);
-        hSpacer.setMaxHeight(1);
-
-        this.wikiButton = new Button(Translator.text("button.website"), hLayout);
-
-        hSpacer = new HorizontalSpacer(hLayout);
-        hSpacer.setMaxWidth(4);
-        hSpacer.setMaxHeight(1);
-
-        this.closeButton = new Button(Translator.text("button.close"), hLayout);
+        // vSpacer = new VerticalSpacer(layout);
     }
 
     /// Language page widget construction
@@ -359,6 +380,20 @@ struct ConfigApp {
         this.downloadCountLabel.label = releaseAsset["download_count"].integer.to!string();
     }
 
+    void bindCommonButtonListeners() {
+        this.applyButton.addEventListener(EventType.triggered, {
+            debug writeln(this.syncApi.settings);
+            this.syncApi.dump();
+            this.applyButton.setEnabled(false);
+        });
+
+        this.wikiButton.addEventListener(EventType.triggered, {
+            openUri(this.syncApi.browserPath, getBrowserArgs(this.syncApi.settings), WIKI_URL);
+        });
+
+        this.closeButton.addEventListener(EventType.triggered, { exit(0); });
+    }
+
     /// Bind listeners for every widget on the config page that needs actions handled
     void bindConfigPageListeners() {
         debug writeln("ConfigApp.bindConfigPageListeners()");
@@ -431,18 +466,6 @@ struct ConfigApp {
             this.syncApi.settings.engineURL = value;
             this.applyButton.setEnabled(true);
         });
-
-        this.applyButton.addEventListener(EventType.triggered, {
-            debug writeln(this.syncApi.settings);
-            this.syncApi.dump();
-            this.applyButton.setEnabled(false);
-        });
-
-        this.wikiButton.addEventListener(EventType.triggered, {
-            openUri(this.syncApi.browserPath, getBrowserArgs(this.syncApi.settings), WIKI_URL);
-        });
-
-        this.closeButton.addEventListener(EventType.triggered, { exit(0); });
     }
 
     /// Bind listeners for widgets on the update page
