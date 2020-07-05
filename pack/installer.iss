@@ -88,7 +88,6 @@ Source: "pack\updatetask.xml"; \
 
 Name: "{commonprograms}\Search Deflector"; \
     Filename: "{app}\configure.exe"; \
-    Flags: preventpinning; \
     Components: main
 
 [Run]
