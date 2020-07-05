@@ -175,6 +175,12 @@ static struct DeflectorSettings {
             } catch (RegistryException) {
                 disableNag = false;
             }
+
+            if (engineURL.length == 0) {
+                engineURL = "google.com/search?q={{query}}";
+                dump();
+            }
+
         } catch (RegistryException error) {
             debug writeln(error.message);
 
