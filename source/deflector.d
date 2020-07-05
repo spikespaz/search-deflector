@@ -26,6 +26,8 @@ void main(string[] args) {
     }
 
     try {
+        DeflectorSettings.load();
+
         const string searchTerm = getSearchTerm(args[1]);
         const string browserArgs = getBrowserArgs();
 
