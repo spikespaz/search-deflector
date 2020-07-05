@@ -17,6 +17,8 @@ import std.range: repeat;
 import std.array: join;
 import std.conv: to;
 
+import locale: Translator;
+
 debug import std.stdio: writeln;
 
 /// File name of the executable to download and run to install an update.
@@ -404,7 +406,7 @@ Tuple!(string, "progID", string, "path") getSysDefaultBrowser() {
 /// Get the browser name from known list of paths for installed browsers
 string nameFromPath(const string[string] browsers, const string path) {
     if (["", "system_default"].canFind(path))
-        return "System Default";
+        return Translator.text("option.default_browser");
 
     foreach (browser; browsers.byKeyValue)
         if (browser.value == path)
