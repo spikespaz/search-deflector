@@ -18,9 +18,9 @@ DIST_PATH = "build/dist"
 VARS_PATH = "build/vars"
 STORE_PATH = "build/store"
 
-CONFIGURE_BIN = BIN_PATH + "/configure.exe"
-DEFLECTOR_BIN = BIN_PATH + "/deflector.exe"
-PACKAGE_FILE = DIST_PATH + "/SearchDeflector-Package.appx"
+CONFIGURE_BIN = path_join(BIN_PATH, "configure.exe")
+DEFLECTOR_BIN = path_join(BIN_PATH, "deflector.exe")
+PACKAGE_FILE = path_join(DIST_PATH, "SearchDeflector-Package.appx")
 
 PARSER = ArgumentParser(description="Search Deflector Build Script")
 
@@ -129,24 +129,24 @@ def compile_file(source, binary, debug=True, console=False, args=None):
 def add_icon(binary):
     log_print("Adding icon: " + binary)
 
-    call(["rcedit", "--set-icon", ASSETS_PATH + "/logo.ico", binary])
+    call(["rcedit", "--set-icon", path_join(ASSETS_PATH, "logo.ico"), binary])
 
 
 def copy_files(version):
-    copy_file(LIBS_PATH + "/libcurl.dll", BIN_PATH + "/libcurl.dll")
-    copy_file(LIBS_PATH + "/engines.txt", BIN_PATH + "/engines.txt")
+    copy_file(path_join(LIBS_PATH, "libcurl.dll"), path_join(BIN_PATH, "libcurl.dll"))
+    copy_file(path_join(LIBS_PATH, "engines.txt"), path_join(BIN_PATH, "engines.txt"))
 
-    copy_file(LIBS_PATH + "/issue.md", VARS_PATH + "/issue.md")
+    copy_file(path_join(LIBS_PATH, "issue.md"), path_join(VARS_PATH, "issue.md"))
 
-    copy_dir(LANG_PATH, BIN_PATH + "/lang")
+    copy_dir(LANG_PATH, path_join(BIN_PATH, "lang"))
 
-    version_file = VARS_PATH + "/version.txt"
+    version_file = path_join(VARS_PATH, "version.txt")
     log_print("Creating file: " + version_file)
 
     with open(version_file, "w") as out_file:
         out_file.write(version)
 
-    license_file = VARS_PATH + "/license.txt"
+    license_file = path_join(VARS_PATH, "license.txt")
     log_print("Creating file: " + license_file)
 
     with open(license_file, "w") as out_file:
@@ -155,7 +155,7 @@ def copy_files(version):
 
         out_file.write("\n")
 
-        with open(LIBS_PATH + "/libcurl.txt") as in_file:
+        with open(path_join(LIBS_PATH, "libcurl.txt")) as in_file:
             out_file.write(in_file.read())
 
 
@@ -193,14 +193,14 @@ if __name__ == "__main__":
 
     if "configure" in ARGS.build:
         create_directory(BIN_PATH)
-        create_directory(BIN_PATH + "/lang")
+        create_directory(path_join(BIN_PATH, "lang"))
         create_directory(VARS_PATH)
 
         log_print("Building configure binary: " + CONFIGURE_BIN)
 
         copy_files(ARGS.version)
         compile_file(
-            SOURCE_PATH + "/configure.d",
+            path_join(SOURCE_PATH, "configure.d"),
             CONFIGURE_BIN,
             ARGS.debug,
             args=None if "package" in ARGS.build else ["-d-version", "free_version"],
@@ -216,7 +216,7 @@ if __name__ == "__main__":
 
         copy_files(ARGS.version)
         compile_file(
-            SOURCE_PATH + "/deflector.d",
+            path_join(SOURCE_PATH, "deflector.d"),
             DEFLECTOR_BIN,
             ARGS.debug,
             args=None if "package" in ARGS.build else ["-d-version", "free_version"],
@@ -231,18 +231,18 @@ if __name__ == "__main__":
         add_icon(DEFLECTOR_BIN)
 
     if ARGS.clean:
-        for file in glob(BIN_PATH + "/*.pdb"):
+        for file in glob(path_join(BIN_PATH, "*.pdb")):
             log_print("Removing debug file: " + BIN_PATH + "/" + file)
             remove(file)
 
-        for file in glob(BIN_PATH + "/*.obj"):
+        for file in glob(path_join(BIN_PATH, "*.obj")):
             log_print("Removing object file: " + BIN_PATH + "/" + file)
             remove(file)
 
     if "installer" in ARGS.build:
         create_directory(DIST_PATH)
 
-        log_print("Making installer executable: " + DIST_PATH + "/SearchDeflector-Installer.exe")
+        log_print("Making installer executable: " + path_join(DIST_PATH, "SearchDeflector-Installer.exe"))
 
         command = 'iscc "/O{}" /Q "/DAppVersion={}" "{}/installer.iss"'.format(
             DIST_PATH, ARGS.version, PACK_PATH
@@ -257,24 +257,24 @@ if __name__ == "__main__":
 
         log_print("Making store package: " + PACKAGE_FILE)
 
-        create_directory(STORE_PATH + "/Assets")
-        create_directory(STORE_PATH + "/lang")
+        create_directory(path_join(STORE_PATH, "Assets"))
+        create_directory(path_join(STORE_PATH, "lang"))
 
-        copy_file(ASSETS_PATH + "/logo.png", STORE_PATH + "/Assets/Logo-Store.png")
-        copy_file(ASSETS_PATH + "/logo_44.png", STORE_PATH + "/Assets/Logo-44.png")
-        copy_file(ASSETS_PATH + "/logo_150.png", STORE_PATH + "/Assets/Logo-150.png")
+        copy_file(path_join(ASSETS_PATH, "logo.png"), path_join(STORE_PATH, "Assets/Logo-Store.png"))
+        copy_file(path_join(ASSETS_PATH, "logo_44.png"), path_join(STORE_PATH, "Assets/Logo-44.png"))
+        copy_file(path_join(ASSETS_PATH, "logo_150.png"), path_join(STORE_PATH, "Assets/Logo-150.png"))
 
-        copy_file(BIN_PATH + "/configure.exe", STORE_PATH + "/configure.exe")
-        copy_file(BIN_PATH + "/deflector.exe", STORE_PATH + "/deflector.exe")
-        copy_file(BIN_PATH + "/engines.txt", STORE_PATH + "/engines.txt")
+        copy_file(path_join(BIN_PATH, "configure.exe"), path_join(STORE_PATH, "configure.exe"))
+        copy_file(path_join(BIN_PATH, "deflector.exe"), path_join(STORE_PATH, "deflector.exe"))
+        copy_file(path_join(BIN_PATH, "engines.txt"), path_join(STORE_PATH, "engines.txt"))
 
-        copy_dir(BIN_PATH + "/lang", STORE_PATH + "/lang")
+        copy_dir(path_join(BIN_PATH, "lang"), path_join(STORE_PATH, "lang"))
         
-        manifest_file = STORE_PATH + "/AppxManifest.xml"
+        manifest_file = path_join(STORE_PATH, "AppxManifest.xml")
         log_print("Creating file: " + manifest_file)
 
         with open(manifest_file, "w") as out_file:
-            with open(PACK_PATH + "/appxmanifest.xml") as in_file:
+            with open(path_join(PACK_PATH, "appxmanifest.xml")) as in_file:
                 out_file.write(in_file.read().replace("{{version}}", ARGS.version + ".0"))
 
         log_print("Packing file: " + PACKAGE_FILE)
