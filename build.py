@@ -1,9 +1,8 @@
 #! py -3
 
+from os.path import dirname, exists, basename, join as path_join
 from subprocess import call, check_output
 from argparse import ArgumentParser
-from os.path import dirname, exists
-from os.path import join as path_join
 from shutil import rmtree, copyfile
 from os import remove, makedirs
 from glob import glob
@@ -92,7 +91,7 @@ def copy_file(from_file, to_file):
 
 def copy_dir(from_dir, to_dir):
     for file in glob(path_join(from_dir, "*.*")):
-        copy_file(file, path_join(BIN_PATH, file))
+        copy_file(file, path_join(to_dir, basename(file)))
 
 
 def create_directory(directory):
