@@ -26,26 +26,25 @@ void main(string[] args) {
     }
 
     try {
-        auto settings = DeflectorSettings.get();
         const string searchTerm = getSearchTerm(args[1]);
-        const string browserArgs = getBrowserArgs(settings);
+        const string browserArgs = getBrowserArgs();
 
         switch (searchTerm) {
             version (free_version) case "!DisableDonationRequest":
-                settings.disableNag = true;
-                settings.dump();
+                DeflectorSettings.disableNag = true;
+                DeflectorSettings.dump();
 
                 break;
             default:
-                openUri(settings.browserPath, browserArgs, rewriteUri(args[1], settings.engineURL));
-                settings.searchCount++;
-                settings.dump();
+                openUri(DeflectorSettings.browserPath, browserArgs, rewriteUri(args[1], DeflectorSettings.engineURL));
+                DeflectorSettings.searchCount++;
+                DeflectorSettings.dump();
         }
 
         version (free_version) // Makes the donation prompt open on the 10th search and every 20 afterward
-        if ((!settings.disableNag && (settings.searchCount - 10) % 20 == 0) || settings.searchCount == 10) {
+        if ((!DeflectorSettings.disableNag && (DeflectorSettings.searchCount - 10) % 20 == 0) || DeflectorSettings.searchCount == 10) {
             Thread.sleep(seconds(5));
-            openUri(settings.browserPath, browserArgs, WIKI_THANKS_URL);
+            openUri(DeflectorSettings.browserPath, browserArgs, WIKI_THANKS_URL);
         }
     } catch (Exception error) {
         createErrorDialog(error);
