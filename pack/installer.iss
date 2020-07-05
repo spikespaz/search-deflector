@@ -72,6 +72,9 @@ Source: "build\bin\engines.txt"; \
 Source: "build\vars\license.txt"; \
     DestDir: "{app}"; \
     Components: main
+Source: "build\bin\lang\**"; \
+    DestDir: "{app}\lang"; \
+    Components: main
 
 
 Source: "build\bin\libcurl.dll"; \
