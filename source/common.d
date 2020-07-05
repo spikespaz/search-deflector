@@ -71,7 +71,6 @@ void createWarningDialog(const string message, HWND hWnd = null) nothrow {
 /// Creates a GitHub issue body with the data from an Exception.
 string createIssueMessage(const Throwable error) {
     auto winVer = WindowsVersion.get();
-    auto settings = DeflectorSettings.get();
 
     // dfmt off
     return ISSUE_TEMPLATE.strip().formatString([
@@ -79,11 +78,11 @@ string createIssueMessage(const Throwable error) {
         "errorLine": error.line.to!string(),
         "errorMessage": error.message,
         "browserName": "",
-        "browserPath": settings.browserPath,
-        "useProfile": settings.useProfile.to!string(),
-        "profileName": settings.profileName,
+        "browserPath": DeflectorSettings.browserPath,
+        "useProfile": DeflectorSettings.useProfile.to!string(),
+        "profileName": DeflectorSettings.profileName,
         "engineName": "",
-        "engineUrl": settings.engineURL,
+        "engineUrl": DeflectorSettings.engineURL,
         "queryString": "",
         "queryUrl": "",
         "windowsRelease": winVer.release,
@@ -150,56 +149,56 @@ string escapeShellArgs(const string[] arguments) {
 }
 
 /// Struct representing the settings to use for deflection.
-struct DeflectorSettings {
-    string engineURL; /// ditto
-    string browserPath; /// ditto
-    bool useProfile; /// Flag to enable or disable launching the browser with a profile.
-    string profileName; /// The name of the user profile to pass to the browser on launch.
-    string interfaceLanguage; /// The language code to use for the UI.
-    uint searchCount; /// Counter for how many times the user has made a search query.
-    bool disableNag = false; /// Flag to disable the reditection to the nag message.
+static struct DeflectorSettings {
+    static string engineURL; /// ditto
+    static string browserPath; /// ditto
+    static bool useProfile; /// Flag to enable or disable launching the browser with a profile.
+    static string profileName; /// The name of the user profile to pass to the browser on launch.
+    static string interfaceLanguage; /// The language code to use for the UI.
+    static uint searchCount; /// Counter for how many times the user has made a search query.
+    static bool disableNag = false; /// Flag to disable the reditection to the nag message.
 
     /// Fetch all settings from system registry
-    static DeflectorSettings get() {
+    static void load() {
         try {
             Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
-            bool disableNag2;
-            
-            try {
-                disableNag2 = cast(bool) deflectorKey.getValue("DisableNag").value_DWORD;
-            } catch (RegistryException) {
-                disableNag2 = false;
-            }
 
-            // dfmt off
-            return DeflectorSettings(
-                deflectorKey.getValue("EngineURL").value_SZ,
-                deflectorKey.getValue("BrowserPath").value_SZ,
-                cast(bool) deflectorKey.getValue("UseProfile").value_DWORD,
-                deflectorKey.getValue("ProfileName").value_SZ,
-                deflectorKey.getValue("InterfaceLanguage").value_SZ,
-                deflectorKey.getValue("SearchCount").value_DWORD,
-                disableNag2,
-            );
-            // dfmt on
+            engineURL = deflectorKey.getValue("EngineURL").value_SZ;
+            browserPath = deflectorKey.getValue("BrowserPath").value_SZ;
+            useProfile = cast(bool) deflectorKey.getValue("UseProfile").value_DWORD;
+            profileName = deflectorKey.getValue("ProfileName").value_SZ;
+            interfaceLanguage = deflectorKey.getValue("InterfaceLanguage").value_SZ;
+            searchCount = deflectorKey.getValue("SearchCount").value_DWORD;
+
+            try {
+                disableNag = cast(bool) deflectorKey.getValue("DisableNag").value_DWORD;
+            } catch (RegistryException) {
+                disableNag = false;
+            }
         } catch (RegistryException error) {
             debug writeln(error.message);
-            return DeflectorSettings("google.com/search?q={{query}}", "", 0);
+
+            engineURL = "google.com/search?q={{query}}";
+            browserPath = "";
+            useProfile = false;
+            profileName = "";
+            interfaceLanguage = "";
+            searchCount = 0;
         }
     }
 
     /// Dump current settings to system registry
-    void dump() {
+    static void dump() {
         Key deflectorKey = Registry.currentUser.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_WRITE);
 
         // Write necessary changes.
-        deflectorKey.setValue("EngineURL", this.engineURL);
-        deflectorKey.setValue("BrowserPath", this.browserPath);
-        deflectorKey.setValue("SearchCount", this.searchCount);
-        deflectorKey.setValue("UseProfile", this.useProfile);
-        deflectorKey.setValue("ProfileName", this.profileName);
-        deflectorKey.setValue("InterfaceLanguage", this.interfaceLanguage);
-        deflectorKey.setValue("DisableNag", this.disableNag);
+        deflectorKey.setValue("EngineURL", engineURL);
+        deflectorKey.setValue("BrowserPath", browserPath);
+        deflectorKey.setValue("SearchCount", searchCount);
+        deflectorKey.setValue("UseProfile", useProfile);
+        deflectorKey.setValue("ProfileName", profileName);
+        deflectorKey.setValue("InterfaceLanguage", interfaceLanguage);
+        deflectorKey.setValue("DisableNag", disableNag);
 
         deflectorKey.flush();
     }
@@ -264,17 +263,17 @@ string[string] getEnginePresets() {
 }
 
 /// Constructs all browser arguments from a DeflectorSettings object.
-string getBrowserArgs(DeflectorSettings settings) {
+string getBrowserArgs() {
     string[] browserArgs;
 
-    const bool isChrome = settings.browserPath.endsWith("chrome.exe");
-    const bool isFirefox = settings.browserPath.endsWith("firefox.exe");
+    const bool isChrome = DeflectorSettings.browserPath.endsWith("chrome.exe");
+    const bool isFirefox = DeflectorSettings.browserPath.endsWith("firefox.exe");
 
-    if (settings.useProfile) {
+    if (DeflectorSettings.useProfile) {
         if (isChrome)
-            browserArgs ~= "--profile-directory=" ~ escapeShellArg(settings.profileName, false);
+            browserArgs ~= "--profile-directory=" ~ escapeShellArg(DeflectorSettings.profileName, false);
         else if (isFirefox)
-            browserArgs ~= ["-P", escapeShellArg(settings.profileName, false)];
+            browserArgs ~= ["-P", escapeShellArg(DeflectorSettings.profileName, false)];
     }
 
     return browserArgs.join(' ');

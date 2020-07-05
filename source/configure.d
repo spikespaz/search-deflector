@@ -26,8 +26,13 @@ debug import std.stdio: writeln;
 void main(string[] args) {
     const bool forceUpdate = args.canFind("--update") || args.canFind("-u");
 
+    DeflectorSettings.load();
+
     try {
-        Translator.load();
+        if (DeflectorSettings.interfaceLanguage.length == 0)
+            Translator.loadDefault();
+        else
+            Translator.load(DeflectorSettings.interfaceLanguage);
 
         auto app = ConfigApp();
 
@@ -343,7 +348,6 @@ struct ConfigApp {
 
         this.syncApi = SettingsSyncApi();
         this.syncApi.parent = &this;
-        this.syncApi.settings = DeflectorSettings.get();
         this.syncApi.browsers = getAllAvailableBrowsers();
         this.syncApi.engines = getEnginePresets();
 
@@ -354,20 +358,20 @@ struct ConfigApp {
             this.engineSelect.addOption(engine);
 
         this.languageSelection.setSelection(
-            Translator.getLangKeys().countUntil(this.syncApi.settings.interfaceLanguage) + 1
+            Translator.getLangKeys().countUntil(DeflectorSettings.interfaceLanguage) + 1
         );
 
-        this.useProfile.isChecked = this.syncApi.settings.useProfile;
-        this.profileName.content = this.syncApi.settings.profileName;
-        this.profileName.setEnabled(this.syncApi.settings.useProfile);
+        this.useProfile.isChecked = DeflectorSettings.useProfile;
+        this.profileName.content = DeflectorSettings.profileName;
+        this.profileName.setEnabled(DeflectorSettings.useProfile);
     }
 
     /// Set UI browser and engine names from the registry's values
     void showConfigPageDefaults() {
         debug writeln("ConfigApp.showConfigPageDefaults()");
 
-        this.syncApi.browserName = this.syncApi.browsers.nameFromPath(this.syncApi.settings.browserPath);
-        this.syncApi.engineName = this.syncApi.engines.nameFromUrl(this.syncApi.settings.engineURL);
+        this.syncApi.browserName = this.syncApi.browsers.nameFromPath(DeflectorSettings.browserPath);
+        this.syncApi.engineName = this.syncApi.engines.nameFromUrl(DeflectorSettings.engineURL);
     }
 
     /// Set the updater page's information from latest GitHub release
@@ -386,13 +390,12 @@ struct ConfigApp {
 
     void bindCommonButtonListeners() {
         this.applyButton.addEventListener(EventType.triggered, {
-            debug writeln(this.syncApi.settings);
             this.syncApi.dump();
             this.applyButton.setEnabled(false);
         });
 
         this.wikiButton.addEventListener(EventType.triggered, {
-            openUri(this.syncApi.browserPath, getBrowserArgs(this.syncApi.settings), WIKI_URL);
+            openUri(this.syncApi.browserPath, getBrowserArgs(), WIKI_URL);
         });
 
         this.closeButton.addEventListener(EventType.triggered, { exit(0); });
@@ -403,9 +406,9 @@ struct ConfigApp {
             debug writeln(this.languageSelection.currentText);
 
             if (this.languageSelection.getSelection() == 0)
-                this.syncApi.settings.interfaceLanguage = "";
+                DeflectorSettings.interfaceLanguage = "";
             else
-                this.syncApi.settings.interfaceLanguage = Translator.getLangKeys()[this.languageSelection.getSelection() - 1];
+                DeflectorSettings.interfaceLanguage = Translator.getLangKeys()[this.languageSelection.getSelection() - 1];
             
             this.applyButton.setEnabled(true);
         });
@@ -452,7 +455,7 @@ struct ConfigApp {
         this.browserPath.addEventListener(EventType.keyup, {
             string value = this.browserPath.content.strip(); // Santitize
             debug writeln("Browser path changed: ", value);
-            this.syncApi.settings.browserPath = value;
+            DeflectorSettings.browserPath = value;
             this.applyButton.setEnabled(true);
         });
 
@@ -464,7 +467,7 @@ struct ConfigApp {
 
         this.useProfile.addEventListener(EventType.change, {
             debug writeln("Profile name enabled: ", this.useProfile.isChecked);
-            this.syncApi.settings.useProfile = this.useProfile.isChecked;
+            DeflectorSettings.useProfile = this.useProfile.isChecked;
             this.syncApi.dump();
             this.profileName.setEnabled(this.useProfile.isChecked);
         });
@@ -480,7 +483,7 @@ struct ConfigApp {
         this.engineUrl.addEventListener(EventType.keyup, {
             string value = this.engineUrl.content.strip(); // Sanitize
             debug writeln("Engine URL changed: ", value);
-            this.syncApi.settings.engineURL = value;
+            DeflectorSettings.engineURL = value;
             this.applyButton.setEnabled(true);
         });
     }
@@ -496,7 +499,7 @@ struct ConfigApp {
         });
 
         this.detailsButton.addEventListener(EventType.triggered, {
-            openUri(this.syncApi.browserPath, getBrowserArgs(this.syncApi.settings), this.releaseJson["html_url"].str);
+            openUri(this.syncApi.browserPath, getBrowserArgs(), this.releaseJson["html_url"].str);
         });
     }
 
@@ -519,7 +522,6 @@ struct ConfigApp {
 /// Object to help keep both registry and interface up-to-date with eachother
 struct SettingsSyncApi {
     private ConfigApp* parent;
-    private DeflectorSettings settings;
     private string[string] engines;
     private string[string] browsers;
 
@@ -541,7 +543,7 @@ struct SettingsSyncApi {
             return;
         }
 
-        this.settings.dump();
+        DeflectorSettings.dump();
     }
 
     /// Set the browser path after validation
@@ -549,7 +551,7 @@ struct SettingsSyncApi {
         debug writeln("SettingsSyncApi.browserPath(value)");
 
         if (value == "" || validateExecutablePath(value)) {
-            this.settings.browserPath = value;
+            DeflectorSettings.browserPath = value;
 
             if (value != this.parent.browserPath.content)
                 this.parent.browserPath.content = value;
@@ -560,8 +562,8 @@ struct SettingsSyncApi {
     void browserName(const string value) {
         debug writeln("SettingsSyncApi.browserName(value)");
 
-        assert(([Translator.text("option.custom_browser"), Translator.text("option.default_browser"), ""] ~ this.browsers.keys).canFind(value),
-                "Browser name is an unexpected value: " ~ value);
+        if (!([Translator.text("option.custom_browser"), Translator.text("option.default_browser"), ""] ~ this.browsers.keys).canFind(value))
+            this.browserPath = "";
 
         if (value.length == 0 || value == Translator.text("option.default_browser")) {
             this.parent.browserPath.setEnabled(false);
@@ -591,7 +593,7 @@ struct SettingsSyncApi {
         debug writeln("SettingsSyncApi.engineUrl(value)");
 
         if (validateEngineUrl(value)) {
-            this.settings.engineURL = value;
+            DeflectorSettings.engineURL = value;
 
             if (value != this.parent.engineUrl.content)
                 this.parent.engineUrl.content = value;
@@ -624,15 +626,15 @@ struct SettingsSyncApi {
     /// Set the profile name and disable if empty
     void profileName(const string value) {
         if (value.length == 0)
-            this.settings.useProfile = false;
+            DeflectorSettings.useProfile = false;
 
-        this.settings.profileName = value;
+        DeflectorSettings.profileName = value;
     }
 
     /// Get the browser path
     string browserPath() {
         debug writeln("SettingsSyncApi.browserPath()");
-        return this.settings.browserPath;
+        return DeflectorSettings.browserPath;
     }
 
     /// Get the browser name from the current path
@@ -652,7 +654,7 @@ struct SettingsSyncApi {
     /// Get the current engine URL
     string engineUrl() {
         debug writeln("SettingsSyncApi.engineUrl()");
-        return this.settings.engineURL;
+        return DeflectorSettings.engineURL;
     }
 
     /// Get the current engine name from path in settings
