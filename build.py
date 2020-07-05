@@ -193,7 +193,7 @@ if __name__ == "__main__":
 
     if "configure" in ARGS.build:
         create_directory(BIN_PATH)
-        create_directory(path_join(BIN_PATH, "lang"))
+        create_directory(BIN_PATH + "/lang")
         create_directory(VARS_PATH)
 
         log_print("Building configure binary: " + CONFIGURE_BIN)
@@ -258,6 +258,7 @@ if __name__ == "__main__":
         log_print("Making store package: " + PACKAGE_FILE)
 
         create_directory(STORE_PATH + "/Assets")
+        create_directory(STORE_PATH + "/lang")
 
         copy_file(ASSETS_PATH + "/logo.png", STORE_PATH + "/Assets/Logo-Store.png")
         copy_file(ASSETS_PATH + "/logo_44.png", STORE_PATH + "/Assets/Logo-44.png")
@@ -266,6 +267,8 @@ if __name__ == "__main__":
         copy_file(BIN_PATH + "/configure.exe", STORE_PATH + "/configure.exe")
         copy_file(BIN_PATH + "/deflector.exe", STORE_PATH + "/deflector.exe")
         copy_file(BIN_PATH + "/engines.txt", STORE_PATH + "/engines.txt")
+
+        copy_dir(BIN_PATH + "/lang", STORE_PATH + "/lang")
         
         manifest_file = STORE_PATH + "/AppxManifest.xml"
         log_print("Creating file: " + manifest_file)
