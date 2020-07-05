@@ -153,6 +153,7 @@ struct DeflectorSettings {
     string browserPath; /// ditto
     bool useProfile; /// Flag to enable or disable launching the browser with a profile.
     string profileName; /// The name of the user profile to pass to the browser on launch.
+    string interfaceLanguage; /// The language code to use for the UI.
     uint searchCount; /// Counter for how many times the user has made a search query.
     bool disableNag = false; /// Flag to disable the reditection to the nag message.
 
@@ -174,6 +175,7 @@ struct DeflectorSettings {
                 deflectorKey.getValue("BrowserPath").value_SZ,
                 cast(bool) deflectorKey.getValue("UseProfile").value_DWORD,
                 deflectorKey.getValue("ProfileName").value_SZ,
+                deflectorKey.getValue("InterfaceLanguage").value_SZ,
                 deflectorKey.getValue("SearchCount").value_DWORD,
                 disableNag2,
             );
@@ -194,6 +196,7 @@ struct DeflectorSettings {
         deflectorKey.setValue("SearchCount", this.searchCount);
         deflectorKey.setValue("UseProfile", this.useProfile);
         deflectorKey.setValue("ProfileName", this.profileName);
+        deflectorKey.setValue("InterfaceLanguage", this.interfaceLanguage);
         deflectorKey.setValue("DisableNag", this.disableNag);
 
         deflectorKey.flush();

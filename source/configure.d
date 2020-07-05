@@ -101,6 +101,7 @@ struct ConfigApp {
         this.loadDefaults();
         this.bindCommonButtonListeners();
         this.showConfigPageDefaults();
+        this.bindLanguagePageListeners();
         this.bindConfigPageListeners();
 
         version (free_version)
@@ -283,7 +284,6 @@ struct ConfigApp {
         this.languageSelection.addOption(Translator.text("option.default_language"));
 
         foreach (string langKey; Translator.getLangKeys()) {
-            debug writeln(langKey);
             debug writeln(Translator.getNameFromLangKey(langKey));
             this.languageSelection.addOption(Translator.getNameFromLangKey(langKey));
         }
@@ -353,6 +353,10 @@ struct ConfigApp {
         foreach (engine; this.syncApi.engines.byKey)
             this.engineSelect.addOption(engine);
 
+        this.languageSelection.setSelection(
+            Translator.getLangKeys().countUntil(this.syncApi.settings.interfaceLanguage) + 1
+        );
+
         this.useProfile.isChecked = this.syncApi.settings.useProfile;
         this.profileName.content = this.syncApi.settings.profileName;
         this.profileName.setEnabled(this.syncApi.settings.useProfile);
@@ -392,6 +396,19 @@ struct ConfigApp {
         });
 
         this.closeButton.addEventListener(EventType.triggered, { exit(0); });
+    }
+
+    void bindLanguagePageListeners() {
+        this.languageSelection.addEventListener(EventType.change, {
+            debug writeln(this.languageSelection.currentText);
+
+            if (this.languageSelection.getSelection() == 0)
+                this.syncApi.settings.interfaceLanguage = "";
+            else
+                this.syncApi.settings.interfaceLanguage = Translator.getLangKeys()[this.languageSelection.getSelection() - 1];
+            
+            this.applyButton.setEnabled(true);
+        });
     }
 
     /// Bind listeners for every widget on the config page that needs actions handled
