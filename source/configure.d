@@ -19,14 +19,10 @@ import arsd.minigui;
 
 import common;
 import updater;
-import locale: Translator;
-
 debug import std.stdio: writeln;
 
 void main(string[] args) {
     const bool forceUpdate = args.canFind("--update") || args.canFind("-u");
-
-    DeflectorSettings.load();
 
     try {
         if (DeflectorSettings.interfaceLanguage.length == 0)
@@ -395,7 +391,7 @@ struct ConfigApp {
         });
 
         this.wikiButton.addEventListener(EventType.triggered, {
-            openUri(this.syncApi.browserPath, getBrowserArgs(), WIKI_URL);
+            openUri(this.syncApi.browserPath, getBrowserArgs(DeflectorSettings.browserPath, DeflectorSettings.useProfile, DeflectorSettings.profileName), WIKI_URL);
         });
 
         this.closeButton.addEventListener(EventType.triggered, { exit(0); });
@@ -499,7 +495,7 @@ struct ConfigApp {
         });
 
         this.detailsButton.addEventListener(EventType.triggered, {
-            openUri(this.syncApi.browserPath, getBrowserArgs(), this.releaseJson["html_url"].str);
+            openUri(this.syncApi.browserPath, getBrowserArgs(DeflectorSettings.browserPath, DeflectorSettings.useProfile, DeflectorSettings.profileName), this.releaseJson["html_url"].str);
         });
     }
 
