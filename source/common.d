@@ -309,23 +309,24 @@ string[string] getQueryParams(const string uri) {
 Tuple!(string, "searchTerm", string, "enteredUrl", string, "selectedUrl") getSearchInfo(const string uri) {
     if (!uri.toLower().startsWith("microsoft-edge:"))
         throw new Exception("Not a 'MICROSOFT-EDGE' URI: " ~ uri);
-
+    
+    auto returnTuple = typeof(return)(tuple(null, null, null));
     string[string] queryParams = getQueryParams(uri);
 
     if (queryParams is null || "url" !in queryParams)
-        return null;
+        return returnTuple;
 
     queryParams = getQueryParams(queryParams["url"].decodeComponent());
 
-    if ("url" in queryParams && "q" in queryParams) /// 
-        return tuple!("searchTerm", "enteredUrl", "selectedUrl")(
-            queryParams["q"].decodeComponent(), null, cast(string) Base64URL.decode(queryParams["url"]));
-    else if ("url" in queryParams)
-        return tuple!("searchTerm", "enteredUrl", "selectedUrl")(null, queryParams["url"].decodeComponent(), null);
+    if ("url" in queryParams && "q" in queryParams) {
+        returnTuple.searchTerm = queryParams["q"].decodeComponent();
+        returnTuple.selectedUrl = cast(string) Base64URL.decode(queryParams["url"]);
+    } else if ("url" in queryParams)
+        returnTuple.enteredUrl = queryParams["url"].decodeComponent();
     else if ("q" in queryParams)
-        return tuple!("searchTerm", "enteredUrl", "selectedUrl")(queryParams["q"].decodeComponent(), null, null);
-    else
-        return null;
+        returnTuple.searchTerm = queryParams["q"].decodeComponent();
+
+    return returnTuple;
 }
 
 /// Open a URL by spawning a shell process to the browser executable, or system default.
