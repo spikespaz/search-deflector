@@ -306,7 +306,7 @@ string[string] getQueryParams(const string uri) {
 
 /// Return a tuple of the search term that was typed in (if any),
 /// the URL that was typed (if any), and the URL that was selected from the search results panel (if any)
-Tuple!("searchTerm", string, "enteredUrl", string, "selectedUrl", string) getSearchInfo(const string uri) {
+Tuple!(string, "searchTerm", string, "enteredUrl", string, "selectedUrl") getSearchInfo(const string uri) {
     if (!uri.toLower().startsWith("microsoft-edge:"))
         throw new Exception("Not a 'MICROSOFT-EDGE' URI: " ~ uri);
 
