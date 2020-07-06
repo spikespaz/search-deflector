@@ -19,6 +19,7 @@ import std.range: repeat;
 import std.array: join;
 import std.conv: to;
 import std.regex: matchFirst;
+import std.base64: Base64URL;
 
 debug import std.stdio: writeln;
 debug import std.string: format;
@@ -405,25 +406,25 @@ void createWarningDialog(const string message, HWND hWnd = null) nothrow {
 
 /// Creates a GitHub issue body with the data from an Exception.
 string createIssueMessage(const Throwable error) {
-    auto winVer = WindowsVersion.get();
+    const auto browsers = getAllAvailableBrowsers();
 
     // dfmt off
     return ISSUE_TEMPLATE.strip().formatString([
         "errorFile": error.file,
         "errorLine": error.line.to!string(),
         "errorMessage": error.message,
-        "browserName": "",
+        "browserName": browsers.nameFromPath(DeflectorSettings.browserPath),
         "browserPath": DeflectorSettings.browserPath,
         "useProfile": DeflectorSettings.useProfile.to!string(),
         "profileName": DeflectorSettings.profileName,
-        "engineName": "",
+        "engineName": browsers.nameFromUrl(DeflectorSettings.engineURL),
         "engineUrl": DeflectorSettings.engineURL,
         "queryString": "",
         "queryUrl": "",
-        "windowsRelease": winVer.release,
-        "windowsBuild": winVer.build,
-        "windowsEdition": winVer.edition,
-        "insidersPreview": ""
+        "windowsRelease": WindowsVersion.release,
+        "windowsBuild": WindowsVersion.build,
+        "windowsEdition": WindowsVersion.edition,
+        "insidersPreview": WindowsVersion.insiderRing
     ]).to!string();
     // dfmt on
 }
