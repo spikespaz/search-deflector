@@ -122,6 +122,7 @@ static struct Translator {
         }
 
         translationMap = parseConfig(readText(filePath));
+        debug writeln("Loaded locale: " ~ filePath);
         return success;
     }
 
