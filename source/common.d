@@ -156,41 +156,73 @@ static struct DeflectorSettings {
     static string profileName; /// The name of the user profile to pass to the browser on launch.
     static string interfaceLanguage; /// The language code to use for the UI.
     static uint searchCount; /// Counter for how many times the user has made a search query.
-    static bool disableNag = false; /// Flag to disable the reditection to the nag message.
+    static bool disableNag; /// Flag to disable the reditection to the nag message.
 
-    /// Fetch all settings from system registry
-    static void load() {
-        try {
-            Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
+    static this() {
+        Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
+        bool anyFailed = false;
 
+        try
             engineURL = deflectorKey.getValue("EngineURL").value_SZ;
-            browserPath = deflectorKey.getValue("BrowserPath").value_SZ;
-            useProfile = cast(bool) deflectorKey.getValue("UseProfile").value_DWORD;
-            profileName = deflectorKey.getValue("ProfileName").value_SZ;
-            interfaceLanguage = deflectorKey.getValue("InterfaceLanguage").value_SZ;
-            searchCount = deflectorKey.getValue("SearchCount").value_DWORD;
-
-            try {
-                disableNag = cast(bool) deflectorKey.getValue("DisableNag").value_DWORD;
-            } catch (RegistryException) {
-                disableNag = false;
-            }
-
-            if (engineURL.length == 0) {
-                engineURL = "google.com/search?q={{query}}";
-                dump();
-            }
-
-        } catch (RegistryException error) {
-            debug writeln(error.message);
-
+        catch (RegistryException) {
+            debug writeln("Failed to load 'EngineURL' from registry. Setting the default value.");
+            anyFailed = true;
             engineURL = "google.com/search?q={{query}}";
+        }
+
+        try
+            browserPath = deflectorKey.getValue("BrowserPath").value_SZ;
+        catch (RegistryException) {
+            debug writeln("Failed to load 'EngineURL' from registry. Setting the default value.");
+            anyFailed = true;
             browserPath = "";
+        }
+
+        try
+            useProfile = cast(bool) deflectorKey.getValue("UseProfile").value_DWORD;
+        catch (RegistryException) {
+            debug writeln("Failed to load 'EngineURL' from registry. Setting the default value.");
+            anyFailed = true;
             useProfile = false;
+        }
+
+        try
+            profileName = deflectorKey.getValue("ProfileName").value_SZ;
+        catch (RegistryException) {
+            debug writeln("Failed to load 'EngineURL' from registry. Setting the default value.");
+            anyFailed = true;
             profileName = "";
+        }
+
+        try
+            interfaceLanguage = deflectorKey.getValue("InterfaceLanguage").value_SZ;
+        catch (RegistryException) {
+            debug writeln("Failed to load 'EngineURL' from registry. Setting the default value.");
+            anyFailed = true;
             interfaceLanguage = "";
+        }
+
+        try
+            searchCount = deflectorKey.getValue("SearchCount").value_DWORD;
+        catch (RegistryException) {
+            debug writeln("Failed to load 'EngineURL' from registry. Setting the default value.");
+            anyFailed = true;
             searchCount = 0;
         }
+
+        try
+            disableNag = cast(bool) deflectorKey.getValue("DisableNag").value_DWORD;
+        catch (RegistryException) {
+            debug writeln("Failed to load 'EngineURL' from registry. Setting the default value.");
+            anyFailed = true;
+            disableNag= false;
+        }
+
+        if (anyFailed) {
+            debug writeln("Some values from registry did not exist, dumping new defaults.");
+            dump();
+        } else
+            debug writeln("Successfully loaded all registry settings!");
     }
 
     /// Dump current settings to system registry
