@@ -1,10 +1,7 @@
 module deflector;
 
-import common: getConsoleArgs, getBrowserArgs, openUri, createErrorDialog, DeflectorSettings, WIKI_THANKS_URL;
-import std.string: replace, indexOf, toLower, startsWith;
-import std.uri: decodeComponent, encodeComponent;
-import std.regex: matchFirst;
-import std.array: split;
+import common;
+import std.uri: decodeComponent;
 import std.conv: to;
 
 version (free_version) {
@@ -19,97 +16,54 @@ debug {
 
 void main(string[] args) {
     if (args.length <= 1) {
-        createErrorDialog(new Exception(
-            "Expected one URI argument, recieved: \n" ~ args.to!string()));
-
+        createErrorDialog(new Exception("Expected one URI argument, recieved: \n" ~ args.to!string()));
         return;
     }
 
+    const auto searchInfo = getSearchInfo(args[1]);
+    
+    debug {
+        writeln("\nInitial launch URI:\n\t" ~ args[1] ~ "\n");
+
+        debug writeln("Decoded search information:");
+        debug writeln("Search Term: " ~ searchInfo.searchTerm);
+        debug writeln("Entered URL: " ~ searchInfo.enteredUrl);
+        debug writeln("Selected URL: " ~ searchInfo.selectedUrl);
+    }
+
     try {
-        DeflectorSettings.load();
+        const string browserArgs = getBrowserArgs(
+            DeflectorSettings.browserPath,
+            DeflectorSettings.useProfile,
+            DeflectorSettings.profileName
+        );
+        string launchUrl;
 
-        const string searchTerm = getSearchTerm(args[1]);
-        const string browserArgs = getBrowserArgs();
-
-        switch (searchTerm) {
-            version (free_version) case "!DisableDonationRequest":
+        if (searchInfo.enteredUrl !is null)
+            launchUrl = searchInfo.enteredUrl;
+        else if (searchInfo.selectedUrl !is null)
+            launchUrl = searchInfo.selectedUrl;
+        else if (searchInfo.searchTerm)
+            if (searchInfo.searchTerm.decodeComponent() == "!DisableDonationRequest") {
                 DeflectorSettings.disableNag = true;
                 DeflectorSettings.dump();
+            } else
+                launchUrl = DeflectorSettings.engineURL.formatString(["query": searchInfo.searchTerm]);
+        else
+            throw new Exception("There was an error deflecting your search. Passed URI is:\t" ~ args[1]);
 
-                break;
-            default:
-                openUri(DeflectorSettings.browserPath, browserArgs, rewriteUri(args[1], DeflectorSettings.engineURL));
-                DeflectorSettings.searchCount++;
-                DeflectorSettings.dump();
-        }
+        openUri(DeflectorSettings.browserPath, browserArgs, launchUrl);
 
         version (free_version) // Makes the donation prompt open on the 10th search and every 20 afterward
-        if ((!DeflectorSettings.disableNag && (DeflectorSettings.searchCount - 10) % 20 == 0) || DeflectorSettings.searchCount == 10) {
+        if ((!DeflectorSettings.disableNag && (DeflectorSettings.searchCount - 10) % 20 == 0)
+                || DeflectorSettings.searchCount == 10) {
             Thread.sleep(seconds(5));
             openUri(DeflectorSettings.browserPath, browserArgs, WIKI_THANKS_URL);
         }
     } catch (Exception error) {
         createErrorDialog(error);
-
         debug writeln(error);
     }
 
     debug getchar();
-}
-
-string getSearchTerm(const string uri) {
-    if (!uri.toLower().startsWith("microsoft-edge:"))
-        throw new Exception("Not a 'microsoft-edge' URI: " ~ uri);
-
-    const string[string] queryParams = getQueryParams(uri);
-
-    if (queryParams is null || "url" !in queryParams)
-        return null;
-
-    const string url = queryParams["url"].decodeComponent();
-
-    if (url.matchFirst(`^https:\/\/.+\.bing.com`))
-        return getQueryParams(url)["q"].decodeComponent();
-    
-    return null;
-}
-
-/// Rewrites a "microsoft-edge" URI to something browsers can use.
-string rewriteUri(const string uri, const string engineUrl) {
-    if (uri.toLower().startsWith("microsoft-edge:")) {
-        const string[string] queryParams = getQueryParams(uri);
-
-        if (queryParams !is null && "url" in queryParams) {
-            const string url = queryParams["url"].decodeComponent();
-
-            if (url.matchFirst(`^https:\/\/.+\.bing.com`))
-                return "https://" ~ engineUrl.replace("{{query}}", getQueryParams(url)["q"]);
-            else
-                return url;
-        } else // Didn't know what to do with the protocol URI, so just search the text same as Edge.
-            return engineUrl.replace("{{query}}", uri[15 .. $].encodeComponent());
-    } else
-        throw new Exception("Not a 'microsoft-edge' URI: " ~ uri);
-}
-
-/// Parse the query parameters from a URI and return as an associative array.
-string[string] getQueryParams(const string uri) {
-    string[string] queryParams;
-
-    const size_t queryStart = uri.indexOf('?');
-
-    if (queryStart == -1)
-        return null;
-
-    const string[] paramStrings = uri[queryStart + 1 .. $].split('&');
-
-    foreach (param; paramStrings) {
-        const size_t equalsIndex = param.indexOf('=');
-        const string key = param[0 .. equalsIndex];
-        const string value = param[equalsIndex + 1 .. $];
-
-        queryParams[key] = value;
-    }
-
-    return queryParams;
 }
