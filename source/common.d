@@ -136,13 +136,13 @@ static struct DeflectorSettings {
 /// Structure containing Windows version information
 static struct WindowsVersion {
     /// ditto
-    string release, build, edition, insiderRing;
+    static string release, build, edition, insiderRing;
 
     /// Fetch all version info from registry
     static this() {
         try {
-            key insiderInfo = Registry.localMachine.getKey("SOFTWARE\\Microsoft\\WindowsSelfHost\\Applicability", REGSAM.KEY_READ);
-            insiderRing = insiderInfo.getValue("BranchName");
+            Key insiderInfo = Registry.localMachine.getKey("SOFTWARE\\Microsoft\\WindowsSelfHost\\Applicability", REGSAM.KEY_READ);
+            insiderRing = insiderInfo.getValue("BranchName").value_SZ;
         } catch (RegistryException)
             insiderRing = null;
 
