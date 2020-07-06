@@ -330,18 +330,18 @@ string escapeShellArgs(const string[] arguments) {
     return commandLine;
 }
 
-/// Constructs all browser arguments from a DeflectorSettings object.
-string getBrowserArgs() {
+/// Constructs browser arguments based on executable name and options provided
+string getBrowserArgs(const string browserPath, const bool useProfile, const string profileName) {
     string[] browserArgs;
 
-    const bool isChrome = DeflectorSettings.browserPath.endsWith("chrome.exe");
-    const bool isFirefox = DeflectorSettings.browserPath.endsWith("firefox.exe");
+    const bool isChrome = browserPath.endsWith("chrome.exe");
+    const bool isFirefox = browserPath.endsWith("firefox.exe");
 
-    if (DeflectorSettings.useProfile) {
+    if (useProfile) {
         if (isChrome)
-            browserArgs ~= "--profile-directory=" ~ escapeShellArg(DeflectorSettings.profileName, false);
+            browserArgs ~= "--profile-directory=" ~ escapeShellArg(profileName, false);
         else if (isFirefox)
-            browserArgs ~= ["-P", escapeShellArg(DeflectorSettings.profileName, false)];
+            browserArgs ~= ["-P", escapeShellArg(profileName, false)];
     }
 
     return browserArgs.join(' ');
