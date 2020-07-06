@@ -317,15 +317,18 @@ Tuple!(string, "searchTerm", string, "enteredUrl", string, "selectedUrl") getSea
     if (queryParams is null || "url" !in queryParams)
         return returnTuple;
 
-    queryParams = getQueryParams(queryParams["url"].decodeComponent());
+    const string urlParam = queryParams["url"].decodeComponent();
 
-    if ("url" in queryParams && "q" in queryParams) {
-        returnTuple.searchTerm = queryParams["q"].decodeComponent();
-        returnTuple.selectedUrl = cast(string) Base64URL.decode(queryParams["url"]);
-    } else if ("url" in queryParams)
-        returnTuple.enteredUrl = queryParams["url"].decodeComponent();
-    else if ("q" in queryParams)
-        returnTuple.searchTerm = queryParams["q"].decodeComponent();
+    if (urlParam.matchFirst(r"^https:\/\/.+\.bing.com")) {
+        queryParams = getQueryParams(urlParam);
+
+        if ("url" in queryParams && "q" in queryParams) {
+            returnTuple.searchTerm = queryParams["q"].decodeComponent();
+            returnTuple.selectedUrl = cast(string) Base64URL.decode(queryParams["url"]);
+        } else if ("q" in queryParams)
+            returnTuple.searchTerm = queryParams["q"].decodeComponent();
+    } else
+        returnTuple.enteredUrl = urlParam;
 
     return returnTuple;
 }
