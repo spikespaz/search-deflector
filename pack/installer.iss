@@ -232,7 +232,7 @@ Root: HKCU; \
 Root: HKCU; \
     Subkey: "Software\Clients\SearchDeflector"; \
     ValueName: "BrowserPath"; \
-    ValueData: "system_default"; \
+    ValueData: ""; \
     ValueType: string; \
     Flags: createvalueifdoesntexist; \
     Components: main
