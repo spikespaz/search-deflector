@@ -282,6 +282,52 @@ string[string] parseConfig(const string config) {
     return data;
 }
 
+/// Parse the query parameters from a URI and return as an associative array.
+string[string] getQueryParams(const string uri) {
+    string[string] queryParams;
+
+    const size_t queryStart = uri.indexOf('?');
+
+    if (queryStart == -1)
+        return null;
+
+    const string[] paramStrings = uri[queryStart + 1 .. $].split('&');
+
+    foreach (param; paramStrings) {
+        const size_t equalsIndex = param.indexOf('=');
+        const string key = param[0 .. equalsIndex];
+        const string value = param[equalsIndex + 1 .. $];
+
+        queryParams[key] = value;
+    }
+
+    return queryParams;
+}
+
+/// Return a tuple of the search term that was typed in (if any),
+/// the URL that was typed (if any), and the URL that was selected from the search results panel (if any)
+Tuple!("searchTerm", string, "enteredUrl", string, "selectedUrl", string) getSearchInfo(const string uri) {
+    if (!uri.toLower().startsWith("microsoft-edge:"))
+        throw new Exception("Not a 'MICROSOFT-EDGE' URI: " ~ uri);
+
+    string[string] queryParams = getQueryParams(uri);
+
+    if (queryParams is null || "url" !in queryParams)
+        return null;
+
+    queryParams = getQueryParams(queryParams["url"].decodeComponent());
+
+    if ("url" in queryParams && "q" in queryParams) /// 
+        return tuple!("searchTerm", "enteredUrl", "selectedUrl")(
+            queryParams["q"].decodeComponent(), null, cast(string) Base64URL.decode(queryParams["url"]));
+    else if ("url" in queryParams)
+        return tuple!("searchTerm", "enteredUrl", "selectedUrl")(null, queryParams["url"].decodeComponent(), null);
+    else if ("q" in queryParams)
+        return tuple!("searchTerm", "enteredUrl", "selectedUrl")(queryParams["q"].decodeComponent(), null, null);
+    else
+        return null;
+}
+
 /// Open a URL by spawning a shell process to the browser executable, or system default.
 void openUri(const string browserPath, const string args, const string url) {
     string execPath;
