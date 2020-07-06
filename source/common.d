@@ -431,7 +431,7 @@ string nameFromPath(const string[string] browsers, const string path) {
         if (browser.value == path)
             return browser.key;
 
-    return "Custom";
+    return Translator.text("option.custom_browser");
 }
 
 /// Get the engine name by an engine URL from the known list
@@ -440,7 +440,7 @@ string nameFromUrl(const string[string] engines, const string url) {
         if (engine.value == url)
             return engine.key;
 
-    return "Custom";
+    return Translator.text("option.custom_engine");
 }
 
 /// Format a string by replacing each key with a value in replacements.
