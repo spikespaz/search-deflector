@@ -246,6 +246,13 @@ Root: HKCU; \
 Root: HKCU; \
     Subkey: "Software\Clients\SearchDeflector"; \
     ValueName: "ProfileName"; \
+    ValueData: ""; \
+    ValueType: string; \
+    Flags: createvalueifdoesntexist; \
+    Components: main
+Root: HKCU; \
+    Subkey: "Software\Clients\SearchDeflector"; \
+    ValueName: "InterfaceLanguage"; \
     ValueData: "Default"; \
     ValueType: string; \
     Flags: createvalueifdoesntexist; \
