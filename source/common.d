@@ -211,26 +211,27 @@ static struct DeflectorSettings {
 }
 
 /// Structure containing Windows version information
-struct WindowsVersion {
+static struct WindowsVersion {
     /// ditto
-    string release, build, edition;
+    string release, build, edition, insiderRing;
 
     /// Fetch all version info from registry
-    static WindowsVersion get() {
+    static this() {
         try {
-            Key currentVersion = Registry.localMachine.getKey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", REGSAM
-                    .KEY_READ);
+            key insiderInfo = Registry.localMachine.getKey("SOFTWARE\\Microsoft\\WindowsSelfHost\\Applicability", REGSAM.KEY_READ);
+            insiderRing = insiderInfo.getValue("BranchName");
+        } catch (RegistryException)
+            insiderRing = null;
 
-            // dfmt off
-            return WindowsVersion(
-                currentVersion.getValue("ReleaseId").value_SZ,
-                currentVersion.getValue("CurrentBuildNumber").value_SZ,
-                currentVersion.getValue("EditionID").value_SZ,
-            );
-            // dfmt on
+        try {
+            Key currentVersion = Registry.localMachine.getKey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", REGSAM.KEY_READ);
+
+            release = currentVersion.getValue("ReleaseId").value_SZ;
+            build = currentVersion.getValue("CurrentBuildNumber").value_SZ;
+            edition = currentVersion.getValue("EditionID").value_SZ;
         } catch (RegistryException error) {
             debug writeln(error.message);
-            return WindowsVersion("unknown", "unknown", "unknown");
+            release = build = edition = "unknown";
         }
     }
 }
