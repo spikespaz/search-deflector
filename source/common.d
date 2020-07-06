@@ -38,115 +38,6 @@ enum string WIKI_URL = "https://github.com/spikespaz/search-deflector/wiki";
 /// URL of the wiki's thank-you page.
 enum string WIKI_THANKS_URL = WIKI_URL ~ "/Thanks-for-using-Search-Deflector!";
 
-/// Create an error dialog from the given exception
-void createErrorDialog(const Throwable error, HWND hWnd = null) nothrow {
-    // dfmt off
-    try {
-        const uint messageId = MessageBox(hWnd,
-                "Search Deflector launch failed. Would you like to open the issues page to submit a bug report?" ~
-                "\nThe important information will be filled out for you." ~
-                "\n\nIf you do not wish to create a bug report, click 'No' to exit.",
-                "Search Deflector", MB_ICONERROR | MB_YESNO);
-
-        if (messageId == IDYES)
-            browse("https://github.com/spikespaz/search-deflector/issues/new?body=" ~
-                createIssueMessage(error).encodeComponent());
-    } catch (Throwable) { // @suppress(dscanner.suspicious.catch_em_all)
-        assert(0);
-    }
-    // dfmt on
-}
-
-/// Create a warning dialog with given message content
-void createWarningDialog(const string message, HWND hWnd = null) nothrow {
-    try {
-        debug writeln(message);
-
-        MessageBox(hWnd, message.toUTF16z, "Search Deflector", MB_ICONWARNING | MB_OK);
-    } catch (Throwable error) // @suppress(dscanner.suspicious.catch_em_all)
-        createErrorDialog(error);
-
-}
-
-/// Creates a GitHub issue body with the data from an Exception.
-string createIssueMessage(const Throwable error) {
-    auto winVer = WindowsVersion.get();
-
-    // dfmt off
-    return ISSUE_TEMPLATE.strip().formatString([
-        "errorFile": error.file,
-        "errorLine": error.line.to!string(),
-        "errorMessage": error.message,
-        "browserName": "",
-        "browserPath": DeflectorSettings.browserPath,
-        "useProfile": DeflectorSettings.useProfile.to!string(),
-        "profileName": DeflectorSettings.profileName,
-        "engineName": "",
-        "engineUrl": DeflectorSettings.engineURL,
-        "queryString": "",
-        "queryUrl": "",
-        "windowsRelease": winVer.release,
-        "windowsBuild": winVer.build,
-        "windowsEdition": winVer.edition,
-        "insidersPreview": ""
-    ]).to!string();
-    // dfmt on
-}
-
-/// Return a string array of arguments that are parsed in ArgV style from a string.
-string[] getConsoleArgs(const wchar* commandLine = GetCommandLineW()) {
-    int argCount;
-    wchar** argList = CommandLineToArgvW(commandLine, &argCount);
-    string[] args;
-
-    for (int index; index < argCount; index++)
-        args ~= argList[index].to!string();
-
-    return args;
-}
-
-/// Escape a command line argument according to the reference:
-/// https://web.archive.org/web/20190109172835/https://blogs.msdn.microsoft.com/twistylittlepassagesallalike/2011/04/23/everyone-quotes-command-line-arguments-the-wrong-way/
-string escapeShellArg(const string argument, bool force) {
-    if (argument.length == 0)
-        return "";
-
-    if (!force && argument.indexOfAny(" \t\n\v\"") == -1)
-        return argument;
-
-    string escapedArg = "\"";
-
-    for (uint pos = 0; pos < argument.length; pos++) {
-        uint backslashCount = 0;
-        
-        while (pos != argument.length && argument[pos] == '\\') {
-            pos++;
-            backslashCount++;
-        }
-
-        if (pos == argument.length) {
-            escapedArg ~= '\\'.repeat(backslashCount * 2).to!string();
-            break;
-        } else if (argument[pos] == '"')
-            escapedArg ~= '\\'.repeat(backslashCount * 2 + 1).to!string() ~ '"';
-        else
-            escapedArg ~= '\\'.repeat(backslashCount).to!string() ~ argument[pos];
-    }
-
-    escapedArg ~= '"';
-
-    return escapedArg;
-}
-
-/// Function to create a string from arguments that is properly escaped.
-string escapeShellArgs(const string[] arguments) {
-    string commandLine;
-
-    foreach(string argument; arguments)
-        commandLine ~= ' ' ~ escapeShellArg(argument, false);
-
-    return commandLine;
-}
 
 /// Struct representing the settings to use for deflection.
 static struct DeflectorSettings {
@@ -289,45 +180,6 @@ string[string] parseConfig(const string config) {
     return data;
 }
 
-/// Try to fetch the engine presets from the repository, if it fails, read from local.
-string[string] getEnginePresets() {
-    string[string] engines = parseConfig(readText(buildPath(thisExePath().dirName(), "engines.txt")));
-
-    try
-        engines = mergeAAs(engines, parseConfig(get(ENGINE_TEMPLATES_URL).idup)); // Get the string of the resource content.
-    catch (CurlException) {
-    }
-
-    return engines;
-}
-
-/// Constructs all browser arguments from a DeflectorSettings object.
-string getBrowserArgs() {
-    string[] browserArgs;
-
-    const bool isChrome = DeflectorSettings.browserPath.endsWith("chrome.exe");
-    const bool isFirefox = DeflectorSettings.browserPath.endsWith("firefox.exe");
-
-    if (DeflectorSettings.useProfile) {
-        if (isChrome)
-            browserArgs ~= "--profile-directory=" ~ escapeShellArg(DeflectorSettings.profileName, false);
-        else if (isFirefox)
-            browserArgs ~= ["-P", escapeShellArg(DeflectorSettings.profileName, false)];
-    }
-
-    return browserArgs.join(' ');
-}
-
-/// Merge two associative arrays, updating existing values in "baseAA" with new ones from "updateAA".
-T[K] mergeAAs(T, K)(T[K] baseAA, T[K] updateAA) {
-    T[K] newAA = baseAA;
-
-    foreach (key; updateAA.byKey())
-        newAA[key] = updateAA[key];
-
-    return newAA;
-}
-
 /// Open a URL by spawning a shell process to the browser executable, or system default.
 void openUri(const string browserPath, const string args, const string url) {
     string execPath;
@@ -368,14 +220,143 @@ void openUri(const string browserPath, const string args, const string url) {
     }
 }
 
-/// Format a string by replacing each key with a value in replacements.
-S formatString(S)(const S input, const S[S] replacements) {
-    S output = input;
+/// Create an error dialog from the given exception
+void createErrorDialog(const Throwable error, HWND hWnd = null) nothrow {
+    // dfmt off
+    try {
+        const uint messageId = MessageBox(hWnd,
+                "Search Deflector launch failed. Would you like to open the issues page to submit a bug report?" ~
+                "\nThe important information will be filled out for you." ~
+                "\n\nIf you do not wish to create a bug report, click 'No' to exit.",
+                "Search Deflector", MB_ICONERROR | MB_YESNO);
 
-    foreach (variable; replacements.byKeyValue())
-        output = output.replace("{{" ~ variable.key ~ "}}", variable.value);
+        if (messageId == IDYES)
+            browse("https://github.com/spikespaz/search-deflector/issues/new?body=" ~
+                createIssueMessage(error).encodeComponent());
+    } catch (Throwable) { // @suppress(dscanner.suspicious.catch_em_all)
+        assert(0);
+    }
+    // dfmt on
+}
 
-    return output;
+/// Create a warning dialog with given message content
+void createWarningDialog(const string message, HWND hWnd = null) nothrow {
+    try {
+        debug writeln(message);
+
+        MessageBox(hWnd, message.toUTF16z, "Search Deflector", MB_ICONWARNING | MB_OK);
+    } catch (Throwable error) // @suppress(dscanner.suspicious.catch_em_all)
+        createErrorDialog(error);
+
+}
+
+/// Creates a GitHub issue body with the data from an Exception.
+string createIssueMessage(const Throwable error) {
+    auto winVer = WindowsVersion.get();
+
+    // dfmt off
+    return ISSUE_TEMPLATE.strip().formatString([
+        "errorFile": error.file,
+        "errorLine": error.line.to!string(),
+        "errorMessage": error.message,
+        "browserName": "",
+        "browserPath": DeflectorSettings.browserPath,
+        "useProfile": DeflectorSettings.useProfile.to!string(),
+        "profileName": DeflectorSettings.profileName,
+        "engineName": "",
+        "engineUrl": DeflectorSettings.engineURL,
+        "queryString": "",
+        "queryUrl": "",
+        "windowsRelease": winVer.release,
+        "windowsBuild": winVer.build,
+        "windowsEdition": winVer.edition,
+        "insidersPreview": ""
+    ]).to!string();
+    // dfmt on
+}
+
+/// Return a string array of arguments that are parsed in ArgV style from a string.
+string[] getConsoleArgs(const wchar* commandLine = GetCommandLineW()) {
+    int argCount;
+    wchar** argList = CommandLineToArgvW(commandLine, &argCount);
+    string[] args;
+
+    for (int index; index < argCount; index++)
+        args ~= argList[index].to!string();
+
+    return args;
+}
+
+/// Escape a command line argument according to the reference:
+/// https://web.archive.org/web/20190109172835/https://blogs.msdn.microsoft.com/twistylittlepassagesallalike/2011/04/23/everyone-quotes-command-line-arguments-the-wrong-way/
+string escapeShellArg(const string argument, bool force) {
+    if (argument.length == 0)
+        return "";
+
+    if (!force && argument.indexOfAny(" \t\n\v\"") == -1)
+        return argument;
+
+    string escapedArg = "\"";
+
+    for (uint pos = 0; pos < argument.length; pos++) {
+        uint backslashCount = 0;
+        
+        while (pos != argument.length && argument[pos] == '\\') {
+            pos++;
+            backslashCount++;
+        }
+
+        if (pos == argument.length) {
+            escapedArg ~= '\\'.repeat(backslashCount * 2).to!string();
+            break;
+        } else if (argument[pos] == '"')
+            escapedArg ~= '\\'.repeat(backslashCount * 2 + 1).to!string() ~ '"';
+        else
+            escapedArg ~= '\\'.repeat(backslashCount).to!string() ~ argument[pos];
+    }
+
+    escapedArg ~= '"';
+
+    return escapedArg;
+}
+
+/// Function to create a string from arguments that is properly escaped.
+string escapeShellArgs(const string[] arguments) {
+    string commandLine;
+
+    foreach(string argument; arguments)
+        commandLine ~= ' ' ~ escapeShellArg(argument, false);
+
+    return commandLine;
+}
+
+/// Constructs all browser arguments from a DeflectorSettings object.
+string getBrowserArgs() {
+    string[] browserArgs;
+
+    const bool isChrome = DeflectorSettings.browserPath.endsWith("chrome.exe");
+    const bool isFirefox = DeflectorSettings.browserPath.endsWith("firefox.exe");
+
+    if (DeflectorSettings.useProfile) {
+        if (isChrome)
+            browserArgs ~= "--profile-directory=" ~ escapeShellArg(DeflectorSettings.profileName, false);
+        else if (isFirefox)
+            browserArgs ~= ["-P", escapeShellArg(DeflectorSettings.profileName, false)];
+    }
+
+    return browserArgs.join(' ');
+}
+
+/// Try to fetch the engine presets from the repository, if it fails, read from local.
+string[string] getEnginePresets() {
+    string[string] engines = parseConfig(readText(buildPath(thisExePath().dirName(), "engines.txt")));
+
+    try
+        engines = mergeAAs(engines, parseConfig(get(ENGINE_TEMPLATES_URL).idup)); // Get the string of the resource content.
+    catch (CurlException) {
+    }
+
+    return engines;
 }
 
 /// Fetch a list of available browsers from the Windows registry along with their paths.
@@ -460,6 +441,26 @@ string nameFromUrl(const string[string] engines, const string url) {
             return engine.key;
 
     return "Custom";
+}
+
+/// Format a string by replacing each key with a value in replacements.
+S formatString(S)(const S input, const S[S] replacements) {
+    S output = input;
+
+    foreach (variable; replacements.byKeyValue())
+        output = output.replace("{{" ~ variable.key ~ "}}", variable.value);
+
+    return output;
+}
+
+/// Merge two associative arrays, updating existing values in "baseAA" with new ones from "updateAA".
+T[K] mergeAAs(T, K)(T[K] baseAA, T[K] updateAA) {
+    T[K] newAA = baseAA;
+
+    foreach (key; updateAA.byKey())
+        newAA[key] = updateAA[key];
+
+    return newAA;
 }
 
 /// Null comparison
