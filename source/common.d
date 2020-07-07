@@ -154,8 +154,16 @@ static struct DeflectorSettings {
     static bool disableNag; /// Flag to disable the reditection to the nag message.
 
     static this() {
-        Key deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
         bool anyFailed = false;
+        Key deflectorKey;
+
+        try
+            deflectorKey = Registry.currentUser.getKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
+        catch (RegistryException) {
+            debug writeln("Failed to load key 'SOFTWARE\\Clients\\SearchDeflector', creating.");
+            anyFailed = true;
+            deflectorKey = Registry.currentUser.createKey("SOFTWARE\\Clients\\SearchDeflector", REGSAM.KEY_READ);
+        }
 
         try
             engineURL = deflectorKey.getValue("EngineURL").value_SZ;
