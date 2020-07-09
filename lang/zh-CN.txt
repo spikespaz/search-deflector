@@ -12,21 +12,21 @@ fragment.version:           版本
 fragment.author:            开发者
 //// Update page
 fragment.current_version:   版本信息
-fragment.build_date:        安装时间
+fragment.build_date:        组建时间
 fragment.latest_version:    最新版本
-fragment.uploader:          开发者
+fragment.uploader:          上传者
 fragment.timestamp:         更新时间
 fragment.binary_size:       占用空间
-fragment.download_count:    下载用时
+fragment.download_count:    下载次数
 
 // Labels used for input fields and options
 //// Settings page
-label.browser_name:         设置开始菜单浏览器
+label.browser_name:         浏览器
 label.browser_path:         浏览器路径
-label.engine_name:          设置开始菜单搜索引擎
-label.engine_url:           自定义搜索引擎的 URL
-label.profile_dir:          Chrome/Firefox 用户界面
-label.enable_profile:       开启
+label.engine_name:          搜索引擎
+label.engine_url:           自定义搜索引擎网址
+label.profile_dir:          Chrome/Firefox 用户
+label.enable_profile:       启用
 //// Language page
 label.language_select:      界面语言
 

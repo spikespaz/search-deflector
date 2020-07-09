@@ -1,7 +1,7 @@
 // All English US translations for the configuration user interface.
 
 // Page and window titles
-title.window:               Search Deflector 程式
+title.window:               Search Deflector 設定
 title.settings_page:        設定
 title.language_page:        語言
 title.update_page:          更新
@@ -11,38 +11,38 @@ title.update_page:          更新
 fragment.version:           版本
 fragment.author:            開發者
 //// Update page
-fragment.current_version:   版本信息
-fragment.build_date:        安裝時間
+fragment.current_version:   目前版本
+fragment.build_date:        組建日期
 fragment.latest_version:    最新版本
-fragment.uploader:          開發者
-fragment.timestamp:         更新時間
-fragment.binary_size:       佔用空間
-fragment.download_count:    下載用時
+fragment.uploader:          上傳者
+fragment.timestamp:         發行日期
+fragment.binary_size:       大小
+fragment.download_count:    下載次數
 
 // Labels used for input fields and options
 //// Settings page
-label.browser_name:         設置開始菜單瀏覽器
+label.browser_name:         瀏覽器
 label.browser_path:         瀏覽器路徑
-label.engine_name:          設置開始菜單搜索引擎
-label.engine_url:           自定義搜索引擎的 URL
-label.profile_dir:          Chrome/Firefox 用戶界面
-label.enable_profile:       開啓
+label.engine_name:          搜索引擎
+label.engine_url:           自訂搜索引擎網址
+label.profile_dir:          Chrome/Firefox 使用者
+label.enable_profile:       啟用
 //// Language page
 label.language_select:      界面語言
 
 // Static options in dropdown menus or radio button groups
 //// Settings page
-option.custom_browser:      自定義
-option.default_browser:     系統默認
-option.custom_engine:       自定義
+option.custom_browser:      自訂
+option.default_browser:     預設
+option.custom_engine:       自訂
 //// Language page
-option.default_language:    系統默認
+option.default_language:    預設
 
 // Button label text
 //// Settings page
-button.apply:               應用
-button.website:             項目網址
+button.apply:               套用
+button.website:             官方網站
 button.close:               關閉
 //// Update page
 button.update:              更新 Search Deflector
-button.details:             更多信息
+button.details:             詳細資訊

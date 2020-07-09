@@ -81,4 +81,4 @@ Additionally, thanks to all of following early-adopters who reported the first i
 [@fernandex00](https://github.com/fernandex00),
 and others.
 
-I owe all of the translators for this project a huge thanks. Currently there is only one, thank you [@linjiayinchn](https://github.com/linjiayinchn) for the Chinese translations!
+I owe all of the translators for this project a huge thanks. Thank you [@linjiayinchn](https://github.com/linjiayinchn) and [@maxloh](https://github.com/maxloh) for the Chinese translations!
