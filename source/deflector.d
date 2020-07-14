@@ -39,7 +39,9 @@ void main(string[] args) {
         );
         string launchUrl;
 
-        if (searchInfo.enteredUrl !is null)
+        if (searchInfo.directUrl !is null)
+            launchUrl = searchInfo.directUrl;
+        else if (searchInfo.enteredUrl !is null)
             launchUrl = searchInfo.enteredUrl;
         else if (searchInfo.selectedUrl !is null)
             launchUrl = searchInfo.selectedUrl;

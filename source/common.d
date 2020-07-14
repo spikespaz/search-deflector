@@ -318,11 +318,20 @@ string[string] getQueryParams(const string uri) {
 
 /// Return a tuple of the search term that was typed in (if any),
 /// the URL that was typed (if any), and the URL that was selected from the search results panel (if any)
-Tuple!(string, "searchTerm", string, "enteredUrl", string, "selectedUrl") getSearchInfo(const string uri) {
+Tuple!(string, "searchTerm", string, "enteredUrl", string, "directUrl", string, "selectedUrl") getSearchInfo(string uri) {
     if (!uri.toLower().startsWith("microsoft-edge:"))
         throw new Exception("Not a 'MICROSOFT-EDGE' URI: " ~ uri);
     
-    auto returnTuple = typeof(return)(tuple(null, null, null));
+    uri = uri["microsoft-edge:".length .. $];
+    
+    auto returnTuple = typeof(return)(tuple(null, null, null, null));
+
+    if (uri.startsWith("https://") || uri.startsWith("http://")) {
+        returnTuple.directUrl = uri;
+
+        return returnTuple;
+    }
+
     string[string] queryParams = getQueryParams(uri);
 
     if (queryParams is null || "url" !in queryParams)
