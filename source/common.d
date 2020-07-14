@@ -1,7 +1,9 @@
 module common;
 
-import core.sys.windows.windows: CommandLineToArgvW, GetCommandLineW, CreateProcessW, MessageBox,
-    MB_ICONERROR, MB_ICONWARNING, MB_YESNO, IDYES, MB_OK, HWND, DETACHED_PROCESS, CREATE_UNICODE_ENVIRONMENT, STARTUPINFO_W, PROCESS_INFORMATION;
+import core.sys.windows.windows: CommandLineToArgvW, GetCommandLineW, CreateProcessW,
+    MessageBox, OpenProcessToken, GetCurrentProcess,  GetTokenInformation, CloseHandle,
+    HANDLE, MB_ICONERROR, MB_ICONWARNING, MB_YESNO, IDYES, MB_OK, HWND, DETACHED_PROCESS, CREATE_UNICODE_ENVIRONMENT,
+    STARTUPINFO_W, PROCESS_INFORMATION, TOKEN_QUERY, TOKEN_ELEVATION, TOKEN_INFORMATION_CLASS;
 import core.sys.windows.winnt: LCID, LANGID, LPWSTR, LPCWSTR, DWORD, MAKELCID, SORT_DEFAULT;
 import core.sys.windows.winnls: GetLocaleInfoW;
 
@@ -630,4 +632,23 @@ T[K] mergeAAs(T, K)(T[K] baseAA, T[K] updateAA) {
 /// Null comparison
 bool isNull(T)(T value) if (is(T == class) || isPointer!T) {
     return value is null;
+}
+
+/// Return true if the process has administrator permissions
+bool isElevated( ) {
+    bool fRet = false;
+    HANDLE hToken = null;
+
+    if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) {
+        TOKEN_ELEVATION elevation;
+        DWORD cbSize = elevation.sizeof;
+        
+        if (GetTokenInformation(hToken, TOKEN_INFORMATION_CLASS.TokenElevation, &elevation, elevation.sizeof, &cbSize))
+            fRet = cast(bool) elevation.TokenIsElevated;
+    }
+
+    if (hToken)
+        CloseHandle(hToken);
+
+    return fRet;
 }
