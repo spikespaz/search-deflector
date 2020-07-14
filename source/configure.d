@@ -24,6 +24,8 @@ debug import std.stdio: writeln;
 void main(string[] args) {
     const bool forceUpdate = args.canFind("--update") || args.canFind("-u");
 
+    debug writeln(getLatestTranslations(PROJECT_AUTHOR, PROJECT_NAME));
+
     try {
         if (DeflectorSettings.interfaceLanguage.length == 0)
             Translator.loadDefault();

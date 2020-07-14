@@ -53,6 +53,23 @@ JSONValue getLatestRelease(const string author, const string repository) {
     return releasesJson.array[0];
 }
 
+/// Return a list of the file URLs to the raw versions of language translations from GitHub
+string[string] getLatestTranslations(const string author, const string repository) {
+    string[string] langUrlMap;
+
+    const string apiDirUrl = "https://api.github.com/repos/" ~ author ~ "/" ~ repository ~ "/contents/lang";
+    JSONValue dirListJson = get(apiDirUrl).parseJSON();
+
+    foreach (JSONValue fileEntry; dirListJson.array) {
+        if (fileEntry["type"].str != "file")
+            continue;
+
+        langUrlMap[fileEntry["name"].str] = fileEntry["download_url"].str;
+    }
+
+    return langUrlMap;
+}
+
 /// Compare two semantic versions, returning true if the first version is newer, false otherwise.
 public bool compareVersions(const string firstVer, const string secondVer) {
     ushort[] firstVerParts = firstVer.split('.').to!(ushort[]);
