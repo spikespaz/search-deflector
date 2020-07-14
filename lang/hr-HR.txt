@@ -1,0 +1,48 @@
+// All Croatian HR translations for the configuration user interface.
+
+// Page and window titles
+title.window:               Konfiguracija Search Deflectora
+title.settings_page:        Postavke
+title.language_page:        Jezik
+title.update_page:          Ažuriranje
+
+// Text fragments used in labels
+//// Settings page
+fragment.version:           Verzija
+fragment.author:            Autor
+//// Update page
+fragment.current_version:   Trenutna verzija
+fragment.build_date:        Datum izrade
+fragment.latest_version:    Najnovija verzija
+fragment.uploader:          Objavljivač
+fragment.timestamp:         Vremenska oznaka
+fragment.binary_size:       Binarna veličina
+fragment.download_count:    Broj preuzimanja
+
+// Labels used for input fields and options
+//// Settings page
+label.browser_name:         Preferirani preglednik
+label.browser_path:         Izvršna datoteka preglednika
+label.engine_name:          Preferirana tražilica
+label.engine_url:           URL prilagođene tražilice
+label.profile_dir:          Korisnički profil za Chrome/Firefox
+label.enable_profile:       Omogući
+//// Language page
+label.language_select:      Jezik sučelja
+
+// Static options in dropdown menus or radio button groups
+//// Settings page
+option.custom_browser:      Prilagođeno
+option.default_browser:     Zadani preglednik sustava
+option.custom_engine:       Prilagođeno
+//// Language page
+option.default_language:    Zadani jezik sustava
+
+// Button label text
+//// Settings page
+button.apply:               Primijeni
+button.website:             Web-stranica
+button.close:               Zatvori
+//// Update page
+button.update:              Ažuriraj
+button.details:             Detalji
