@@ -1,7 +1,7 @@
 module configure;
 
 import std.file: exists, isFile, tempDir, thisExePath, timeLastModified;
-import std.algorithm: endsWith, canFind, countUntil;
+import std.algorithm: endsWith, canFind, countUntil, max, countUntil;
 import std.socket: SocketException, getAddress;
 import std.windows.registry: RegistryException;
 import std.path: buildNormalizedPath;
@@ -23,6 +23,9 @@ debug import std.stdio: writeln;
 
 void main(string[] args) {
     const bool forceUpdate = args.canFind("--update") || args.canFind("-u");
+    const bool selectTab = args.canFind("--select-tab") || args.canFind("-st");
+    const uint selectTabIndex = selectTab ?
+        args[max(args.countUntil("--select-tab"), args.countUntil("-st")) + 1].to!uint() : 0;
 
     debug writeln(getLatestTranslations(PROJECT_AUTHOR, PROJECT_NAME));
 
@@ -45,6 +48,7 @@ void main(string[] args) {
             }
 
         app.createWindow();
+        app.tabs.setCurrentTab(selectTabIndex);
         app.loopWindow();
     } catch (Exception error) {
         createErrorDialog(error);
