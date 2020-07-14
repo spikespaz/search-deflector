@@ -600,7 +600,7 @@ struct SettingsSyncApi {
     void engineName(const string value) {
         debug writeln("SettingsSyncApi.engineName(value)");
 
-        assert((["Custom", ""] ~ this.engines.keys).canFind(value), "Search engine name is an unexpected value: " ~ value);
+        assert(([Translator.text("option.custom_engine"), ""] ~ this.engines.keys).canFind(value), "Search engine name is an unexpected value: " ~ value);
 
         if (value.length == 0 || value == Translator.text("option.custom_engine")) {
             this.parent.engineUrl.setEnabled(true);
