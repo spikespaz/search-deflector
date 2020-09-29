@@ -90,3 +90,4 @@ If you would like to contribute localization or improve upon existing ones, plea
 | -------- | ----- | ------------ |
 | Chinese  | `zh-CN`, `zn-HK`, `zn-TW` | [@linjiayinchn](https://github.com/linjiayinchn), [@maxloh](https://github.com/maxloh) |
 | Croatian | `hr-HR`                   | [@anotherus3r](https://github.com/anotherus3r) |
+| Spanish  | `es-ES`                   | [@caralu74](https://github.com/caralu74) |
