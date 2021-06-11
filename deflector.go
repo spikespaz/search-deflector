@@ -17,42 +17,46 @@ type SDSettings struct {
 	DisableNag        bool   `regName:"DisableNag"`
 }
 
-func (settings *SDSettings) LoadRegistry() {
-	seValue := reflect.ValueOf(settings).Elem()
+func LoadRegistry(kData interface{}, k registry.Key, path string) {
+	kdValue := reflect.ValueOf(kData).Elem()
 
-	sdKey, err := registry.OpenKey(registry.CURRENT_USER, "SOFTWARE\\Clients\\SearchDeflector", registry.READ)
+	rKey, err := registry.OpenKey(k, path, registry.READ)
 
 	if err == nil {
-		defer sdKey.Close()
+		defer rKey.Close()
 	} else {
-		log.Panicln("Could not open registry key for settings")
+		log.Panicf("Could not open key %#v with path %q", k, path)
 	}
 
-	for i := 0; i < seValue.Type().NumField(); i++ {
-		field := seValue.Type().Field(i)
+	for i := 0; i < kdValue.Type().NumField(); i++ {
+		field := kdValue.Type().Field(i)
+		log.Println(field)
+
 		regName, ok := field.Tag.Lookup("regName")
 
 		if !ok {
-			log.Println("Could not find registry name for field " + field.Name)
+			log.Printf("Required 'regName' tag missing for field %q", field.Name)
 			continue
 		}
 
-		_, valType, err := sdKey.GetValue(regName, nil)
+		_, valType, err := rKey.GetValue(regName, nil)
 
 		if err != nil {
-			log.Panicln("Error reading expected registry value " + regName)
+			log.Panicln("Error getting value for %q with 'regName' %q", field.Name, regName)
 		}
 
 		switch valType {
 		case registry.NONE:
 			log.Panicln("Registry type is NONE")
 		case registry.SZ:
-			value, _, _ := sdKey.GetStringValue(regName)
-			seValue.FieldByName(regName).SetString(value)
+			value, _, _ := rKey.GetStringValue(regName)
+			kdValue.FieldByName(field.Name).SetString(value)
 		case registry.EXPAND_SZ:
 			// todo
 		case registry.BINARY:
 		case registry.DWORD:
+			value, _, _ := rKey.GetIntegerValue(regName)
+			kdValue.FieldByName(field.Name).SetInt(int64(value))
 		case registry.DWORD_BIG_ENDIAN:
 		case registry.LINK:
 		case registry.MULTI_SZ:
@@ -67,7 +71,7 @@ func (settings *SDSettings) LoadRegistry() {
 func main() {
 	settings := new(SDSettings)
 
-	settings.LoadRegistry()
+	LoadRegistry(settings, registry.CURRENT_USER, "SOFTWARE\\Clients\\SearchDeflector")
 
 	log.Println(settings)
 }
