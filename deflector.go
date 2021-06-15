@@ -17,8 +17,69 @@ type SDSettings struct {
 	DisableNag        bool   `regName:"DisableNag"`
 }
 
+func WriteRegistry(kData interface{}, k registry.Key, path string) {
+	kdValue := reflect.ValueOf(&kData).Elem()
+	kdType := kdValue.Type()
+
+	rKey, _, err := registry.CreateKey(k, path, registry.WRITE)
+
+	if err == nil {
+		defer rKey.Close()
+	}
+
+	for i := 0; i < kdType.NumField(); i++ {
+		vField := kdValue.Field(i)
+		tField := kdType.Field(i)
+		fValue := reflect.ValueOf(vField.Interface())
+
+		regName, ok := tField.Tag.Lookup("regName")
+
+		if !ok {
+			log.Printf("Required 'regName' tag missing for field %q", tField.Name)
+			continue
+		}
+
+		switch tField.Type.Kind() {
+		case reflect.Bool:
+			if fValue.Bool() {
+				rKey.SetDWordValue(regName, 1)
+			} else {
+				rKey.SetDWordValue(regName, 0)
+			}
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32:
+			rKey.SetDWordValue(regName, uint32(fValue.Int()))
+		case reflect.Int64:
+			rKey.SetQWordValue(regName, uint64(fValue.Int()))
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32:
+			rKey.SetDWordValue(regName, uint32(fValue.Uint()))
+		case reflect.Uint64:
+			rKey.SetQWordValue(regName, fValue.Uint())
+		// case reflect.Uintptr:
+		case reflect.Float32:
+			rKey.SetDWordValue(regName, uint32(fValue.Float()))
+		case reflect.Float64:
+			rKey.SetQWordValue(regName, uint64(fValue.Float()))
+		// case reflect.Complex64:
+		// case reflect.Complex128:
+		// case reflect.Array:
+		// case reflect.Chan:
+		// case reflect.Func:
+		// case reflect.Interface:
+		// case reflect.Map:
+		// case reflect.Ptr:
+		// case reflect.Slice:
+		// case reflect.String:
+		// case reflect.Struct:
+		// case reflect.UnsafePointer:
+		default:
+			panic("Type %q not implemented")
+		}
+	}
+}
+
 func LoadRegistry(kData interface{}, k registry.Key, path string) {
 	kdValue := reflect.ValueOf(kData).Elem()
+	kdType := kdValue.Type()
 
 	rKey, err := registry.OpenKey(k, path, registry.READ)
 
@@ -28,8 +89,8 @@ func LoadRegistry(kData interface{}, k registry.Key, path string) {
 		log.Panicf("Could not open key %#v with path %q", k, path)
 	}
 
-	for i := 0; i < kdValue.Type().NumField(); i++ {
-		field := kdValue.Type().Field(i)
+	for i := 0; i < kdType.NumField(); i++ {
+		field := kdType.Field(i)
 		log.Println(field)
 
 		regName, ok := field.Tag.Lookup("regName")
@@ -71,7 +132,7 @@ func LoadRegistry(kData interface{}, k registry.Key, path string) {
 func main() {
 	settings := new(SDSettings)
 
-	LoadRegistry(settings, registry.CURRENT_USER, "SOFTWARE\\Clients\\SearchDeflector")
+	WriteRegistry(settings, registry.CURRENT_USER, "SOFTWARE\\Clients\\SearchDeflector")
 
 	log.Println(settings)
 }
