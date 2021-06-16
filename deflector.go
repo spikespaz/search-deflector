@@ -17,11 +17,11 @@ type SDSettings struct {
 	DisableNag        bool   `regName:"DisableNag"`
 }
 
-func WriteRegistry(kData interface{}, k registry.Key, path string) {
-	kdValue := reflect.ValueOf(&kData).Elem()
+func WriteRegistry(kData interface{}, key registry.Key, path string) {
+	kdValue := reflect.ValueOf(kData).Elem()
 	kdType := kdValue.Type()
 
-	rKey, _, err := registry.CreateKey(k, path, registry.WRITE)
+	rKey, _, err := registry.CreateKey(key, path, registry.WRITE)
 
 	if err == nil {
 		defer rKey.Close()
@@ -68,7 +68,8 @@ func WriteRegistry(kData interface{}, k registry.Key, path string) {
 		// case reflect.Map:
 		// case reflect.Ptr:
 		// case reflect.Slice:
-		// case reflect.String:
+		case reflect.String:
+			rKey.SetStringValue(regName, fValue.String())
 		// case reflect.Struct:
 		// case reflect.UnsafePointer:
 		default:
