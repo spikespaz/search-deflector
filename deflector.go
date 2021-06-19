@@ -1,24 +1,42 @@
 package main
 
 import (
-	"log"
+	"fmt"
+	"math"
 	"reflect"
 
 	"golang.org/x/sys/windows/registry"
 )
 
 type SDSettings struct {
-	BrowserPath       string `regName:"BrowserPath"`
-	UseProfile        bool   `regName:"UseProfile"`
-	EngineURL         string `regName:"EngineURL"`
-	ProfileName       string `regName:"ProfileName"`
-	InterfaceLanguage string `regName:"InterfaceLanguage"`
-	SearchCount       uint   `regName:"SearchCount"`
-	DisableNag        bool   `regName:"DisableNag"`
+	BrowserPath       string `regName:"BrowserPath"       regType:"SZ"`
+	UseProfile        bool   `regName:"UseProfile"        regType:"DWORD"`
+	EngineURL         string `regName:"EngineURL"         regType:"SZ"`
+	ProfileName       string `regName:"ProfileName"       regType:"SZ"`
+	InterfaceLanguage string `regName:"InterfaceLanguage" regType:"SZ"`
+	SearchCount       uint   `regName:"SearchCount"       regType:"DWORD"`
+	DisableNag        bool   `regName:"DisableNag"        regType:"DWORD"`
+}
+
+type TestSettings struct {
+	BoolValue    bool    `regName:"BoolValue"    regType:"BINARY"`
+	IntValue     int     `regName:"IntValue"     regType:"DWORD"`
+	Int8Value    int8    `regName:"Int8Value"    regType:"DWORD"`
+	Int16Value   int16   `regName:"Int16Value"   regType:"DWORD"`
+	Int32Value   int32   `regName:"Int32Value"   regType:"DWORD"`
+	Int64Value   int64   `regName:"Int64Value"   regType:"QWORD"`
+	UintValue    uint    `regName:"UintValue"    regType:"DWORD"`
+	Uint8Value   uint8   `regName:"Uint8Value"   regType:"DWORD"`
+	Uint16Value  uint16  `regName:"Uint16Value"  regType:"DWORD"`
+	Uint32Value  uint32  `regName:"Uint32Value"  regType:"DWORD"`
+	Uint64Value  uint64  `regName:"Uint64Value"  regType:"QWORD"`
+	Float32Value float32 `regName:"Float32Value" regType:"DWORD"`
+	Float64Value float64 `regName:"Float64Value" regType:"QWORD"`
+	StringValue  string  `regName:"StringValue"  regType:"SZ"`
 }
 
 func WriteRegistry(kData interface{}, key registry.Key, path string) {
-	kdValue := reflect.ValueOf(kData).Elem()
+	kdValue := reflect.ValueOf(kData)
 	kdType := kdValue.Type()
 
 	rKey, _, err := registry.CreateKey(key, path, registry.WRITE)
@@ -35,7 +53,7 @@ func WriteRegistry(kData interface{}, key registry.Key, path string) {
 		regName, ok := tField.Tag.Lookup("regName")
 
 		if !ok {
-			log.Printf("Required 'regName' tag missing for field %q", tField.Name)
+			fmt.Printf("Required 'regName' tag missing for field %q", tField.Name)
 			continue
 		}
 
@@ -78,62 +96,122 @@ func WriteRegistry(kData interface{}, key registry.Key, path string) {
 	}
 }
 
-func LoadRegistry(kData interface{}, k registry.Key, path string) {
+func LoadRegistry(kData interface{}, key registry.Key, path string) {
 	kdValue := reflect.ValueOf(kData).Elem()
 	kdType := kdValue.Type()
 
-	rKey, err := registry.OpenKey(k, path, registry.READ)
+	rKey, _, err := registry.CreateKey(key, path, registry.READ)
 
 	if err == nil {
 		defer rKey.Close()
-	} else {
-		log.Panicf("Could not open key %#v with path %q", k, path)
 	}
 
 	for i := 0; i < kdType.NumField(); i++ {
-		field := kdType.Field(i)
-		log.Println(field)
+		vField := kdValue.Field(i)
+		tField := kdType.Field(i)
 
-		regName, ok := field.Tag.Lookup("regName")
+		regName, ok := tField.Tag.Lookup("regName")
 
 		if !ok {
-			log.Printf("Required 'regName' tag missing for field %q", field.Name)
+			fmt.Printf("Required 'regName' tag missing for field %q", tField.Name)
 			continue
 		}
 
-		_, valType, err := rKey.GetValue(regName, nil)
+		var value interface{}
 
-		if err != nil {
-			log.Panicln("Error getting value for %q with 'regName' %q", field.Name, regName)
-		}
-
-		switch valType {
-		case registry.NONE:
-			log.Panicln("Registry type is NONE")
+		switch _, rType, _ := rKey.GetValue(regName, nil); rType {
+		// case registry.NONE:
 		case registry.SZ:
-			value, _, _ := rKey.GetStringValue(regName)
-			kdValue.FieldByName(field.Name).SetString(value)
-		case registry.EXPAND_SZ:
-			// todo
-		case registry.BINARY:
+			value, _, _ = rKey.GetStringValue(regName)
+		// case registry.EXPAND_SZ:
+		// case registry.BINARY:
 		case registry.DWORD:
-			value, _, _ := rKey.GetIntegerValue(regName)
-			kdValue.FieldByName(field.Name).SetInt(int64(value))
-		case registry.DWORD_BIG_ENDIAN:
-		case registry.LINK:
+			value, _, _ = rKey.GetIntegerValue(regName)
+			// value = uint64(value.(uint32))
+		// case registry.DWORD_BIG_ENDIAN:
+		// case registry.LINK:
 		case registry.MULTI_SZ:
-		case registry.RESOURCE_LIST:
-		case registry.FULL_RESOURCE_DESCRIPTOR:
-		case registry.RESOURCE_REQUIREMENTS_LIST:
+			value, _, _ = rKey.GetStringsValue(regName)
+		// case registry.RESOURCE_LIST:
+		// case registry.FULL_RESOURCE_DESCRIPTOR:
+		// case registry.RESOURCE_REQUIREMENTS_LIST:
 		case registry.QWORD:
+			value, _, _ = rKey.GetIntegerValue(regName)
+		default:
+			panic("Type %q not implemented")
 		}
+
+		switch tField.Type.Kind() {
+		case reflect.Bool:
+			value = value != 0
+		case reflect.Int:
+			value = int(value.(uint64))
+		case reflect.Int8:
+			value = int8(value.(uint64))
+		case reflect.Int16:
+			value = int16(value.(uint64))
+		case reflect.Int32:
+			value = int32(value.(uint64))
+		case reflect.Int64:
+			value = int64(value.(uint64))
+		case reflect.Uint:
+			value = uint(value.(uint64))
+		case reflect.Uint8:
+			value = uint8(value.(uint64))
+		case reflect.Uint16:
+			value = uint16(value.(uint64))
+		case reflect.Uint32:
+			value = uint32(value.(uint64))
+		case reflect.Uint64:
+			value = uint64(value.(uint64))
+		// case reflect.Uintptr:
+		case reflect.Float32:
+			value = float32(value.(uint64))
+		case reflect.Float64:
+			value = float64(value.(uint64))
+			// case reflect.Complex64:
+			// case reflect.Complex128:
+			// case reflect.Array:
+			// case reflect.Chan:
+			// case reflect.Func:
+			// case reflect.Interface:
+			// case reflect.Map:
+			// case reflect.Ptr:
+			// case reflect.Slice:
+			// case reflect.String:
+			// case reflect.Struct:
+			// case reflect.UnsafePointer:
+		}
+
+		vField.Set(reflect.ValueOf(value))
 	}
 }
 
 func main() {
-	settings := new(SDSettings)
+	writeSettings := TestSettings{
+		BoolValue:    true,
+		IntValue:     int(^uint(0) >> 1),
+		Int8Value:    math.MaxInt8,
+		Int16Value:   math.MaxInt16,
+		Int32Value:   math.MaxInt32,
+		Int64Value:   math.MaxInt64,
+		UintValue:    ^uint(0),
+		Uint8Value:   math.MaxUint8,
+		Uint16Value:  math.MaxUint16,
+		Uint32Value:  math.MaxInt32,
+		Uint64Value:  math.MaxInt64,
+		Float32Value: math.MaxFloat32,
+		Float64Value: math.MaxFloat64,
+		StringValue:  "This is an example string.",
+	}
 
-	WriteRegistry(settings, registry.CURRENT_USER, "SOFTWARE\\Clients\\SearchDeflector")
+	WriteRegistry(writeSettings, registry.CURRENT_USER, "SOFTWARE\\Clients\\SearchDeflector\\Test")
 
-	log.Println(settings)
+	fmt.Println(writeSettings)
+
+	readSettings := new(TestSettings)
+
+	LoadRegistry(readSettings, registry.CURRENT_USER, "SOFTWARE\\Clients\\SearchDeflector\\Test")
+
+	fmt.Println(readSettings)
 }
