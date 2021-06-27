@@ -100,6 +100,80 @@ func fromBytes(b []byte, t reflect.Kind) interface{} {
 	}
 }
 
+func toDword(vIn interface{}) uint32 {
+	if v, ok := vIn.(int); ok {
+		vIn = uint(v)
+	}
+
+	if v, ok := vIn.(uint); ok {
+		if v > math.MaxUint32 {
+			panic(fmt.Sprintf("registry.toDword: value %d greater than %d", v, math.MaxUint32))
+		}
+
+		vIn = uint32(v)
+	}
+
+	switch v := vIn.(type) {
+	case bool:
+		if v {
+			return 1
+		}
+
+		return 0
+	case int8:
+		return uint32(v)
+	case int16:
+		return uint32(v)
+	case int32:
+		return uint32(v)
+	case uint8:
+		return uint32(v)
+	case uint16:
+		return uint32(v)
+	case uint32:
+		return v
+	case float32:
+		return fromBytes(toBytes(v), reflect.Uint32).(uint32)
+	default:
+		panic(fmt.Sprintf("registry.toDword: not implemented for %T", reflect.TypeOf(v).Kind()))
+	}
+}
+
+func toQword(vIn interface{}) uint64 {
+	switch v := vIn.(type) {
+	case bool:
+		if v {
+			return 1
+		}
+
+		return 0
+	case int:
+		return uint64(v)
+	case int8:
+		return uint64(v)
+	case int16:
+		return uint64(v)
+	case int32:
+		return uint64(v)
+	case int64:
+		return uint64(v)
+	case uint:
+		return uint64(v)
+	case uint8:
+		return uint64(v)
+	case uint16:
+		return uint64(v)
+	case uint32:
+		return uint64(v)
+	case uint64:
+		return v
+	case float32, float64, complex64:
+		return fromBytes(toBytes(v), reflect.Uint64).(uint64)
+	default:
+		panic(fmt.Sprintf("registry.toDword: not implemented for %T", reflect.TypeOf(v).Kind()))
+	}
+}
+
 func toRegValue(vIn interface{}, regType uint32) reflect.Value {
 	var valueOut reflect.Value
 
@@ -107,7 +181,9 @@ func toRegValue(vIn interface{}, regType uint32) reflect.Value {
 	case registry.BINARY:
 		return reflect.ValueOf(toBytes(vIn))
 	case registry.DWORD:
+		return reflect.ValueOf(toDword(vIn))
 	case registry.QWORD:
+		return reflect.ValueOf(toQword(vIn))
 	case registry.SZ:
 	case registry.MULTI_SZ:
 	case registry.EXPAND_SZ:
