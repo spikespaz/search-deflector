@@ -11,16 +11,20 @@ import (
 )
 
 func toBytes(vIn interface{}) []byte {
-	switch v := vIn.(type) {
-	case int:
-		return toBytes(uint(v))
-	case uint:
+	if v, ok := vIn.(int); ok {
+		vIn = uint(v)
+	}
+
+	if v, ok := vIn.(uint); ok {
 		if bits.UintSize == 64 {
-			return toBytes(uint64(v))
+			vIn = uint64(v)
+		} else {
+			vIn = uint32(v)
+		}
 		}
 
-		return toBytes(uint32(v))
-	case int8, int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, complex64, complex128:
+	switch v := vIn.(type) {
+	case bool, int8, int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, complex64, complex128:
 		buf := new(bytes.Buffer)
 		err := binary.Write(buf, binary.LittleEndian, v)
 
