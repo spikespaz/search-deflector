@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"math"
 	"math/bits"
 	"reflect"
 
@@ -21,7 +22,7 @@ func toBytes(vIn interface{}) []byte {
 		} else {
 			vIn = uint32(v)
 		}
-		}
+	}
 
 	switch v := vIn.(type) {
 	case bool, int8, int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, complex64, complex128:
@@ -37,6 +38,65 @@ func toBytes(vIn interface{}) []byte {
 		return []byte(v)
 	default:
 		panic(fmt.Sprintf("registry.toBytes: not implemented for type %T", v))
+	}
+}
+
+func fromBytes(b []byte, t reflect.Kind) interface{} {
+	switch t {
+	case reflect.Bool:
+		return b[0] == 1
+	case reflect.Int:
+		return int(fromBytes(b, reflect.Uint).(uint))
+	case reflect.Int8:
+		return int8(b[0])
+	case reflect.Int16:
+		return int16(binary.LittleEndian.Uint16(b))
+	case reflect.Int32:
+		return int32(binary.LittleEndian.Uint32(b))
+	case reflect.Int64:
+		return int64(binary.LittleEndian.Uint64(b))
+	case reflect.Uint:
+		if bits.UintSize == 64 {
+			return uint(binary.LittleEndian.Uint64(b))
+		}
+
+		return binary.LittleEndian.Uint32(b)
+	case reflect.Uint8:
+		return uint8(b[0])
+	case reflect.Uint16:
+		return binary.LittleEndian.Uint16(b)
+	case reflect.Uint32:
+		return binary.LittleEndian.Uint32(b)
+	case reflect.Uint64:
+		return binary.LittleEndian.Uint64(b)
+	case reflect.Float32:
+		return math.Float32frombits(binary.LittleEndian.Uint32(b))
+	case reflect.Float64:
+		return math.Float64frombits(binary.LittleEndian.Uint64(b))
+	case reflect.Complex64:
+		var v complex64
+		buf := bytes.NewReader(b)
+		err := binary.Read(buf, binary.LittleEndian, &v)
+
+		if err != nil {
+			panic(err)
+		}
+
+		return v
+	case reflect.Complex128:
+		var v complex128
+		buf := bytes.NewReader(b)
+		err := binary.Read(buf, binary.LittleEndian, &v)
+
+		if err != nil {
+			panic(err)
+		}
+
+		return v
+	case reflect.String:
+		return string(b)
+	default:
+		panic(fmt.Sprintf("registry.fromBytes: not implemented for %q", t))
 	}
 }
 
