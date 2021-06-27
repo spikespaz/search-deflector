@@ -1,11 +1,12 @@
 package registry
 
 import (
-	"fmt"
 	"math"
 	"math/bits"
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type ExampleData struct {
@@ -59,118 +60,27 @@ func TestFromBytes(t *testing.T) {
 		StringValue:     "abcdefghijklmnopqrstuvwxyz",
 	}
 
-	okMsg := "Check 'fromBytes(toBytes(v), %#q) == v' OK"
-	failMsg := "Check 'fromBytes(toBytes(v), %#q) == v' FAILED"
+	assert.Equal(t, d.BoolValue, fromBytes(toBytes(d.BoolValue), reflect.Bool).(bool))
 
-	if fromBytes(toBytes(d.BoolValue), reflect.Bool).(bool) == d.BoolValue {
-		t.Log(fmt.Sprintf(okMsg, reflect.Bool))
-	} else {
-		t.Log(fmt.Sprintf(failMsg, reflect.Bool))
-		t.Fail()
-	}
+	assert.Equal(t, d.IntValue, fromBytes(toBytes(d.IntValue), reflect.Int).(int))
+	assert.Equal(t, d.Int8Value, fromBytes(toBytes(d.Int8Value), reflect.Int8).(int8))
+	assert.Equal(t, d.Int16Value, fromBytes(toBytes(d.Int16Value), reflect.Int16).(int16))
+	assert.Equal(t, d.Int16Value, fromBytes(toBytes(d.Int16Value), reflect.Int16).(int16))
+	assert.Equal(t, d.Int32Value, fromBytes(toBytes(d.Int32Value), reflect.Int32).(int32))
+	assert.Equal(t, d.Int64Value, fromBytes(toBytes(d.Int64Value), reflect.Int64).(int64))
 
-	if fromBytes(toBytes(d.IntValue), reflect.Int).(int) == d.IntValue {
-		t.Log(fmt.Sprintf(okMsg, reflect.Int))
-	} else {
-		t.Log(fmt.Sprintf(failMsg, reflect.Int))
-		t.Fail()
-	}
+	assert.Equal(t, d.UintValue, fromBytes(toBytes(d.UintValue), reflect.Uint).(uint))
+	assert.Equal(t, d.Uint8Value, fromBytes(toBytes(d.Uint8Value), reflect.Uint8).(uint8))
+	assert.Equal(t, d.Uint16Value, fromBytes(toBytes(d.Uint16Value), reflect.Uint16).(uint16))
+	assert.Equal(t, d.Uint16Value, fromBytes(toBytes(d.Uint16Value), reflect.Uint16).(uint16))
+	assert.Equal(t, d.Uint32Value, fromBytes(toBytes(d.Uint32Value), reflect.Uint32).(uint32))
+	assert.Equal(t, d.Uint64Value, fromBytes(toBytes(d.Uint64Value), reflect.Uint64).(uint64))
 
-	if fromBytes(toBytes(d.Int8Value), reflect.Int8).(int8) == d.Int8Value {
-		t.Log(fmt.Sprintf(okMsg, reflect.Int8))
-	} else {
-		t.Log(fmt.Sprintf(failMsg, reflect.Int8))
-		t.Fail()
-	}
+	assert.Equal(t, d.Float32Value, fromBytes(toBytes(d.Float32Value), reflect.Float32).(float32))
+	assert.Equal(t, d.Float64Value, fromBytes(toBytes(d.Float64Value), reflect.Float64).(float64))
 
-	if fromBytes(toBytes(d.Int16Value), reflect.Int16).(int16) == d.Int16Value {
-		t.Log(fmt.Sprintf(okMsg, reflect.Int16))
-	} else {
-		t.Log(fmt.Sprintf(failMsg, reflect.Int16))
-		t.Fail()
-	}
+	assert.Equal(t, d.Complex64Value, fromBytes(toBytes(d.Complex64Value), reflect.Complex64).(complex64))
+	assert.Equal(t, d.Complex128Value, fromBytes(toBytes(d.Complex128Value), reflect.Complex128).(complex128))
 
-	if fromBytes(toBytes(d.Int32Value), reflect.Int32).(int32) == d.Int32Value {
-		t.Log(fmt.Sprintf(okMsg, reflect.Int32))
-	} else {
-		t.Log(fmt.Sprintf(failMsg, reflect.Int32))
-		t.Fail()
-	}
-
-	if fromBytes(toBytes(d.Int64Value), reflect.Int64).(int64) == d.Int64Value {
-		t.Log(fmt.Sprintf(okMsg, reflect.Int64))
-	} else {
-		t.Log(fmt.Sprintf(failMsg, reflect.Int64))
-		t.Fail()
-	}
-
-	if fromBytes(toBytes(d.IntValue), reflect.Uint).(uint) == d.UintValue {
-		t.Log(fmt.Sprintf(okMsg, reflect.Uint))
-	} else {
-		t.Log(fmt.Sprintf(failMsg, reflect.Uint))
-		t.Fail()
-	}
-
-	if fromBytes(toBytes(d.IntValue), reflect.Uint8).(uint8) == d.Uint8Value {
-		t.Log(fmt.Sprintf(okMsg, reflect.Uint8))
-	} else {
-		t.Log(fmt.Sprintf(failMsg, reflect.Uint8))
-		t.Fail()
-	}
-
-	if fromBytes(toBytes(d.Int16Value), reflect.Uint16).(uint16) == d.Uint16Value {
-		t.Log(fmt.Sprintf(okMsg, reflect.Uint16))
-	} else {
-		t.Log(fmt.Sprintf(failMsg, reflect.Uint16))
-		t.Fail()
-	}
-
-	if fromBytes(toBytes(d.Int32Value), reflect.Uint32).(uint32) == d.Uint32Value {
-		t.Log(fmt.Sprintf(okMsg, reflect.Uint32))
-	} else {
-		t.Log(fmt.Sprintf(failMsg, reflect.Uint32))
-		t.Fail()
-	}
-
-	if fromBytes(toBytes(d.Int64Value), reflect.Uint64).(uint64) == d.Uint64Value {
-		t.Log(fmt.Sprintf(okMsg, reflect.Uint64))
-	} else {
-		t.Log(fmt.Sprintf(failMsg, reflect.Uint64))
-		t.Fail()
-	}
-
-	if fromBytes(toBytes(d.Float32Value), reflect.Float32).(float32) == d.Float32Value {
-		t.Log(fmt.Sprintf(okMsg, reflect.Float32))
-	} else {
-		t.Log(fmt.Sprintf(failMsg, reflect.Float32))
-		t.Fail()
-	}
-
-	if fromBytes(toBytes(d.Float64Value), reflect.Float64).(float64) == d.Float64Value {
-		t.Log(fmt.Sprintf(okMsg, reflect.Float64))
-	} else {
-		t.Log(fmt.Sprintf(failMsg, reflect.Float64))
-		t.Fail()
-	}
-
-	if fromBytes(toBytes(d.Complex64Value), reflect.Complex64).(complex64) == d.Complex64Value {
-		t.Log(fmt.Sprintf(okMsg, reflect.Complex64))
-	} else {
-		t.Log(fmt.Sprintf(failMsg, reflect.Complex64))
-		t.Fail()
-	}
-
-	if fromBytes(toBytes(d.Complex128Value), reflect.Complex128).(complex128) == d.Complex128Value {
-		t.Log(fmt.Sprintf(okMsg, reflect.Complex128))
-	} else {
-		t.Log(fmt.Sprintf(failMsg, reflect.Complex128))
-		t.Fail()
-	}
-
-	if fromBytes(toBytes(d.StringValue), reflect.String).(string) == d.StringValue {
-		t.Log(fmt.Sprintf(okMsg, reflect.String))
-	} else {
-		t.Log(fmt.Sprintf(failMsg, reflect.String))
-		t.Fail()
-	}
+	assert.Equal(t, d.StringValue, fromBytes(toBytes(d.StringValue), reflect.String).(string))
 }
