@@ -108,15 +108,15 @@ func toDword(vIn interface{}) uint32 {
 			panic(fmt.Sprintf("registry.toDword: value %d smaller than %d", v, math.MinInt32))
 		}
 
-		vIn = uint(v)
+		return uint32(v)
 	}
 
 	if v, ok := vIn.(uint); ok {
 		if v > math.MaxUint32 {
 			panic(fmt.Sprintf("registry.toDword: value %d larger than %d", v, math.MaxUint32))
-		} else {
-			vIn = uint32(v)
 		}
+
+		return uint32(v)
 	}
 
 	switch v := vIn.(type) {
@@ -150,7 +150,7 @@ func fromDword(v uint32, t reflect.Kind) interface{} {
 	case reflect.Bool:
 		return v == 1
 	case reflect.Int:
-		return int(v)
+		return int(int32(v))
 	case reflect.Int8:
 		return int8(v)
 	case reflect.Int16:
