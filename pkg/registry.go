@@ -96,7 +96,7 @@ func fromBytes(b []byte, t reflect.Kind) interface{} {
 	case reflect.String:
 		return string(b)
 	default:
-		panic(fmt.Sprintf("registry.fromBytes: not implemented for %q", t))
+		panic(fmt.Sprintf("registry.fromBytes: not implemented for %#v", t))
 	}
 }
 
@@ -108,18 +108,18 @@ func toDword(vIn interface{}) uint32 {
 	if v, ok := vIn.(uint); ok {
 		if v > math.MaxUint32 {
 			panic(fmt.Sprintf("registry.toDword: value %d greater than %d", v, math.MaxUint32))
-		}
-
+		} else {
 		vIn = uint32(v)
+	}
 	}
 
 	switch v := vIn.(type) {
 	case bool:
 		if v {
 			return 1
-		}
-
+		} else {
 		return 0
+		}
 	case int8:
 		return uint32(v)
 	case int16:
@@ -144,9 +144,9 @@ func toQword(vIn interface{}) uint64 {
 	case bool:
 		if v {
 			return 1
-		}
-
+		} else {
 		return 0
+		}
 	case int:
 		return uint64(v)
 	case int8:
