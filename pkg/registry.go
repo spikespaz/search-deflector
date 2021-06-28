@@ -102,15 +102,21 @@ func fromBytes(b []byte, t reflect.Kind) interface{} {
 
 func toDword(vIn interface{}) uint32 {
 	if v, ok := vIn.(int); ok {
+		if v > math.MaxInt32 {
+			panic(fmt.Sprintf("registry.toDword: value %d larger than %d", v, math.MaxInt32))
+		} else if v < math.MinInt32 {
+			panic(fmt.Sprintf("registry.toDword: value %d smaller than %d", v, math.MinInt32))
+		}
+
 		vIn = uint(v)
 	}
 
 	if v, ok := vIn.(uint); ok {
 		if v > math.MaxUint32 {
-			panic(fmt.Sprintf("registry.toDword: value %d greater than %d", v, math.MaxUint32))
+			panic(fmt.Sprintf("registry.toDword: value %d larger than %d", v, math.MaxUint32))
 		} else {
-		vIn = uint32(v)
-	}
+			vIn = uint32(v)
+		}
 	}
 
 	switch v := vIn.(type) {
@@ -118,7 +124,7 @@ func toDword(vIn interface{}) uint32 {
 		if v {
 			return 1
 		} else {
-		return 0
+			return 0
 		}
 	case int8:
 		return uint32(v)
@@ -172,7 +178,7 @@ func toQword(vIn interface{}) uint64 {
 		if v {
 			return 1
 		} else {
-		return 0
+			return 0
 		}
 	case int:
 		return uint64(v)
