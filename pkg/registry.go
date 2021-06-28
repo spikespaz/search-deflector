@@ -200,7 +200,9 @@ func toQword(vIn interface{}) uint64 {
 		return uint64(v)
 	case uint64:
 		return v
-	case float32, float64, complex64:
+	case float32:
+		return uint64(fromBytes(toBytes(v), reflect.Uint32).(uint32))
+	case float64, complex64:
 		return fromBytes(toBytes(v), reflect.Uint64).(uint64)
 	default:
 		panic(fmt.Sprintf("registry.toDword: not implemented for %T", reflect.TypeOf(v).Kind()))
