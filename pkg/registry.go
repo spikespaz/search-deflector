@@ -139,6 +139,33 @@ func toDword(vIn interface{}) uint32 {
 	}
 }
 
+func fromDword(v uint32, t reflect.Kind) interface{} {
+	switch t {
+	case reflect.Bool:
+		return v == 1
+	case reflect.Int:
+		return int(v)
+	case reflect.Int8:
+		return int8(v)
+	case reflect.Int16:
+		return int16(v)
+	case reflect.Int32:
+		return int32(v)
+	case reflect.Uint:
+		return uint(v)
+	case reflect.Uint8:
+		return uint8(v)
+	case reflect.Uint16:
+		return uint16(v)
+	case reflect.Uint32:
+		return uint32(v)
+	case reflect.Float32:
+		return fromBytes(toBytes(v), reflect.Float32).(float32)
+	default:
+		panic(fmt.Sprintf("registry.fromDword: cannot convert to %#v", t))
+	}
+}
+
 func toQword(vIn interface{}) uint64 {
 	switch v := vIn.(type) {
 	case bool:
@@ -171,6 +198,41 @@ func toQword(vIn interface{}) uint64 {
 		return fromBytes(toBytes(v), reflect.Uint64).(uint64)
 	default:
 		panic(fmt.Sprintf("registry.toDword: not implemented for %T", reflect.TypeOf(v).Kind()))
+	}
+}
+
+func fromQword(v uint64, t reflect.Kind) interface{} {
+	switch t {
+	case reflect.Bool:
+		return v == 1
+	case reflect.Int:
+		return int(v)
+	case reflect.Int8:
+		return int8(v)
+	case reflect.Int16:
+		return int16(v)
+	case reflect.Int32:
+		return int32(v)
+	case reflect.Int64:
+		return int64(v)
+	case reflect.Uint:
+		return uint(v)
+	case reflect.Uint8:
+		return uint8(v)
+	case reflect.Uint16:
+		return uint16(v)
+	case reflect.Uint32:
+		return uint32(v)
+	case reflect.Uint64:
+		return uint64(v)
+	case reflect.Float32:
+		return fromBytes(toBytes(v), reflect.Float32).(float32)
+	case reflect.Float64:
+		return fromBytes(toBytes(v), reflect.Float64).(float64)
+	case reflect.Complex64:
+		return fromBytes(toBytes(v), reflect.Complex64).(complex64)
+	default:
+		panic(fmt.Sprintf("registry.fromQword: cannot convert to %#v", t))
 	}
 }
 
