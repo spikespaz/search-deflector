@@ -60,64 +60,183 @@ var d ExampleData = ExampleData{
 }
 
 func TestFromBytes(t *testing.T) {
-	assert.Equal(t, d.BoolValue, fromBytes(toBytes(d.BoolValue), reflect.Bool).(bool))
+	var v interface{}
 
-	assert.Equal(t, d.IntValue, fromBytes(toBytes(d.IntValue), reflect.Int).(int))
-	assert.Equal(t, d.Int8Value, fromBytes(toBytes(d.Int8Value), reflect.Int8).(int8))
-	assert.Equal(t, d.Int16Value, fromBytes(toBytes(d.Int16Value), reflect.Int16).(int16))
-	assert.Equal(t, d.Int16Value, fromBytes(toBytes(d.Int16Value), reflect.Int16).(int16))
-	assert.Equal(t, d.Int32Value, fromBytes(toBytes(d.Int32Value), reflect.Int32).(int32))
-	assert.Equal(t, d.Int64Value, fromBytes(toBytes(d.Int64Value), reflect.Int64).(int64))
+	v = true
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Bool).(bool))
+	v = false
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Bool).(bool))
 
-	assert.Equal(t, d.UintValue, fromBytes(toBytes(d.UintValue), reflect.Uint).(uint))
-	assert.Equal(t, d.Uint8Value, fromBytes(toBytes(d.Uint8Value), reflect.Uint8).(uint8))
-	assert.Equal(t, d.Uint16Value, fromBytes(toBytes(d.Uint16Value), reflect.Uint16).(uint16))
-	assert.Equal(t, d.Uint16Value, fromBytes(toBytes(d.Uint16Value), reflect.Uint16).(uint16))
-	assert.Equal(t, d.Uint32Value, fromBytes(toBytes(d.Uint32Value), reflect.Uint32).(uint32))
-	assert.Equal(t, d.Uint64Value, fromBytes(toBytes(d.Uint64Value), reflect.Uint64).(uint64))
+	v = int(math.MaxInt16)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Int).(int))
+	v = int(math.MinInt16)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Int).(int))
 
-	assert.Equal(t, d.Float32Value, fromBytes(toBytes(d.Float32Value), reflect.Float32).(float32))
-	assert.Equal(t, d.Float64Value, fromBytes(toBytes(d.Float64Value), reflect.Float64).(float64))
+	v = int8(math.MaxInt8)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Int8).(int8))
+	v = int8(math.MinInt8)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Int8).(int8))
 
-	assert.Equal(t, d.Complex64Value, fromBytes(toBytes(d.Complex64Value), reflect.Complex64).(complex64))
-	assert.Equal(t, d.Complex128Value, fromBytes(toBytes(d.Complex128Value), reflect.Complex128).(complex128))
+	v = int16(math.MaxInt8)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Int16).(int16))
+	v = int16(math.MinInt8)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Int16).(int16))
 
-	assert.Equal(t, d.StringValue, fromBytes(toBytes(d.StringValue), reflect.String).(string))
+	v = int32(math.MaxInt32)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Int32).(int32))
+	v = int32(math.MinInt32)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Int32).(int32))
+
+	v = int64(math.MaxInt64)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Int64).(int64))
+	v = int64(math.MinInt64)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Int64).(int64))
+
+	v = uint(math.MaxUint16)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Uint).(uint))
+
+	v = uint8(math.MaxUint8)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Uint8).(uint8))
+
+	v = uint16(math.MaxUint16)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Uint16).(uint16))
+
+	v = uint32(math.MaxUint32)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Uint32).(uint32))
+
+	v = uint64(math.MaxUint64)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Uint64).(uint64))
+
+	v = float32(math.MaxFloat32)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Float32).(float32))
+	v = float32(math.SmallestNonzeroFloat32)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Float32).(float32))
+
+	v = float64(math.MaxFloat64)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Float64).(float64))
+	v = float64(math.SmallestNonzeroFloat64)
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Float64).(float64))
+
+	v = complex64(complex(math.MaxFloat32, math.SmallestNonzeroFloat32))
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Complex64).(complex64))
+	v = complex64(complex(math.SmallestNonzeroFloat32, math.MaxFloat32))
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Complex64).(complex64))
+
+	v = complex128(complex(math.MaxFloat64, math.SmallestNonzeroFloat64))
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Complex128).(complex128))
+	v = complex128(complex(math.SmallestNonzeroFloat64, math.MaxFloat64))
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.Complex128).(complex128))
+
+	v = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	assert.Equal(t, v, fromBytes(toBytes(v), reflect.String).(string))
 }
 
 func TestFromDword(t *testing.T) {
-	assert.Equal(t, d.BoolValue, fromDword(toDword(d.BoolValue), reflect.Bool).(bool))
+	var v interface{}
 
-	assert.Equal(t, d.IntValue, fromDword(toDword(d.IntValue), reflect.Int).(int))
-	assert.Equal(t, d.Int8Value, fromDword(toDword(d.Int8Value), reflect.Int8).(int8))
-	assert.Equal(t, d.Int16Value, fromDword(toDword(d.Int16Value), reflect.Int16).(int16))
-	assert.Equal(t, d.Int32Value, fromDword(toDword(d.Int32Value), reflect.Int32).(int32))
+	v = true
+	assert.Equal(t, v, fromDword(toDword(v), reflect.Bool).(bool))
+	v = false
+	assert.Equal(t, v, fromDword(toDword(v), reflect.Bool).(bool))
 
-	assert.Equal(t, d.UintValue, fromDword(toDword(d.UintValue), reflect.Uint).(uint))
-	assert.Equal(t, d.Uint8Value, fromDword(toDword(d.Uint8Value), reflect.Uint8).(uint8))
-	assert.Equal(t, d.Uint16Value, fromDword(toDword(d.Uint16Value), reflect.Uint16).(uint16))
-	assert.Equal(t, d.Uint32Value, fromDword(toDword(d.Uint32Value), reflect.Uint32).(uint32))
+	v = int(math.MaxInt16)
+	assert.Equal(t, v, fromDword(toDword(v), reflect.Int).(int))
+	v = int(math.MinInt16)
+	assert.Equal(t, v, fromDword(toDword(v), reflect.Int).(int))
 
-	assert.Equal(t, d.Float32Value, fromDword(toDword(d.Float32Value), reflect.Float32).(float32))
+	v = int8(math.MaxInt8)
+	assert.Equal(t, v, fromDword(toDword(v), reflect.Int8).(int8))
+	v = int8(math.MinInt8)
+	assert.Equal(t, v, fromDword(toDword(v), reflect.Int8).(int8))
+
+	v = int16(math.MaxInt8)
+	assert.Equal(t, v, fromDword(toDword(v), reflect.Int16).(int16))
+	v = int16(math.MinInt8)
+	assert.Equal(t, v, fromDword(toDword(v), reflect.Int16).(int16))
+
+	v = int32(math.MaxInt32)
+	assert.Equal(t, v, fromDword(toDword(v), reflect.Int32).(int32))
+	v = int32(math.MinInt32)
+	assert.Equal(t, v, fromDword(toDword(v), reflect.Int32).(int32))
+
+	v = uint(math.MaxUint16)
+	assert.Equal(t, v, fromDword(toDword(v), reflect.Uint).(uint))
+
+	v = uint8(math.MaxUint8)
+	assert.Equal(t, v, fromDword(toDword(v), reflect.Uint8).(uint8))
+
+	v = uint16(math.MaxUint16)
+	assert.Equal(t, v, fromDword(toDword(v), reflect.Uint16).(uint16))
+
+	v = uint32(math.MaxUint32)
+	assert.Equal(t, v, fromDword(toDword(v), reflect.Uint32).(uint32))
+
+	v = float32(math.MaxFloat32)
+	assert.Equal(t, v, fromDword(toDword(v), reflect.Float32).(float32))
+	v = float32(math.SmallestNonzeroFloat32)
+	assert.Equal(t, v, fromDword(toDword(v), reflect.Float32).(float32))
 }
 
 func TestFromQword(t *testing.T) {
-	assert.Equal(t, d.BoolValue, fromQword(toQword(d.BoolValue), reflect.Bool).(bool))
+	var v interface{}
 
-	assert.Equal(t, d.IntValue, fromQword(toQword(d.IntValue), reflect.Int).(int))
-	assert.Equal(t, d.Int8Value, fromQword(toQword(d.Int8Value), reflect.Int8).(int8))
-	assert.Equal(t, d.Int16Value, fromQword(toQword(d.Int16Value), reflect.Int16).(int16))
-	assert.Equal(t, d.Int32Value, fromQword(toQword(d.Int32Value), reflect.Int32).(int32))
-	assert.Equal(t, d.Int64Value, fromQword(toQword(d.Int64Value), reflect.Int64).(int64))
+	v = true
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Bool).(bool))
+	v = false
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Bool).(bool))
 
-	assert.Equal(t, d.UintValue, fromQword(toQword(d.UintValue), reflect.Uint).(uint))
-	assert.Equal(t, d.Uint8Value, fromQword(toQword(d.Uint8Value), reflect.Uint8).(uint8))
-	assert.Equal(t, d.Uint16Value, fromQword(toQword(d.Uint16Value), reflect.Uint16).(uint16))
-	assert.Equal(t, d.Uint32Value, fromQword(toQword(d.Uint32Value), reflect.Uint32).(uint32))
-	assert.Equal(t, d.Uint64Value, fromQword(toQword(d.Uint64Value), reflect.Uint64).(uint64))
+	v = int(math.MaxInt16)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Int).(int))
+	v = int(math.MinInt16)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Int).(int))
 
-	assert.Equal(t, d.Float32Value, fromQword(toQword(d.Float32Value), reflect.Float32).(float32))
-	assert.Equal(t, d.Float64Value, fromQword(toQword(d.Float64Value), reflect.Float64).(float64))
+	v = int8(math.MaxInt8)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Int8).(int8))
+	v = int8(math.MinInt8)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Int8).(int8))
 
-	assert.Equal(t, d.Complex64Value, fromQword(toQword(d.Complex64Value), reflect.Complex64).(complex64))
+	v = int16(math.MaxInt8)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Int16).(int16))
+	v = int16(math.MinInt8)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Int16).(int16))
+
+	v = int32(math.MaxInt32)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Int32).(int32))
+	v = int32(math.MinInt32)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Int32).(int32))
+
+	v = int64(math.MaxInt64)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Int64).(int64))
+	v = int64(math.MinInt64)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Int64).(int64))
+
+	v = uint(math.MaxUint16)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Uint).(uint))
+
+	v = uint8(math.MaxUint8)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Uint8).(uint8))
+
+	v = uint16(math.MaxUint16)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Uint16).(uint16))
+
+	v = uint32(math.MaxUint32)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Uint32).(uint32))
+
+	v = uint64(math.MaxUint64)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Uint64).(uint64))
+
+	v = float32(math.MaxFloat32)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Float32).(float32))
+	v = float32(math.SmallestNonzeroFloat32)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Float32).(float32))
+
+	v = float64(math.MaxFloat64)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Float64).(float64))
+	v = float64(math.SmallestNonzeroFloat64)
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Float64).(float64))
+
+	v = complex64(complex(math.MaxFloat32, math.SmallestNonzeroFloat32))
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Complex64).(complex64))
+	v = complex64(complex(math.SmallestNonzeroFloat32, math.MaxFloat32))
+	assert.Equal(t, v, fromQword(toQword(v), reflect.Complex64).(complex64))
 }
