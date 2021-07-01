@@ -1,0 +1,48 @@
+// All German DE translations for the configuration user interface.
+
+// Page and window titles
+title.window:               Search Deflector konfigurieren
+title.settings_page:        Einstellungen
+title.language_page:        Sprache
+title.update_page:          Ak­tu­a­li­sie­ren
+
+// Text fragments used in labels
+//// Settings page
+fragment.version:           Version
+fragment.author:            Autor
+//// Update page
+fragment.current_version:   Derzeitige Version
+fragment.build_date:        Erstellungsdatum
+fragment.latest_version:    Neueste Version
+fragment.uploader:          Uploader
+fragment.timestamp:         Zeitstempel
+fragment.binary_size:       Dateigröße
+fragment.download_count:    Download-Anzahl
+
+// Labels used for input fields and options
+//// Settings page
+label.browser_name:         Bevorzugter Browser
+label.browser_path:         Browser-Installationspfad
+label.engine_name:          Bevorzugte Suchmaschine
+label.engine_url:           Benutzerdefinierte Suchmaschinen-URL
+label.profile_dir:          Chrome/Firefox-Benutzerprofil
+label.enable_profile:       Aktivieren
+//// Language page
+label.language_select:      Sprache der Benutzeroberfläche
+
+// Static options in dropdown menus or radio button groups
+//// Settings page
+option.custom_browser:      Benutzerdefiniert
+option.default_browser:     Systemstandard
+option.custom_engine:       Benutzerdefiniert
+//// Language page
+option.default_language:    Systemstandard
+
+// Button label text
+//// Settings page
+button.apply:               Übernehmen
+button.website:             Website
+button.close:               Schließen
+//// Update page
+button.update:              Ak­tu­a­li­sie­ren
+button.details:             Details

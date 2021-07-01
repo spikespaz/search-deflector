@@ -319,27 +319,26 @@ string[string] getQueryParams(const string uri) {
 /// Return a tuple of the search term that was typed in (if any),
 /// the URL that was typed (if any), and the URL that was selected from the search results panel (if any)
 Tuple!(string, "searchTerm", string, "enteredUrl", string, "selectedUrl") getSearchInfo(const string uri) {
-    if (!uri.toLower().startsWith("microsoft-edge:"))
-        throw new Exception("Not a 'MICROSOFT-EDGE' URI: " ~ uri);
+    immutable string edgePrefix = "microsoft-edge:";
+    if (uri.toLower().startsWith(edgePrefix))
+        return getSearchInfo(uri[edgePrefix.length .. $]);
     
     auto returnTuple = typeof(return)(tuple(null, null, null));
     string[string] queryParams = getQueryParams(uri);
 
-    if (queryParams is null || "url" !in queryParams)
+    if (queryParams is null)
         return returnTuple;
 
-    const string urlParam = queryParams["url"].decodeComponent();
-
-    if (urlParam.matchFirst(r"^https:\/\/.+\.bing.com")) {
-        queryParams = getQueryParams(urlParam);
-
-        if ("url" in queryParams && "q" in queryParams) {
-            returnTuple.searchTerm = queryParams["q"].decodeComponent();
-            returnTuple.selectedUrl = cast(string) Base64URL.decode(queryParams["url"]);
-        } else if ("q" in queryParams)
-            returnTuple.searchTerm = queryParams["q"].decodeComponent();
-    } else
-        returnTuple.enteredUrl = urlParam;
+    if ("url" in queryParams && "q" in queryParams) {
+        returnTuple.searchTerm = queryParams["q"].decodeComponent();
+        returnTuple.selectedUrl = cast(string) Base64URL.decode(queryParams["url"]);
+    } else if ("q" in queryParams) {
+        returnTuple.searchTerm = queryParams["q"].decodeComponent();
+    } else if ("url" in queryParams) {
+        returnTuple = getSearchInfo(queryParams["url"].decodeComponent());
+    } else {
+        returnTuple.enteredUrl = uri;
+    }
 
     return returnTuple;
 }
