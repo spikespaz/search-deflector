@@ -84,10 +84,12 @@ and others.
 ### Translations
 
 A huge thanks is owed to all of the translators for this project. All of the translation files can be found in the [`lang`](https://github.com/spikespaz/search-deflector/tree/release/lang) directory of the project.
-If you would like to contribute localization or improve upon existing ones, please submit a pull request with your adaptation of [`en-US.txt`](https://github.com/spikespaz/search-deflector//lang/en-US.txt) or send an email and tell me what GitHub handle or name to give credit to. If you send a name I will link to your blog or website if provided. Thank you!
+If you would like to contribute localization or improve upon existing ones, please submit a pull request with your adaptation of [`en-US.txt`](https://github.com/spikespaz/search-deflector/lang/en-US.txt) or send an email and tell me what GitHub handle or name to give credit to. If you send a name I will link to your blog or website if provided. Thank you!
 
 | Language | Codes | Contributors |
 | -------- | ----- | ------------ |
 | Chinese  | `zh-CN`, `zn-HK`, `zn-TW` | [@linjiayinchn](https://github.com/linjiayinchn), [@maxloh](https://github.com/maxloh) |
 | Croatian | `hr-HR`                   | [@anotherus3r](https://github.com/anotherus3r) |
 | Spanish  | `es-ES`                   | [@caralu74](https://github.com/caralu74) |
+| German   | `de-DE`                   | [@randomC0der](https://github.com/randomC0der) |
+| Italian  | `it-IT`                   | [@eagleman](https://github.com/eagleman) |
