@@ -101,7 +101,7 @@ Filename: "schtasks"; \
     Flags: runhidden; \
     Components: updater
 Filename: "schtasks"; \
-    Parameters: "/CHANGE /TN ""Search Deflector Updater"" /TR ""{app}\configure.exe -u"""; \
+    Parameters: "/CHANGE /TN ""Search Deflector Updater"" /TR ""'{app}\configure.exe' -u"""; \
     Flags: runhidden; \
     Components: updater
 
