@@ -1,0 +1,17 @@
+[package]
+name = "search-deflector"
+version = "2.0.0"
+authors = ["Jacob Birkett <jacob@birkett.dev>"]
+description = "A tiny program to redirect your start menu web searches to the browser and search engine you choose."
+documentation = "https://github.com/spikespaz/search-deflector/wiki"
+readme = "README.md"
+repository = "https://github.com/spikespaz/search-deflector"
+license = "MIT"
+edition = "2021"
+publish = false
+default-run = "configure"
+
+[dependencies]
+winapi = "0.3.9"
+native-windows-gui = "1.0.12"
+native-windows-derive = "1.0.3"
