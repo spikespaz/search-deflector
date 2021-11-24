@@ -1,125 +1,129 @@
-extern crate native_windows_gui as nwg;
-extern crate native_windows_derive as nwd;
+#![forbid(unsafe_code)]
+#![cfg_attr(not(debug_assertions), deny(warnings))] // Forbid warnings in release builds
+#![warn(clippy::all, rust_2018_idioms)]
+use eframe::{egui, epi};
 
-use nwd::NwgUi;
-use nwg::NativeUi;
-
-use nwg::stretch::{
-    geometry::{Size, Rect},
-    style::{Dimension as D, FlexDirection, JustifyContent, AlignContent, Style},
-};
-
-
-// const PAD: Rect<D> = Rect {
-//     start: D::Points(2.0),
-//     end: D::Points(2.0), 
-//     top: D::Points(2.0), 
-//     bottom: D::Points(2.0)
-// };
-
-#[derive(Default, NwgUi)]
-pub struct BasicApp {
-    #[nwg_control(size: (300, 400), center: true, title: "Configure Search Deflector", flags: "WINDOW|VISIBLE|RESIZABLE")]
-    #[nwg_events(OnWindowClose: [BasicApp::say_goodbye])]
-    window: nwg::Window,
-
-    #[nwg_layout(
-        parent: window,
-        flex_direction: FlexDirection::Column,
-        align_content: AlignContent::SpaceBetween,
-        // padding: Rect {
-        //     start: D::Points(4.0),
-        //     end: D::Points(2.0),
-        //     top: D::Points(4.0),
-        //     bottom: D::Points(4.0),
-        // },
-    )]
-    main_layout: nwg::FlexboxLayout,
-
-    #[nwg_control(parent: window)]
-    #[nwg_layout_item(
-        layout: main_layout,
-        // size: Size {
-        //     width: D::Auto,
-        //     height: D::Percent(1.0),
-        // }
-    )]
-    window_tabs: nwg::TabsContainer,
-
-    #[nwg_control(text: "Settings", parent: window_tabs)]
-    settings_tab: nwg::Tab,
-
-    #[nwg_control(text: "Language", parent: window_tabs)]
-    language_tab: nwg::Tab,
-
-    #[nwg_control(text: "Update", parent: window_tabs)]
-    update_tab: nwg::Tab,
-
-    // ***Bottom flex layout with version, author tag and website button***
-
-    #[nwg_layout(
-        parent: window,
-        flex_direction: FlexDirection::Row,
-        // justify_content: JustifyContent::SpaceBetween,
-        // padding: Rect {
-        //     start: D::Points(4.0),
-        //     end: D::Points(4.0),
-        //     top: D::Auto,
-        //     bottom: D::Points(4.0),
-        // },
-    )]
-    #[nwg_layout_item(
-        layout: main_layout,
-        max_size: Size {
-            width: D::Percent(1.0),
-            height: D::Points(40.0),
-        },
-    )]
-    bottom_layout: nwg::FlexboxLayout,
-
-    // #[nwg_control(
-    //     text: "Version: 2.0.0, Author: Jacob Birkett"
-    // )]
-    // #[nwg_layout_item(
-    //     layout: bottom_layout,
-    //     flex_grow: 1.0,
-    //     size: Size {
-    //         width: D::Auto,
-    //         height: D::Auto,
-    //     },
-    // )]
-    // version_label: nwg::Label,
-
-    #[nwg_control(text: "Website", parent: window)]
-    #[nwg_layout_item(
-        // layout: main_layout,
-        layout: bottom_layout,
-        size: Size {
-            width: D::Points(80.0),
-            height: D::Auto,
-        },
-    )]
-    website_button: nwg::Button,
+// When compiling natively:
+#[cfg(not(target_arch = "wasm32"))]
+fn main() {
+    let app = TemplateApp::default();
+    let native_options = eframe::NativeOptions::default();
+    eframe::run_native(Box::new(app), native_options);
 }
 
-impl BasicApp {
+/// We derive Deserialize/Serialize so we can persist app state on shutdown.
+#[cfg_attr(feature = "persistence", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "persistence", serde(default))] // if we add new fields, give them default values when deserializing old state
+pub struct TemplateApp {
+    // Example stuff:
+    label: String,
 
-    // fn say_hello(&self) {
-    //     nwg::simple_message("Hello", &format!("Hello {}", self.name_edit.text()));
-    // }
-    
-    fn say_goodbye(&self) {
-        // nwg::simple_message("Goodbye", "Goodbye!");
-        nwg::stop_thread_dispatch();
+    // this how you opt-out of serialization of a member
+    #[cfg_attr(feature = "persistence", serde(skip))]
+    value: f32,
+}
+
+impl Default for TemplateApp {
+    fn default() -> Self {
+        Self {
+            // Example stuff:
+            label: "Hello World!".to_owned(),
+            value: 2.7,
+        }
+    }
+}
+
+impl epi::App for TemplateApp {
+    fn name(&self) -> &str {
+        "eframe template"
     }
 
-}
+    /// Called once before the first frame.
+    fn setup(
+        &mut self,
+        _ctx: &egui::CtxRef,
+        _frame: &mut epi::Frame<'_>,
+        _storage: Option<&dyn epi::Storage>,
+    ) {
+        // Load previous app state (if any).
+        // Note that you must enable the `persistence` feature for this to work.
+        #[cfg(feature = "persistence")]
+        if let Some(storage) = _storage {
+            *self = epi::get_value(storage, epi::APP_KEY).unwrap_or_default()
+        }
+    }
 
-fn main() {
-    nwg::init().expect("Failed to init Native Windows GUI");
-    nwg::Font::set_global_family("Segoe UI").expect("Failed to set default font");
+    /// Called by the frame work to save state before shutdown.
+    /// Note that you must enable the `persistence` feature for this to work.
+    #[cfg(feature = "persistence")]
+    fn save(&mut self, storage: &mut dyn epi::Storage) {
+        epi::set_value(storage, epi::APP_KEY, self);
+    }
 
-    let _app = BasicApp::build_ui(Default::default()).expect("Failed to build UI");
+    /// Called each time the UI needs repainting, which may be many times per second.
+    /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
+    fn update(&mut self, ctx: &egui::CtxRef, frame: &mut epi::Frame<'_>) {
+        let Self { label, value } = self;
 
-    nwg::dispatch_thread_events();
+        // Examples of how to create different panels and windows.
+        // Pick whichever suits you.
+        // Tip: a good default choice is to just keep the `CentralPanel`.
+        // For inspiration and more examples, go to https://emilk.github.io/egui
+
+        egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
+            // The top panel is often a good place for a menu bar:
+            egui::menu::bar(ui, |ui| {
+                egui::menu::menu(ui, "File", |ui| {
+                    if ui.button("Quit").clicked() {
+                        frame.quit();
+                    }
+                });
+            });
+        });
+
+        egui::SidePanel::left("side_panel").show(ctx, |ui| {
+            ui.heading("Side Panel");
+
+            ui.horizontal(|ui| {
+                ui.label("Write something: ");
+                ui.text_edit_singleline(label);
+            });
+
+            ui.add(egui::Slider::new(value, 0.0..=10.0).text("value"));
+            if ui.button("Increment").clicked() {
+                *value += 1.0;
+            }
+
+            ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
+                ui.horizontal(|ui| {
+                    ui.spacing_mut().item_spacing.x = 0.0;
+                    ui.label("powered by ");
+                    ui.hyperlink_to("egui", "https://github.com/emilk/egui");
+                    ui.label(" and ");
+                    ui.hyperlink_to("eframe", "https://github.com/emilk/egui/tree/master/eframe");
+                });
+            });
+        });
+
+        egui::CentralPanel::default().show(ctx, |ui| {
+            // The central panel the region left after adding TopPanel's and SidePanel's
+
+            ui.heading("eframe template");
+            ui.hyperlink("https://github.com/emilk/eframe_template");
+            ui.add(egui::github_link_file!(
+                "https://github.com/emilk/eframe_template/blob/master/",
+                "Source code."
+            ));
+            egui::warn_if_debug_build(ui);
+        });
+
+        if false {
+            egui::Window::new("Window").show(ctx, |ui| {
+                ui.label("Windows can be moved by dragging them.");
+                ui.label("They are automatically sized based on contents.");
+                ui.label("You can turn on resizing and scrolling if you like.");
+                ui.label("You would normally chose either panels OR windows.");
+            });
+        }
+    }
 }
