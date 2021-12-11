@@ -58,7 +58,7 @@ pub mod simple_parser {
             let line = line?.trim();
 
             if line.is_empty() || line.starts_with("//") {
-                continue
+                continue;
             }
 
             if let Some((key, value)) = line.split_once(":") {
@@ -70,7 +70,7 @@ pub mod simple_parser {
                     result.insert(key, Some(value));
                 }
             } else {
-                Err("a line that was not a comment had no pair delimiter".into())
+                return Err("a line that was not a comment had no pair delimiter".into());
             }
         }
 
