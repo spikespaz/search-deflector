@@ -13,6 +13,7 @@ default-run = "configure"
 
 [dependencies]
 winapi = "0.3.9"
+winreg = "0.10"
 eframe = "0.15.0"
 serde = { version = "1", features = ["derive"], optional = true }
 # native-windows-gui = "1.0.12"
