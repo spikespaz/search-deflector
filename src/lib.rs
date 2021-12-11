@@ -1,5 +1,4 @@
 pub mod registry {
-    use std::borrow::Cow;
     use std::collections::HashMap;
     use std::error::Error;
     use winapi::shared::minwindef::HKEY;
@@ -41,5 +40,34 @@ pub mod registry {
                 Err("parameter `hive` should have been either `HKEY_CURRENT_USER` or `HKEY_LOCAL_MACHINE`".into())
             },
         }
+    }
+}
+
+pub mod simple_parser {
+    use std::collections::HashMap;
+    use std::error::Error;
+    use std::fs::File;
+    use std::io::BufReader;
+    use std::path::Path;
+
+    pub fn parse_config<T: AsRef<str>>(path: T) -> Result<HashMap<String, Option<String>>, Box<dyn Error>>{
+        let reader = BufReader::new(File::open(Path::new(path))?);
+        let mut result = HashMap::new();
+
+        for line in reader.lines() {
+            let line = line?.trim();
+
+            if line.is_empty() || line.starts_with("//") {
+                continue
+            }
+
+            if let Some((key, value)) = line.split_once(":") {
+                result.insert(key.strip(), value.strip());
+            } else {
+                Err("a line that was not a comment had no pair delimiter")
+            }
+        }
+
+        Ok(result)
     }
 }
