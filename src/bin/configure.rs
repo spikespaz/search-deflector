@@ -50,6 +50,31 @@ impl epi::App for SettingsApp {
         if let Some(storage) = _storage {
             *self = epi::get_value(storage, epi::APP_KEY).unwrap_or_default()
         }
+
+        let mut fonts = egui::FontDefinitions::default();
+
+        // Install my own font (maybe supporting non-latin characters):
+        fonts.font_data.insert(
+            "noto_sans".to_owned(),
+            std::borrow::Cow::Borrowed(include_bytes!("../../fonts/Noto_Sans/NotoSans-Regular.ttf"))
+        );
+
+        // Put my font first (highest priority):
+        fonts.fonts_for_family.get_mut(&egui::FontFamily::Proportional).unwrap().insert(0, "noto_sans".to_owned());
+
+        // Put my font as last fallback for monospace:
+        // fonts.fonts_for_family.get_mut(&egui::FontFamily::Monospace).unwrap().push("noto_sans".to_owned());
+
+        // Make the font sizes for everything slightly larger than default
+        fonts.family_and_size.insert(egui::TextStyle::Small, (egui::FontFamily::Proportional, 18.0));
+        fonts.family_and_size.insert(egui::TextStyle::Body, (egui::FontFamily::Proportional, 20.0));
+        fonts.family_and_size.insert(egui::TextStyle::Button, (egui::FontFamily::Proportional, 19.0));
+        fonts.family_and_size.insert(egui::TextStyle::Heading, (egui::FontFamily::Proportional, 22.0));
+        fonts.family_and_size.insert(egui::TextStyle::Monospace, (egui::FontFamily::Proportional, 18.0));
+
+        _ctx.set_fonts(fonts);
+
+        // _ctx.set_debug_on_hover(true);
     }
 
     /// Called by the frame work to save state before shutdown.
