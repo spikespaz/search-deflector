@@ -62,7 +62,13 @@ pub mod simple_parser {
             }
 
             if let Some((key, value)) = line.split_once(":") {
-                result.insert(key.strip(), value.strip());
+                let (key, value) = (key.strip(), value.strip());
+
+                if value.is_empty() {
+                    result.insert(key, None);
+                } else {
+                    result.insert(key, Some(value));
+                }
             } else {
                 Err("a line that was not a comment had no pair delimiter")
             }
