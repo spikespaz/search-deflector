@@ -87,44 +87,44 @@ impl epi::App for SettingsApp {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::CtxRef, frame: &mut epi::Frame<'_>) {
-        let Self { label, value } = self;
+        const AUTHOR_NAME: &str = "Jacob Birkett";
+        const AUTHOR_URL: &str = "https://bitkett.dev";
+        const DOCS_URL: &str = "https://github.com/spikespaz/search-deflector/wiki";
+        const REPO_URL: &str = "https://github.com/spikespaz/search-deflector";
+        const VERSION_BASE_URL: &str = "https://github.com/spikespaz/search-deflector/releases/tag";
+        const VERSION_STR: &str = "2.0.0";
 
-        // Examples of how to create different panels and windows.
-        // Pick whichever suits you.
-        // Tip: a good default choice is to just keep the `CentralPanel`.
-        // For inspiration and more examples, go to https://emilk.github.io/egui
-
-        egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
-            // The top panel is often a good place for a menu bar:
-            egui::menu::bar(ui, |ui| {
-                egui::menu::menu(ui, "File", |ui| {
-                    if ui.button("Quit").clicked() {
-                        frame.quit();
-                    }
-                });
-            });
-        });
-
-        egui::SidePanel::left("side_panel").show(ctx, |ui| {
-            ui.heading("Side Panel");
-
+        egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
             ui.horizontal(|ui| {
-                ui.label("Write something: ");
-                ui.text_edit_singleline(label);
-            });
-
-            ui.add(egui::Slider::new(value, 0.0..=10.0).text("value"));
-            if ui.button("Increment").clicked() {
-                *value += 1.0;
-            }
-
-            ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
                 ui.horizontal(|ui| {
                     ui.spacing_mut().item_spacing.x = 0.0;
-                    ui.label("powered by ");
-                    ui.hyperlink_to("egui", "https://github.com/emilk/egui");
-                    ui.label(" and ");
-                    ui.hyperlink_to("eframe", "https://github.com/emilk/egui/tree/master/eframe");
+                    ui.label("Version: ");
+                    ui.hyperlink_to(VERSION_STR, format!("{}/{}", VERSION_BASE_URL, VERSION_STR));
+                    ui.add_space(6.0);
+                    ui.separator();
+                    ui.add_space(6.0);
+                    ui.label("Author: ");
+                    ui.hyperlink_to(AUTHOR_NAME, AUTHOR_URL);
+                    ui.add_space(6.0);
+                    ui.separator();
+                });
+
+                ui.with_layout(egui::Layout::right_to_left(), |ui| {
+                    if ui.button("Documentation").on_hover_text(DOCS_URL).clicked() {
+                        let modifiers = ui.ctx().input().modifiers;
+                        ui.ctx().output().open_url = Some(egui::output::OpenUrl {
+                            url: DOCS_URL.to_owned(),
+                            new_tab: modifiers.any(),
+                        });
+                    }
+
+                    if ui.button("Repository").on_hover_text(REPO_URL).clicked() {
+                        let modifiers = ui.ctx().input().modifiers;
+                        ui.ctx().output().open_url = Some(egui::output::OpenUrl {
+                            url: REPO_URL.to_owned(),
+                            new_tab: modifiers.any(),
+                        });
+                    }
                 });
             });
         });
