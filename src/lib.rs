@@ -70,7 +70,7 @@ pub mod simple_parser {
                     result.insert(key, Some(value));
                 }
             } else {
-                Err("a line that was not a comment had no pair delimiter")
+                Err("a line that was not a comment had no pair delimiter".into())
             }
         }
 
