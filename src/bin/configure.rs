@@ -130,14 +130,16 @@ impl epi::App for SettingsApp {
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            // The central panel the region left after adding TopPanel's and SidePanel's
+            ui.group(|ui| {
+                ui.label("Preferred Browser");
 
-            ui.heading("eframe template");
-            ui.hyperlink("https://github.com/emilk/eframe_template");
-            ui.add(egui::github_link_file!(
-                "https://github.com/emilk/eframe_template/blob/master/",
-                "Source code."
-            ));
+                egui::ComboBox::from_id_source("browser_setting").selected_text(&self.preferred_browser).show_ui(ui, |ui| {
+                    for browser in self.available_browsers.keys() {
+                        ui.selectable_value(&mut self.preferred_browser, browser.clone(),browser);
+                    }
+                });
+            });
+
             egui::warn_if_debug_build(ui);
         });
     }
