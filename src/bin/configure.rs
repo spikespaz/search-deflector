@@ -1,41 +1,40 @@
-#![forbid(unsafe_code)]
-#![cfg_attr(not(debug_assertions), deny(warnings))] // Forbid warnings in release builds
-#![warn(clippy::all, rust_2018_idioms)]
+use std::collections::HashMap;
 use eframe::{egui, epi};
+use search_deflector::registry;
 
-// When compiling natively:
-#[cfg(not(target_arch = "wasm32"))]
 fn main() {
-    let app = TemplateApp::default();
-    let native_options = eframe::NativeOptions::default();
+    let app = SettingsApp::default();
+
+    let mut native_options = eframe::NativeOptions::default();
+    native_options.initial_window_size = Option::Some(egui::Vec2::new(500.0, 300.0));
+    native_options.resizable = false;
+
     eframe::run_native(Box::new(app), native_options);
 }
 
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
 #[cfg_attr(feature = "persistence", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "persistence", serde(default))] // if we add new fields, give them default values when deserializing old state
-pub struct TemplateApp {
-    // Example stuff:
-    label: String,
-
-    // this how you opt-out of serialization of a member
-    #[cfg_attr(feature = "persistence", serde(skip))]
-    value: f32,
+pub struct SettingsApp {
+    available_browsers: HashMap<String, String>,
+    preferred_browser: String,
 }
 
-impl Default for TemplateApp {
+impl Default for SettingsApp {
     fn default() -> Self {
-        Self {
-            // Example stuff:
-            label: "Hello World!".to_owned(),
-            value: 2.7,
+        let mut browsers = registry::get_installed_browsers(None).unwrap();
+        browsers.insert("System Default".to_owned(), "".to_owned());
+
+        SettingsApp {
+            available_browsers: browsers,
+            preferred_browser: String::default(),
         }
     }
 }
 
-impl epi::App for TemplateApp {
+impl epi::App for SettingsApp {
     fn name(&self) -> &str {
-        "eframe template"
+        "Configure Search Deflector"
     }
 
     /// Called once before the first frame.
@@ -116,14 +115,5 @@ impl epi::App for TemplateApp {
             ));
             egui::warn_if_debug_build(ui);
         });
-
-        if false {
-            egui::Window::new("Window").show(ctx, |ui| {
-                ui.label("Windows can be moved by dragging them.");
-                ui.label("They are automatically sized based on contents.");
-                ui.label("You can turn on resizing and scrolling if you like.");
-                ui.label("You would normally chose either panels OR windows.");
-            });
-        }
     }
 }
