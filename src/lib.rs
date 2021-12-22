@@ -47,27 +47,28 @@ pub mod simple_parser {
     use std::collections::HashMap;
     use std::error::Error;
     use std::fs::File;
-    use std::io::BufReader;
+    use std::io::{BufRead, BufReader};
     use std::path::Path;
 
-    pub fn parse_config<T: AsRef<str>>(path: T) -> Result<HashMap<String, Option<String>>, Box<dyn Error>>{
-        let reader = BufReader::new(File::open(Path::new(path))?);
+    pub fn parse_config<P: AsRef<Path>>(path: P) -> Result<HashMap<String, Option<String>>, Box<dyn Error>>{
+        let reader = BufReader::new(File::open(path)?);
         let mut result = HashMap::new();
 
         for line in reader.lines() {
-            let line = line?.trim();
+            let line = line?;
+            let line  = line.trim();
 
             if line.is_empty() || line.starts_with("//") {
                 continue;
             }
 
             if let Some((key, value)) = line.split_once(":") {
-                let (key, value) = (key.strip(), value.strip());
+                let (key, value) = (key.trim_end(), value.trim_start());
 
                 if value.is_empty() {
-                    result.insert(key, None);
+                    result.insert(key.to_owned(), None);
                 } else {
-                    result.insert(key, Some(value));
+                    result.insert(key.to_owned(), Some(value.to_owned()));
                 }
             } else {
                 return Err("a line that was not a comment had no pair delimiter".into());
