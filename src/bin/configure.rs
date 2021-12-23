@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use eframe::{egui, epi};
 use search_deflector::registry;
+use winreg::enums::HKEY_CURRENT_USER;
 
 fn main() {
     let app = SettingsApp::default();
