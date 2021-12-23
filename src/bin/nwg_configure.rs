@@ -1,4 +1,4 @@
-#![windows_subsystem = "windows"]
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::cell::RefCell;
 use std::ops::Deref;
@@ -55,9 +55,16 @@ impl NativeUi<SDConfigureUi> for SDConfigure {
     fn build_ui(mut data: SDConfigure) -> Result<SDConfigureUi, nwg::NwgError> {
         use nwg::Event as E;
 
+        let window_size = (400, 400);
+        let display_size = (nwg::Monitor::width(), nwg::Monitor::height());
+        let display_center = (display_size.0 / 2, display_size.1 / 2);
+        let window_top_left = (display_center.0 - (window_size.0 / 2), display_center.1 - (window_size.1 / 2));
+
+        println!("Window size: {:?}\nDisplay size: {:?}\nDisplay center: {:?}\nWindow top-left: {:?}", window_size, display_size, display_center, window_top_left);
+
         nwg::Window::builder()
-            .size((300, 400))
-            .position((0, 0))
+            .size(window_size)
+            .position(window_top_left)
             .title("Configure Search Deflector")
             .build(&mut data.window)?;
 
@@ -115,7 +122,7 @@ impl NativeUi<SDConfigureUi> for SDConfigure {
             ui.default_handler.borrow_mut().push(nwg::full_bind_event_handler(handle, handle_events));
         }
 
-        return Ok(ui);
+        Ok(ui)
     }
 }
 
