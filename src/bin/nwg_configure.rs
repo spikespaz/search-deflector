@@ -6,10 +6,38 @@ use std::rc::Rc;
 
 use native_windows_gui as nwg;
 use nwg::NativeUi;
+use nwg::stretch::{
+    geometry::{Size, Rect},
+    style::{Dimension as D, FlexDirection}
+};
 
 #[derive(Default)]
 pub struct SDConfigure {
     window: nwg::Window,
+
+    main_layout: nwg::FlexboxLayout,
+    main_tabs: nwg::TabsContainer,
+
+    general_tab: nwg::Tab,
+    // general_tab_layout: nwg::FlexboxLayout,
+
+    // browser_label: nwg::Label,
+    // browser_dropdown: nwg::ComboBox<String>,
+    // engine_label: nwg::Label,
+    // engine_dropdown: nwg::ComboBox<String>,
+
+    advanced_tab: nwg::Tab,
+    // advanced_tab_layout: nwg::FlexboxLayout,
+
+    language_tab: nwg::Tab,
+    // language_tab_layout: nwg::FlexboxLayout,
+
+    update_tab: nwg::Tab,
+    // update_tab_layout: nwg::FlexboxLayout,
+
+    // status_layout: nwg::FlexboxLayout,
+    // version_label: nwg::Label,
+    // website_button: nwg::Button,
 }
 
 impl SDConfigure {
@@ -32,6 +60,36 @@ impl NativeUi<SDConfigureUi> for SDConfigure {
             .position((0, 0))
             .title("Configure Search Deflector")
             .build(&mut data.window)?;
+
+        nwg::TabsContainer::builder()
+            .parent(&data.window)
+            .build(&mut data.main_tabs)?;
+
+        nwg::Tab::builder()
+            .parent(&data.main_tabs)
+            .text("General")
+            .build(&mut data.general_tab)?;
+
+        nwg::Tab::builder()
+            .parent(&data.main_tabs)
+            .text("Advanced")
+            .build(&mut data.advanced_tab)?;
+
+        nwg::Tab::builder()
+            .parent(&data.main_tabs)
+            .text("Language")
+            .build(&mut data.language_tab)?;
+
+        nwg::Tab::builder()
+            .parent(&data.main_tabs)
+            .text("Update")
+            .build(&mut data.update_tab)?;
+
+        nwg::FlexboxLayout::builder()
+            .parent(&data.window)
+            .flex_direction(FlexDirection::Column)
+            .child(&data.main_tabs)
+            .build(&mut data.main_layout)?;
 
         let ui = SDConfigureUi {
             inner: Rc::new(data),
@@ -79,7 +137,9 @@ impl Deref for SDConfigureUi {
 }
 
 fn main() {
+    // unsafe { nwg::win32::high_dpi::set_dpi_awareness(); } // This doesn't work even with the feature "high-dpi" enabled.
     nwg::init().expect("Failed to init Native Windows GUI");
+    // nwg::enable_visual_styles(); // This should be in nwg/lib.rs, at the bottom, in init(), however sometimes styles aren't applied.
     nwg::Font::set_global_family("Segoe UI").expect("Failed to set default font");
 
     let _app = SDConfigure::build_ui(Default::default()).expect("Failed to build UI");
