@@ -20,3 +20,10 @@ git = "https://github.com/spikespaz/native-windows-gui"
 features = [
     "high-dpi"
 ]
+
+[dependencies.windows]
+version = "0.29.0"
+features = []
+
+[features]
+uwp = []
