@@ -18,5 +18,3 @@ winreg = "0.10"
 # iui = "0.3"
 native-windows-gui = { version = "1.0.12", features = ["high-dpi"] }
 serde = { version = "1", features = ["derive"], optional = true }
-
-[workspace]
