@@ -14,4 +14,9 @@ default-run = "nwg_configure"
 [dependencies]
 winapi = "0.3.9"
 winreg = "0.10"
-native-windows-gui = { git = "https://github.com/spikespaz/native-windows-gui", features = ["high-dpi"] }
+
+[dependencies.native-windows-gui]
+git = "https://github.com/spikespaz/native-windows-gui"
+features = [
+    "high-dpi"
+]
