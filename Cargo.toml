@@ -19,13 +19,4 @@ winreg = "0.10"
 native-windows-gui = { version = "1.0.12", features = ["high-dpi"] }
 serde = { version = "1", features = ["derive"], optional = true }
 
-[target.x86_64-pc-windows-msvc]
-rustflags = ["-Ctarget-feature=+crt-static"]
-
-[target.i686-pc-windows-msvc]
-rustflags = ["-Ctarget-feature=+crt-static"]
-
-[target.aarch64-pc-windows-msvc]
-rustflags = ["-Ctarget-feature=+crt-static"]
-
 [workspace]
